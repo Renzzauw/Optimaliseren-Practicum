@@ -4,20 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OptimaliserenPracticum
+namespace ConsoleApp
 {
-	// Garbage truck object
 	public class GarbageTruck
 	{
-		// Variables
 		public const int capacity = 20000;	// Capacity of the truck in liters
-		public const int emptyTime = 30;    // Time to empty garbage truck in minutes
-		public int currentCapacity;			// Current content of the truck in liters
+		public const int emptyTime = 30;	// Time to empty garbage truck in minutes
 
 		// Constructor
-		public GarbageTruck(int currentCapacity = 0)
+		public GarbageTruck()
 		{
-			this.currentCapacity = currentCapacity;
+
 		}
 
 		// Function that handles the emptying of the garbage truck
@@ -25,5 +22,14 @@ namespace OptimaliserenPracticum
 		{
 
 		}
+
+		// Punish for skipping delivery (not sure of hij hier moet)
+		public void Punish()
+		{
+
+		}
+		
+
+
 	}
 }
