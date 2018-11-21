@@ -18,7 +18,8 @@ namespace OptimaliserenPracticum
 		// Variables
 		public int companyIndex;				// Identifier for this company
 		public int xCoordinate, yCoordinate;    // Position of the company
-		public int visitDays = 0;				// Binary representation of the days the company has been visited 
+		public int visitDays = 0;               // Binary representation of the days the company has been visited 
+		public byte visitCount = 0;				// Amount of times the company has been visited
 		public string placeName;				// Name of the place where this company is
 		public Order[] orders;                  // The list of orders of the company
 
@@ -40,25 +41,8 @@ namespace OptimaliserenPracticum
 			int bit = 16 >> dayIndex;
 			// Perform OR operation to set the bit to true
 			visitDays = visitDays | bit;
+			// Increment visit counter
+			visitCount++;
 		}
-
-		// Count the amount of times the company has been visited
-		public int GetVisitedDaysCount()
-		{
-			int count = 0;
-			int copy = visitDays;
-			// Count all 1's in the binary representation of visitDays
-			while (copy != 0)
-			{
-				count++;
-				copy &= (copy - 1);
-			}
-
-			return count;
-
-		}
-
-
-
 	}
 }
