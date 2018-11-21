@@ -4,19 +4,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp
+namespace OptimaliserenPracticum
 {
+	// Order object
 	public class Order
 	{
-		public int orderNumber, containterCount, volumePerContainer, matrixID, xCoordinate, yCoordinate;
+		// Variables (these are the values given as input)
+		public int orderNumber, frequency, containerCount, volumePerContainer, matrixID, xCoordinate, yCoordinate;
 		public string placeName;
-		public CollectPattern collectPattern;
 		public float emptyingTime;
 		
 		// Constructor
-		public Order()
+		public Order(int orderNumber, string placeName, int frequency, int containerCount, int volumePerContainer, float emptyingTime, int matrixID, int xCoordinate, int yCoordinate)
 		{
-
+			this.orderNumber = orderNumber;
+			this.placeName = placeName;
+			this.frequency = frequency;
+			this.containerCount = containerCount;
+			this.volumePerContainer = volumePerContainer;
+			this.emptyingTime = emptyingTime;
+			this.matrixID = matrixID;
+			this.xCoordinate = xCoordinate;
+			this.yCoordinate = yCoordinate;
 		}
 	}
 }

@@ -4,19 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp
+namespace OptimaliserenPracticum
 {
-	// Enumerator for the different garbage collecting patterns
-	public enum CollectPattern { OneDay, MondayThursday, TuesdayFriday, MondayWednesdayFriday, FourDays, FiveDays };
-
+	// Company object
 	public class Company
-	{		
+	{
+		// Variables
+		public int xCoordinate, yCoordinate;
+		public string placeName;
+		
 		// Constructor
-		public Company()
+		public Company(int xCoordinate, int yCoordinate, string placeName)
 		{
-
+			this.xCoordinate = xCoordinate;
+			this.yCoordinate = yCoordinate;
+			this.placeName = placeName;
 		}
-
-
 	}
 }

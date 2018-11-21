@@ -4,14 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp
+namespace OptimaliserenPracticum
 {
+	// State object
 	public class State
 	{
+		// Variables
+		Company[] companies;
+
+		
 		// Constructor
 		public State()
 		{
-			// iedere wagen updaten
-			// 
+
 		}
+
+		// Initialize the state
+		public void InitState()
+		{
+
+		}
+
+
+	}
 }
