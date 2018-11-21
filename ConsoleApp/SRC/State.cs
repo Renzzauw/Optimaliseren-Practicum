@@ -26,5 +26,11 @@ namespace OptimaliserenPracticum
 		}
 
 
+		public void GetCompanies()
+		{
+
+		}
+
+
 	}
 }

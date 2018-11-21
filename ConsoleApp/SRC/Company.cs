@@ -10,12 +10,14 @@ namespace OptimaliserenPracticum
 	public class Company
 	{
 		// Variables
+		public int companyIndex;
 		public int xCoordinate, yCoordinate;
 		public string placeName;
 		
 		// Constructor
-		public Company(int xCoordinate, int yCoordinate, string placeName)
+		public Company(int companyIndex, int xCoordinate, int yCoordinate, string placeName)
 		{
+			this.companyIndex = companyIndex;
 			this.xCoordinate = xCoordinate;
 			this.yCoordinate = yCoordinate;
 			this.placeName = placeName;
