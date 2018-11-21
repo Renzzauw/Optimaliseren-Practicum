@@ -64,8 +64,8 @@ namespace OptimaliserenPracticum
         public void Run()
         {
             runtimeWatch.Start();
-            //State current = GetInitialstate;
-            //State successor;
+            State current = new State();
+            State successor;
             //int currentR = getScore(current);
             //int nextR = 0;
             while (i < 1000000) //TODO: Change this to a stopping condition
