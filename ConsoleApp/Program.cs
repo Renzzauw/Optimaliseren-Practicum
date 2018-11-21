@@ -17,10 +17,17 @@ namespace OptimaliserenPracticum
 
 	class SimulatedAnnealing
 	{
+        int[,] distanceMatrix;
+        int[,] timeMatrix;
+
 		// Initialize the program
 		public void Init()
 		{
-
+            //Load all variables from the two input files
+            Initialization init = new Initialization();
+            Tuple<int[,],int[,]> distTuple = init.GetMatrix();
+            distanceMatrix = distTuple.Item1;
+            timeMatrix = distTuple.Item2;
 		}
 	}
 
