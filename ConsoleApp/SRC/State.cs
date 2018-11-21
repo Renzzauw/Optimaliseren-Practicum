@@ -24,6 +24,12 @@ namespace OptimaliserenPracticum
 		}
 
 
+		public void GetCompanies()
+		{
+
+		}
+
+
 	}
     public struct Status
     {
