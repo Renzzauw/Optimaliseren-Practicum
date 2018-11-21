@@ -43,8 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="SRC\Company.cs" />
+    <Compile Include="SRC\GarbageTruck.cs" />
+    <Compile Include="SRC\Order.cs" />
+    <Compile Include="SRC\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SRC\State.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
