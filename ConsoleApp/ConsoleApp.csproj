@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SRC\Initialization.cs" />
     <Compile Include="SRC\Company.cs" />
     <Compile Include="SRC\GarbageTruck.cs" />
     <Compile Include="SRC\Order.cs" />
