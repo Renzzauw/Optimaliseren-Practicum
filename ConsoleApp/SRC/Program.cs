@@ -10,7 +10,7 @@ namespace OptimaliserenPracticum
 {
     class Program
     {
-
+        
         static void Main(string[] args)
         {
             SimulatedAnnealing SA = new SimulatedAnnealing();
@@ -24,12 +24,12 @@ namespace OptimaliserenPracticum
 
 
 
-    class SimulatedAnnealing
+    public class SimulatedAnnealing
     {
         //Stopwatches to keep track of time
         Stopwatch initWatch;
         Stopwatch runtimeWatch;
-
+        public Company[] companyList;
         int[,] distanceMatrix;
         int[,] timeMatrix;
         ulong i; // A counter that keeps track of the total amount of iterations
@@ -50,7 +50,7 @@ namespace OptimaliserenPracticum
             distanceMatrix = distTuple.Item1;
             timeMatrix = distTuple.Item2;
             //initialize orders
-            init.makeOrder();
+            companyList = init.makeCompany();
             // Initialize all other variables
             i = 0;
             t = 10000;

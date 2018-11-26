@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace OptimaliserenPracticum
 {
     // State object
-    public class State
+    public class State : SimulatedAnnealing
     {
         // Variables
         List<Status>[] status1, status2; // The week for each truck: It contains 5 dictionaries, one for each day. Each truck gets their own status
@@ -34,6 +34,11 @@ namespace OptimaliserenPracticum
             Random random = new Random(); // A random that we will use here and there
             List<Status> day = new List<Status>();
             day.Add(new Status(0, 600, 4, /* Insert haarmeze hier*/ , truck));
+            int company;
+            while (true)
+            {
+                company = random.Next(companyList.Length);
+            }
         }
 
 

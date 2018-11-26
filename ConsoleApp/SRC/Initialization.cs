@@ -19,7 +19,7 @@ namespace OptimaliserenPracticum
             orderningName = "ord.txt";
         }
 
-        public void makeOrder()
+        public Company[] makeCompany()
         {
             int highestIndex = 0;
             List<Order> orderList = new List<Order>();
@@ -35,30 +35,20 @@ namespace OptimaliserenPracticum
                 int matrixID = int.Parse(words[6]);
                 int xCoord = int.Parse(words[7]);
                 int yCoord = int.Parse(words[8]);
-
                 orderList.Add(new Order(ordernumb, place, freq, ContCount, volumCont, emptTime, matrixID, xCoord, yCoord));
                 if (matrixID > highestIndex) highestIndex = matrixID;
             }
             Company[] companylist = new Company[highestIndex];
-            foreach(Order order in orderList)
+            foreach (Order order in orderList)
             {
-                if(companylist[order.matrixID] == null)
+                if (companylist[order.matrixID] == null)
                 {
                     Company company = new Company(order.matrixID, order.xCoordinate, order.yCoordinate, order.placeName, new List<Order>());
                 }
+                companylist[order.matrixID].orders.Add(order);
             }
-
+            return companylist;
         }
-
-
-
-        public void makeCompany()
-        {
-            
-           
-
-        }
-
 
         // Function that processes all the data from the dist file
         public Tuple<int[,], int[,]> GetMatrix()
@@ -88,3 +78,4 @@ namespace OptimaliserenPracticum
             return new Tuple<int[,], int[,]>(distMatrix, timeMatrix);
         }
     }
+}
