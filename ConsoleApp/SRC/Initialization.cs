@@ -36,11 +36,17 @@ namespace OptimaliserenPracticum
                 int xCoord = int.Parse(words[7]);
                 int yCoord = int.Parse(words[8]);
 
-                Order ord = new Order(ordernumb, place, freq, ContCount, volumCont, emptTime, matrixID, xCoord, yCoord);
+                orderList.Add(new Order(ordernumb, place, freq, ContCount, volumCont, emptTime, matrixID, xCoord, yCoord));
                 if (matrixID > highestIndex) highestIndex = matrixID;
-                OrderList.Add(ord);
             }
-            Company comp = new Company(matrixID, xCoord, yCoord, place, CompOrdListMaker())
+            Company[] companylist = new Company[highestIndex];
+            foreach(Order order in orderList)
+            {
+                if(companylist[order.matrixID] == null)
+                {
+                    Company company = new Company(order.matrixID, order.xCoordinate, order.yCoordinate, order.placeName, new List<Order>());
+                }
+            }
 
         }
 
