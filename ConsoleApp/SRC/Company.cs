@@ -21,10 +21,10 @@ namespace OptimaliserenPracticum
 		public int visitDays = 0;               // Binary representation of the days the company has been visited 
 		public byte visitCount = 0;				// Amount of times the company has been visited
 		public string placeName;				// Name of the place where this company is
-		public Order[] orders;                  // The list of orders of the company
+		public List<Order> orders;                  // The list of orders of the company
 
 		// Constructor
-		public Company(int companyIndex, int xCoordinate, int yCoordinate, string placeName, Order[] orders)
+		public Company(int companyIndex, int xCoordinate, int yCoordinate, string placeName, List<Order> orders)
 		{
 			this.companyIndex = companyIndex;
 			this.xCoordinate = xCoordinate;
@@ -33,9 +33,11 @@ namespace OptimaliserenPracticum
 			this.orders = orders;
 		}
 
-		// When visiting the company, set the bit of this day to 1
-		// dayIndex: monday = 0, tuesday = 1, ...
-		public void VisitCompany(int dayIndex)
+
+
+        // When visiting the company, set the bit of this day to 1
+        // dayIndex: monday = 0, tuesday = 1, ...
+        public void VisitCompany(int dayIndex)
 		{
 			// Shift dayIndex to the right position
 			int bit = 16 >> dayIndex;

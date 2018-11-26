@@ -21,6 +21,8 @@ namespace OptimaliserenPracticum
 
         public void makeOrder()
         {
+            int highestIndex = 0;
+            List<Order> orderList = new List<Order>();
             foreach (string line in File.ReadLines(Directory.GetCurrentDirectory() + "ord.txt", Encoding.UTF8))
             {
                 string[] words = line.Split(';');
@@ -35,9 +37,20 @@ namespace OptimaliserenPracticum
                 int yCoord = int.Parse(words[8]);
 
                 Order ord = new Order(ordernumb, place, freq, ContCount, volumCont, emptTime, matrixID, xCoord, yCoord);
-
+                if (matrixID > highestIndex) highestIndex = matrixID;
                 OrderList.Add(ord);
             }
+            Company comp = new Company(matrixID, xCoord, yCoord, place, CompOrdListMaker())
+
+        }
+
+
+
+        public void makeCompany()
+        {
+            
+           
+
         }
 
 
