@@ -29,15 +29,17 @@ namespace OptimaliserenPracticum
 		}
 
 		// Travel from the current company to the next company
-		public void TravelToNextCompany(Company nextCompany)
+		public void TravelToCompany(Company company)
 		{
-			// TODO: operator == maken voor Company class, denk dat zo vergelijken nu niet werkt
-
 			// Do not travel if the next company is the current company
-			if (nextCompany.companyIndex == currentCompany.companyIndex)
-				return;
+			if (company.companyIndex == currentCompany.companyIndex) return;
 
+			// TODO: operator == maken voor Company class, denk dat zo vergelijken nu niet werkt
+			// Iets met tijd 
 
 		}
+
+
+
 	}
 }
