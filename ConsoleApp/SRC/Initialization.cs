@@ -10,6 +10,7 @@ namespace OptimaliserenPracticum
     class Initialization
     {
         string localPath, distanceName, orderningName;
+        public List<Order> OrderList = new List<Order>();
 
         public Initialization()
         {
@@ -17,6 +18,28 @@ namespace OptimaliserenPracticum
             distanceName = "dist.txt";
             orderningName = "ord.txt";
         }
+
+        public void makeOrder()
+        {
+            foreach (string line in File.ReadLines(Directory.GetCurrentDirectory() + "ord.txt", Encoding.UTF8))
+            {
+                string[] words = line.Split(';');
+                int ordernumb = int.Parse(words[0]);
+                string place = words[1];
+                int freq = 1;                                //Dit wordt nog aangepast (met enum van Renzo :^|)
+                int ContCount = int.Parse(words[3]);
+                int volumCont = int.Parse(words[4]);
+                float emptTime = float.Parse(words[5]);
+                int matrixID = int.Parse(words[6]);
+                int xCoord = int.Parse(words[7]);
+                int yCoord = int.Parse(words[8]);
+
+                Order ord = new Order(ordernumb, place, freq, ContCount, volumCont, emptTime, matrixID, xCoord, yCoord);
+
+                OrderList.Add(ord);
+            }
+        }
+
 
         // Function that processes all the data from the dist file
         public Tuple<int[,], int[,]> GetMatrix()
@@ -46,4 +69,3 @@ namespace OptimaliserenPracticum
             return new Tuple<int[,], int[,]>(distMatrix, timeMatrix);
         }
     }
-}

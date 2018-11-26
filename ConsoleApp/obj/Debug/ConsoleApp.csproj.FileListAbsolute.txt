@@ -4,3 +4,6 @@ C:\Users\benni\Desktop\Optimali-Tering\Optimaliseren-Practicum\ConsoleApp\bin\De
 C:\Users\benni\Desktop\Optimali-Tering\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.csprojResolveAssemblyReference.cache
 C:\Users\benni\Desktop\Optimali-Tering\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.exe
 C:\Users\benni\Desktop\Optimali-Tering\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.pdb
+C:\Users\Bennie\Desktop\Optimaliseren\Big-oof\Optimaliseren-Practicum\ConsoleApp\bin\Debug\ConsoleApp.exe.config
+C:\Users\Bennie\Desktop\Optimaliseren\Big-oof\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.exe
+C:\Users\Bennie\Desktop\Optimaliseren\Big-oof\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.pdb
