@@ -30,8 +30,8 @@ namespace OptimaliserenPracticum
         Stopwatch initWatch;
         Stopwatch runtimeWatch;
         public Company[] companyList;
-        int[,] distanceMatrix;
-        int[,] timeMatrix;
+		Dictionary<int, int[]> distanceMatrix;
+		Dictionary<int, int[]> timeMatrix;
         ulong i; // A counter that keeps track of the total amount of iterations
         float t; // The control parameter
         float alpha; // The percentage to reduce T with, every q iterations
@@ -46,12 +46,12 @@ namespace OptimaliserenPracticum
             initWatch.Start();
             //Load all variables from the two input files
             Initialization init = new Initialization();
-            var adjacencyList = init.GetAdjacencyList();
+			Tuple<Dictionary<int, int[]>, Dictionary<int, int[]>> adjacencyList = init.GetAdjacencyList();
 			
-			/*
-			distanceMatrix = distTuple.Item1;
-            timeMatrix = distTuple.Item2;
-			*/
+			
+			distanceMatrix = adjacencyList.Item1;
+            timeMatrix = adjacencyList.Item2;
+			
 
             //initialize orders
             companyList = init.makeCompanies();
@@ -65,6 +65,7 @@ namespace OptimaliserenPracticum
             // Stop the stopwatch and see how long the initialization took
             initWatch.Stop();
             Console.WriteLine("Initializationtime: " + initWatch.ElapsedMilliseconds + " ms");
+			Console.ReadKey();
         }
 
         public void InitDiagnostics()

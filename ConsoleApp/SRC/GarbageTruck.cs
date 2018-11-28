@@ -34,7 +34,6 @@ namespace OptimaliserenPracticum
 			// Do not travel if the next company is the current company
 			if (company.companyIndex == currentCompany.companyIndex) return;
 
-			// TODO: operator == maken voor Company class, denk dat zo vergelijken nu niet werkt
 			// Iets met tijd 
 
 		}
