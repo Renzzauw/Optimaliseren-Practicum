@@ -28,7 +28,7 @@ namespace OptimaliserenPracticum
             {
                 string[] words = line.Split(';');
                 int ordernumb = int.Parse(words[0]);
-                string place = words[1];
+                string place = words[1].Trim();
                 int freq = 1;                                //TODO: Dit wordt nog aangepast (met enum van Renzo :^|)
                 int ContCount = int.Parse(words[3]);
                 int volumCont = int.Parse(words[4]);
