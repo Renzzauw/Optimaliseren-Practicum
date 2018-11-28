@@ -19,42 +19,35 @@ namespace OptimaliserenPracticum
         }
     }
 
-
-
-
-
-
     public class SimulatedAnnealing
     {
-        //Stopwatches to keep track of time
-        Stopwatch initWatch;
-        Stopwatch runtimeWatch;
-        public Company[] companyList;
-		Dictionary<int, int[]> distanceMatrix;
-		Dictionary<int, int[]> timeMatrix;
-        ulong i; // A counter that keeps track of the total amount of iterations
-        float t; // The control parameter
-        float alpha; // The percentage to reduce T with, every q iterations
-        int q; // The number of iterations before q gets reduced
-        int qCounter; // Keeps track of how many iterations we have had since our last T change
-        Random r; // A random number generator to potentially accept worse states
+		// Variables      
+        Stopwatch initWatch;                    // Stopwatches to keep track of time
+		Stopwatch runtimeWatch;
+        protected Company[] companyList;			// List of companies
+		int[,] distanceMatrix;					// Distance matrix
+		int[,] timeMatrix;						// Time matrix
+        ulong i;								// A counter that keeps track of the total amount of iterations
+        float t;								// The control parameter
+        float alpha;							// The percentage to reduce T with, every q iterations
+        int q;									// The number of iterations before q gets reduced
+        int qCounter;                           // Keeps track of how many iterations we have had since our last T change
+		protected int seed;
+        Random r;								// A random number generator to potentially accept worse states
 
 
         // Initialize the program
         public void Init()
         {
-            initWatch.Start();
-            //Load all variables from the two input files
+			// Start the stopwatch
+			initWatch.Start();
+            // Load all variables from the two input files
             Initialization init = new Initialization();
-			Tuple<Dictionary<int, int[]>, Dictionary<int, int[]>> adjacencyList = init.GetAdjacencyList();
-			
-			
+			var adjacencyList = init.GetAdjacencyList();				
 			distanceMatrix = adjacencyList.Item1;
-            timeMatrix = adjacencyList.Item2;
-			
-
-            //initialize orders
-            companyList = init.makeCompanies();
+            timeMatrix = adjacencyList.Item2;		
+            // initialize orders
+            companyList = init.MakeCompanies();
             // Initialize all other variables
             i = 0;
             t = 10000;
@@ -68,6 +61,7 @@ namespace OptimaliserenPracticum
 			Console.ReadKey();
         }
 
+		// Initialize stopwatches for program diagnostics
         public void InitDiagnostics()
         {
             initWatch = new Stopwatch();
