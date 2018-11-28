@@ -23,7 +23,7 @@ namespace OptimaliserenPracticum
         {
             int highestIndex = 0;
             List<Order> orderList = new List<Order>();
-            foreach (string line in File.ReadLines(Directory.GetCurrentDirectory() + "\\ord.txt", Encoding.UTF8))
+            foreach (string line in File.ReadLines(localPath + orderningName, Encoding.UTF8))
             {
                 string[] words = line.Split(';');
                 int ordernumb = int.Parse(words[0]);
@@ -38,14 +38,20 @@ namespace OptimaliserenPracticum
                 orderList.Add(new Order(ordernumb, place, freq, ContCount, volumCont, emptTime, matrixID, xCoord, yCoord));
                 if (matrixID > highestIndex) highestIndex = matrixID;
             }
-            Company[] companylist = new Company[highestIndex];
+            Company[] companylist = new Company[highestIndex + 1];
             foreach (Order order in orderList)
             {
-                if (companylist[order.matrixID] == null)
+                if (companylist[order.matrixID] == null) 
+					// TODO: haal overbodige spaties weg uit plaatsnamen???
                 {
                     Company company = new Company(order.matrixID, order.xCoordinate, order.yCoordinate, order.placeName, new List<Order>());
+					companylist[order.matrixID] = company;
                 }
-                companylist[order.matrixID].orders.Add(order);
+				else
+				{
+					companylist[order.matrixID].orders.Add(order);
+				}
+                
             }
             return companylist;
         }
