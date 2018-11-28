@@ -13,7 +13,7 @@ namespace OptimaliserenPracticum
 		public const int capacity = 20000;	// Capacity of the truck in liters
 		public const int emptyTime = 30;    // Time to empty garbage truck in minutes
 		public int currentCapacity;         // Current content of the truck in liters
-		public Company currentCompany;		// Company where the truck currently is
+		public Company currentCompany;      // Company where the truck currently is
 
 		// Constructor
 		public GarbageTruck(int currentCapacity = 0)

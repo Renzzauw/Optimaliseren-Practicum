@@ -24,7 +24,7 @@ namespace OptimaliserenPracticum
 		// Variables      
         Stopwatch initWatch;                    // Stopwatches to keep track of time
 		Stopwatch runtimeWatch;
-        protected Company[] companyList;			// List of companies
+        protected Company[] companyList;		// List of companies
 		int[,] distanceMatrix;					// Distance matrix
 		int[,] timeMatrix;						// Time matrix
         ulong i;								// A counter that keeps track of the total amount of iterations
@@ -32,9 +32,8 @@ namespace OptimaliserenPracticum
         float alpha;							// The percentage to reduce T with, every q iterations
         int q;									// The number of iterations before q gets reduced
         int qCounter;                           // Keeps track of how many iterations we have had since our last T change
-		protected int seed;
+		protected int seed;						// Seed for the random generators 
         Random r;								// A random number generator to potentially accept worse states
-
 
         // Initialize the program
         public void Init()
