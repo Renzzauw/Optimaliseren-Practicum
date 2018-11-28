@@ -21,7 +21,7 @@ namespace OptimaliserenPracticum
 		public int visitDays = 0;               // Binary representation of the days the company has been visited 
 		public byte visitCount = 0;				// Amount of times the company has been visited
 		public string placeName;				// Name of the place where this company is
-		public List<Order> orders;                  // The list of orders of the company
+		public List<Order> orders;              // The list of orders of the company
 
 		// Constructor
 		public Company(int companyIndex, int xCoordinate, int yCoordinate, string placeName, List<Order> orders)

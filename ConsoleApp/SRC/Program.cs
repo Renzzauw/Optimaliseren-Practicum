@@ -46,11 +46,15 @@ namespace OptimaliserenPracticum
             initWatch.Start();
             //Load all variables from the two input files
             Initialization init = new Initialization();
-            Tuple<int[,], int[,]> distTuple = init.GetMatrix();
-            distanceMatrix = distTuple.Item1;
+            var adjacencyList = init.GetAdjacencyList();
+			//var 
+			
+			/*
+			distanceMatrix = distTuple.Item1;
             timeMatrix = distTuple.Item2;
+			*/
             //initialize orders
-            companyList = init.makeCompany();
+            companyList = init.makeCompanies();
             // Initialize all other variables
             i = 0;
             t = 10000;

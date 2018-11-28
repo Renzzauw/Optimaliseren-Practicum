@@ -7,23 +7,23 @@ using System.Threading.Tasks;
 
 namespace OptimaliserenPracticum
 {
-    class Initialization
+	class Initialization
     {
         string localPath, distanceName, orderningName;
         public List<Order> OrderList = new List<Order>();
 
         public Initialization()
         {
-            localPath = Directory.GetCurrentDirectory();
+            localPath = Directory.GetCurrentDirectory() + '\\';
             distanceName = "dist.txt";
             orderningName = "ord.txt";
         }
 
-        public Company[] makeCompany()
+        public Company[] makeCompanies()
         {
             int highestIndex = 0;
             List<Order> orderList = new List<Order>();
-            foreach (string line in File.ReadLines(Directory.GetCurrentDirectory() + "ord.txt", Encoding.UTF8))
+            foreach (string line in File.ReadLines(Directory.GetCurrentDirectory() + "\\ord.txt", Encoding.UTF8))
             {
                 string[] words = line.Split(';');
                 int ordernumb = int.Parse(words[0]);
@@ -51,31 +51,62 @@ namespace OptimaliserenPracticum
         }
 
         // Function that processes all the data from the dist file
-        public Tuple<int[,], int[,]> GetMatrix()
+        public Dictionary<int, Tuple<List<int>, List<int>>> GetAdjacencyList()
         {
             string[] input = File.ReadAllLines(localPath + distanceName);
             int inputLength = input.Length;
-            int[,] distMatrix = new int[inputLength, inputLength];
-            int[,] timeMatrix = new int[inputLength, inputLength];
-            // The distance and time from a destination to itself is 0
+			//int[,] distMatrix = new int[inputLength, inputLength];
+			//int[,] timeMatrix = new int[inputLength, inputLength];
+
+			// Create a list with as key the company ID and as value a list of distances to all the other companies
+			var adjacencyList = new Dictionary<int, Tuple<List<int>, List<int>>>();
+			var distanceList = new Dictionary<int, List<int>>();
+			var timeList = new Dictionary<int, List<int>>();
+
+			// Take all lines one by one, and process them
+			int start, end, dist, time;
             for (int i = 0; i < inputLength; i++)
             {
-                distMatrix[i, i] = 0;
-                timeMatrix[i, i] = 0;
-            }
-            // Take all lines one by one, and process them
-            int start, end, dist, time;
-            for (int i = 0; i < inputLength; i++)
-            {
-                string[] data = input[i].Split(';');
+				// Split the current input line 
+				string[] data = input[i].Split(';');
                 start = int.Parse(data[0]);
                 end = int.Parse(data[1]);
                 dist = int.Parse(data[2]);
                 time = int.Parse(data[3]);
-                distMatrix[start, end] = dist;
-                timeMatrix[start, end] = time;
-            }
-            return new Tuple<int[,], int[,]>(distMatrix, timeMatrix);
+
+				// Create dictionaries for both the distance and time 
+				if (distanceList.ContainsKey(start))
+				{
+					distanceList[start].Add(dist);
+				}
+				else
+				{
+					List<int> distances = new List<int>();
+					distances.Add(dist);
+					distanceList.Add(start, distances);
+				}
+				if (timeList.ContainsKey(start))
+				{
+					timeList[start].Add(time);
+				}
+				else
+				{
+					List<int> times = new List<int>();
+					times.Add(time);
+					timeList.Add(start, times);
+				}
+				//distMatrix[start, end] = dist;
+				//timeMatrix[start, end] = time;
+			}
+
+			// Combine them in one dictionary
+			// TODO: dit kan denk ik veel beter dan nog een keer door alles loopen...
+			foreach (int k in distanceList.Keys)
+			{
+				adjacencyList.Add(k, new Tuple<List<int>, List<int>>(distanceList[k], timeList[k]));
+			}
+
+			return adjacencyList; //new Tuple<int[,], int[,]>(distMatrix, timeMatrix);
         }
     }
 }

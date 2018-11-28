@@ -27,13 +27,15 @@ namespace OptimaliserenPracticum
             {
                 statusList[i] = MakeRandomDay(truck);
             }
+
+			return statusList;
         }
 
         public List<Status> MakeRandomDay(GarbageTruck truck)
         {
             Random random = new Random(); // A random that we will use here and there
             List<Status> day = new List<Status>();
-            day.Add(new Status(0, 600, 4, /* Insert haarmeze hier*/ , truck));
+            //day.Add(new Status(0, 600, 4, /* Insert haarmeze hier*/ , truck));
             int company;
             while (true)
             {
