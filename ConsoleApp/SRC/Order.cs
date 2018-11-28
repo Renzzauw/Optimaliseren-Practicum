@@ -14,8 +14,6 @@ namespace OptimaliserenPracticum
 		public string placeName;
 		public float emptyingTime;
 		public bool ordersDone = false;
-		public int visitDays = 0;               // Binary representation of the days the company has been visited 
-		public byte visitCount = 0;             // Amount of times the company has been visited
 
 		// Constructor
 		public Order(int orderNumber, string placeName, int frequency, int containerCount, int volumePerContainer, float emptyingTime, int matrixID, int xCoordinate, int yCoordinate)
@@ -31,16 +29,6 @@ namespace OptimaliserenPracticum
 			this.yCoordinate = yCoordinate;
 		}
 
-		// When visiting the company, set the bit of this day to 1
-		// dayIndex: monday = 0, tuesday = 1, ..., friday = 4
-		public void VisitCompany(int dayIndex)
-		{
-			// Shift dayIndex to the right position (shift fully to the left first, then to the right by the dayIndex)
-			int bit = 16 >> dayIndex;
-			// Perform OR operation to set the bit to true
-			visitDays = visitDays | bit;
-			// Increment visit counter
-			visitCount++;
-		}
+
 	}
 }

@@ -24,16 +24,13 @@ namespace OptimaliserenPracticum
 		// Variables      
         Stopwatch initWatch;                    // Stopwatches to keep track of time
 		Stopwatch runtimeWatch;
-        protected Company[] companyList;		// List of companies
-		int[,] distanceMatrix;					// Distance matrix
-		int[,] timeMatrix;						// Time matrix
         ulong i;								// A counter that keeps track of the total amount of iterations
         float t;								// The control parameter
         float alpha;							// The percentage to reduce T with, every q iterations
         int q;									// The number of iterations before q gets reduced
         int qCounter;                           // Keeps track of how many iterations we have had since our last T change
 		protected int seed;						// Seed for the random generators 
-        Random r;								// A random number generator to potentially accept worse states
+        Random r;                               // A random number generator to potentially accept worse states
 
         // Initialize the program
         public void Init()
@@ -42,22 +39,25 @@ namespace OptimaliserenPracticum
 			initWatch.Start();
             // Load all variables from the two input files
             Initialization init = new Initialization();
+            Datastructures data = new Datastructures();
 			var adjacencyList = init.GetAdjacencyList();				
-			distanceMatrix = adjacencyList.Item1;
-            timeMatrix = adjacencyList.Item2;		
+			data.distanceMatrix = adjacencyList.Item1;
+            data.timeMatrix = adjacencyList.Item2;		
             // initialize orders
-            companyList = init.MakeCompanies();
+            data.companyList = init.MakeCompanies();
+            data.maarheeze = data.companyList[287];
             // Initialize all other variables
             i = 0;
             t = 10000;
             alpha = 0.99F;
             q = 8; //TODO calcuate the total number of neighbours, times 8
             qCounter = 0;
-            r = new Random();
+            State initial = new State(data);
             // Stop the stopwatch and see how long the initialization took
             initWatch.Stop();
             Console.WriteLine("Initializationtime: " + initWatch.ElapsedMilliseconds + " ms");
-			Console.ReadKey();
+            Run(initial);
+
         }
 
 		// Initialize stopwatches for program diagnostics
@@ -67,13 +67,14 @@ namespace OptimaliserenPracticum
             runtimeWatch = new Stopwatch();
         }
 
-        public void Run()
+        public void Run(State initialState)
         {
             runtimeWatch.Start();
-            State current = new State();
+            State current = initialState;
             State successor;
             //int currentR = getScore(current);
             //int nextR = 0;
+            /*
             while (i < 1000000) //TODO: Change this to a stopping condition
             {
                 i++;
@@ -92,9 +93,45 @@ namespace OptimaliserenPracticum
                     break;
                 }
             }
+            */
             runtimeWatch.Stop();
             Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms");
+            Print(current);
         }
+
+        public void Print(State state)
+        {
+            int daycounter = 1;
+            // print the path of the first truck
+            for(int i = 0; i < 5; i++)
+            {
+                daycounter = 1;
+                List<Status> day = state.status1[i];
+                foreach(Status status in day)
+                {
+                    if (status.IfCollecting())
+                    {
+                        Console.WriteLine("1; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+                        daycounter++;
+                    }
+                }
+            }
+            // print the path of the second truck
+            // TODO: losse functie
+            for (int i = 0; i < 5; i++)
+            {
+                daycounter = 1;
+                List<Status> day = state.status2[i];
+                foreach (Status status in day)
+                {
+                    if (status.IfCollecting())
+                    {
+                        Console.WriteLine("2; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+                        daycounter++;
+                    }
+                }
+            }
+            }
 
         // Checks if the P is smaller than a random number. Return true if yes.
         public bool PCheck(int fx, int fy)
@@ -102,6 +139,16 @@ namespace OptimaliserenPracticum
             return Math.Pow(Math.E, (fx - fy) / t) < r.Next(0, 1);
         }
     }
+    public struct Datastructures
+    {
+        public Company[] companyList;        // List of companies
+        public int[,] distanceMatrix;        // Distance matrix
+        public int[,] timeMatrix;            // Time matrix
+        public Company maarheeze;
+
+
+    }
+
 
 
 }

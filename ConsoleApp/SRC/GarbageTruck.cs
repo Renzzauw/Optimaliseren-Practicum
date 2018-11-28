@@ -10,7 +10,7 @@ namespace OptimaliserenPracticum
 	public class GarbageTruck
 	{
 		// Variables
-		public const int capacity = 20000;	// Capacity of the truck in liters
+		public const int capacity = 100000;	// Capacity of the truck in liters, times 5 because in reality garbage gets compressed
 		public const int emptyTime = 30;    // Time to empty garbage truck in minutes
 		public int currentCapacity;         // Current content of the truck in liters
 		public Company currentCompany;      // Company where the truck currently is
@@ -22,14 +22,31 @@ namespace OptimaliserenPracticum
 		}
 
 		// Function that handles the emptying of the garbage truck
-		public void EmptyTruck()
+		public GarbageTruck EmptyTruck()
 		{
 			// TODO: iets met timer vooruitzetten?
 			currentCapacity = 0;
+            return this;
 		}
+        // Function that handles the filling of the garbage truck
+        public GarbageTruck FillTruck(Order ord)
+        {
+            int cap = ord.containerCount * ord.volumePerContainer;
+            currentCapacity += cap;
+            return this;
+        }
+        public bool CheckIfFull()
+        {
+            return capacity * 0.9 < currentCapacity;
+        }
 
-		// Travel from the current company to the next company
-		public void TravelToCompany(Company company)
+        public bool CheckIfEmpty()
+        {
+            return currentCapacity == 0;
+        }
+
+        // Travel from the current company to the next company
+        public void TravelToCompany(Company company)
 		{
 			// Do not travel if the next company is the current company
 			if (company.companyIndex == currentCompany.companyIndex) return;
