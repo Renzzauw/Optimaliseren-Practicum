@@ -36,7 +36,7 @@ namespace OptimaliserenPracticum
                 int freq = (int)Char.GetNumericValue(words[2][0]);                     // TODO: Dit wordt nog aangepast (met enum van Renzo :^|)
                 int ContCount = int.Parse(words[3]);		// Container count
                 int volumCont = int.Parse(words[4]);		// Volume container
-                float emptTime = float.Parse(words[5]);		// Empty time
+                float emptTime = (float.Parse(words[5]) * 60f);		// Empty time, DIT IS CONVERTED NAAR SECONDEN
                 int matrixID = int.Parse(words[6]);			// Matrix ID
                 int xCoord = int.Parse(words[7]);			// X coordinate company
                 int yCoord = int.Parse(words[8]);           // Y coordinate company

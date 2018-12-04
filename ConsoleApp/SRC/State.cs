@@ -36,7 +36,7 @@ namespace OptimaliserenPracticum
         public List<Status> MakeRandomDay(GarbageTruck initialTruck, int dayIndex)
         {
             List<Status> day = new List<Status>();
-            float timestart = 359;
+            float timestart = 21600;
             float newTime = 0;
             Company comp = data.maarheeze;
             Status previous = new Status(0, timestart, 4, comp, initialTruck, 0);
@@ -57,7 +57,7 @@ namespace OptimaliserenPracticum
                 float processtime = ord.emptyingTime;
                 float timeToMaarheze = GetTraveltime(comp, data.maarheeze);
                 // If there is no time to complete the order and return to the depot, try again
-                if (timestart + traveltime + processtime + timeToMaarheze > 1050)
+                if (timestart + traveltime + processtime + timeToMaarheze > 63000)
                 {
                     iterations++;
                     continue;
@@ -71,13 +71,13 @@ namespace OptimaliserenPracticum
                 timestart = newnewtime;
                 iterations = 0;
                 // If the truck is full, and there is time to empty, do it
-                if (truck.CheckIfFull() && newnewtime + timeToMaarheze < 1050)
+                if (truck.CheckIfFull() && newnewtime + timeToMaarheze < 63000)
                 {
                     newTime = GetTraveltime(comp, data.maarheeze);
                     // Drive to Maarheze and empty the truck
                     day.Add(new Status(timestart, newTime, 1, comp, truck, 0));
-                    previous = new Status(newTime, newTime + 30, 3, data.maarheeze, truck.EmptyTruck(), 0);
-                    timestart = newTime + 30;
+                    previous = new Status(newTime, newTime + 1800, 3, data.maarheeze, truck.EmptyTruck(), 0);
+                    timestart = newTime + 1800;
                     day.Add(previous);
                 }
 
@@ -85,13 +85,13 @@ namespace OptimaliserenPracticum
             newTime = GetTraveltime(comp, data.maarheeze);
             // Drive to Maarheze and empty the truck, if its not already there and emptied
             if (comp != data.maarheeze) day.Add(new Status(timestart, newTime, 1, comp, truck, 0));
-            if (!truck.CheckIfEmpty()) day.Add(new Status(newTime, newTime + 30, 3, data.maarheeze, truck.EmptyTruck(), 0));
+            if (!truck.CheckIfEmpty()) day.Add(new Status(newTime, newTime + 1800, 3, data.maarheeze, truck.EmptyTruck(), 0));
             return day;
         }
 
         public float GetTraveltime(Company a, Company b)
         {
-            return data.timeMatrix[a.companyIndex, b.companyIndex] / 60f;
+            return data.timeMatrix[a.companyIndex, b.companyIndex];
         }
     }
     public class Status
