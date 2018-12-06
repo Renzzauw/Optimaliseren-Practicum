@@ -111,7 +111,7 @@ namespace OptimaliserenPracticum
 		}
 
 		// Swap two random actions between two trucks
-		public Tuple<List<Status>[], List<Status>[]> SwapRandomActions(List<Status>[] statuses1, List<Status>[] statuses2)
+		public Tuple<List<Status>[], List<Status>[]> SwapRandomActionsBetween(List<Status>[] statuses1, List<Status>[] statuses2)
 		{
 			// pick two random days of the week
 			Random r = new Random();
@@ -132,7 +132,7 @@ namespace OptimaliserenPracticum
 		}
 
 		// Swap two random actions within a truck
-		public List<Status>[] SwapRandomActions(List<Status>[] statuses)
+		public List<Status>[] SwapRandomActionsWithin(List<Status>[] statuses)
 		{
 			// pick two random days of the week
 			Random r = new Random();
@@ -171,7 +171,7 @@ namespace OptimaliserenPracticum
 
 		// x Swap actions of 2 cars
 		// x Swap actions within a car
-		// Add action (wat voor actie?)
+		// Add action (wat voor actie? Ergens pakken uit een lijst?)
 		// x Remove action
 		// x Change day of action
 
