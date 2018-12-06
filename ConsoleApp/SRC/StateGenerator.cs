@@ -25,6 +25,8 @@ namespace OptimaliserenPracticum
 			SwappedBetweenState = oldState;
 			// Change actions of the neighbour states
 			CreateNeighbourStates(oldState);
+			// Run the neighbours
+			RunNeighbours(); //TODO: multithreaden? :thonking:
 		}
 
 		private void CreateNeighbourStates(State oldState)
@@ -37,7 +39,18 @@ namespace OptimaliserenPracticum
 			//AddedActionState. TODO: nog implementeren
 			SwappedWithinState1.SwapRandomActionsWithin(status1);
 			SwappedWithinState2.SwapRandomActionsWithin(status2);
-			SwappedBetweenState.SwapRandomActionsBetween(status1, status2);
+			SwappedBetweenState.SwapRandomActionsBetween(status1, status2);			
+		}
+
+		public void RunNeighbours()
+		{
+			removedActionState1.Run();
+			removedActionState2.Run();
+			AddedActionState1.Run();
+			AddedActionState2.Run();
+			SwappedWithinState1.Run();
+			SwappedWithinState2.Run();
+			SwappedBetweenState.Run();
 		}
 
 		
