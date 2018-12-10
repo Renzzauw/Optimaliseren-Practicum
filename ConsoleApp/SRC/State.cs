@@ -6,23 +6,23 @@ using System.Threading.Tasks;
 
 namespace OptimaliserenPracticum
 {
-    // State object
+	
+	// State object
     public class State : SimulatedAnnealing
-    {
-        // Variables
+    {	
+		// Variables
         public List<Status>[] status1, status2; // The week for each truck: It contains 5 dictionaries, one for each day. Each truck gets their own status
-        private Datastructures data;
+        //private Datastructures data;
         private Random random;
         // Make a (random) initial state
-        public State(Datastructures data)
+        public State()
         {
-            this.data = data;
             random = new Random();
             status1 = MakeRandomState(new GarbageTruck());
             status2 = MakeRandomState(new GarbageTruck());
         }
 
-        public List<Status>[] MakeRandomState(GarbageTruck truck)
+		public List<Status>[] MakeRandomState(GarbageTruck truck)
         {
             List<Status>[] statusList = new List<Status>[5];
             for (int i = 0; i < 5; i++)
@@ -38,7 +38,7 @@ namespace OptimaliserenPracticum
             List<Status> day = new List<Status>();
             float timestart = 21600;
             float newTime = 0;
-            Company comp = data.maarheeze;
+            Company comp = Datastructures.maarheeze;
             Status previous = new Status(0, timestart, comp, initialTruck, 0);
             int companynr;
             int iterations = 0;
@@ -47,8 +47,8 @@ namespace OptimaliserenPracticum
             // Allow up to 30 iterations to see whether it is possible to go to another address. If that is no longer possible, end the day
             while (iterations < 30)
             {
-                companynr = random.Next(data.companyList.Length);
-                comp = data.companyList[companynr];
+                companynr = random.Next(Datastructures.companyList.Length);
+                comp = Datastructures.companyList[companynr];
                 // Check if that company has outstanding orders, or whether it has aready been visited
                 if (!comp.HasOrders() || comp.IsDayVisited(dayIndex)) continue;
                 // Select one of the outstanding orders of that company
@@ -56,7 +56,7 @@ namespace OptimaliserenPracticum
                 // Calculate the time needed to process and order when having to return immediately
                 float traveltime = GetTraveltime(previous.company, comp);
                 float processtime = ord.emptyingTime;
-                float timeToMaarheze = GetTraveltime(comp, data.maarheeze);
+                float timeToMaarheze = GetTraveltime(comp, Datastructures.maarheeze);
                 // If there is no time to complete the order and return to the depot, try again
                 if (timestart + traveltime + processtime + timeToMaarheze > 63000)
                 {
@@ -72,23 +72,23 @@ namespace OptimaliserenPracticum
                 // If the truck is full, and there is time to empty, do it
                 if (truck.CheckIfFull() && newTime + timeToMaarheze < 63000)
                 {
-                    newTime = GetTraveltime(comp, data.maarheeze);
+                    newTime = GetTraveltime(comp, Datastructures.maarheeze);
                     // Drive to Maarheze and empty the truck
-                    day.Add (new Status(timestart, newTime + 1800, data.maarheeze, truck.EmptyTruck(), 0));
+                    day.Add (new Status(timestart, newTime + 1800, Datastructures.maarheeze, truck.EmptyTruck(), 0));
                     timestart = newTime + 1800;
                     day.Add(previous);
                 }
 
             }
-            newTime = GetTraveltime(comp, data.maarheeze);
+            newTime = GetTraveltime(comp, Datastructures.maarheeze);
             // Drive to Maarheze and empty the truck. TODO: check if the truck is aleady empty if its not already there and emptied
-            day.Add(new Status(timestart, newTime + 1800, data.maarheeze, truck.EmptyTruck(), 0));
+            day.Add(new Status(timestart, newTime + 1800, Datastructures.maarheeze, truck.EmptyTruck(), 0));
             return day;
         }
 
         public float GetTraveltime(Company a, Company b)
         {
-            return data.timeMatrix[a.companyIndex, b.companyIndex];
+            return Datastructures.timeMatrix[a.companyIndex, b.companyIndex];
         }
 	}
     public class Status
