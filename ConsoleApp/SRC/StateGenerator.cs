@@ -8,47 +8,91 @@ namespace OptimaliserenPracticum
 {
 	public class StateGenerator : SimulatedAnnealing 
 	{
-        private List<Thread> successorfunctions;                           // A list of threads, each containing a successorfunction
+        private Thread[] successorfunctions;                       // A list of threads, each containing a successorfunction
         private State oldState, newState;                              // Each iteration is given an old state, and must return a new state
+        private List<Status>[] status1, status2;                        // The two seperate days of the old state, written explicitely to make calcuations easier
         private bool foundSucc;                                        // A bool that checks whether a successor has been found
+        private Random r;                                              // Random number generator that is used sometimes
 
         public StateGenerator()
 		{
-			// Initialize the thread list
-		}
+            // Initialize the thread array
+            successorfunctions = new Thread[7];
+            r = new Random();
+            successorfunctions[0] = new Thread(RemoveRandomAction1);
+            successorfunctions[1] = new Thread(RemoveRandomAction2);
+            successorfunctions[2] = new Thread(AddRandomAction1);
+            successorfunctions[3] = new Thread(AddRandomAction2);
+            successorfunctions[4] = new Thread(SwapRandomActionsWithin1);
+            successorfunctions[5] = new Thread(SwapRandomActionsWithin2);
+            successorfunctions[6] = new Thread(SwapRandomActionsBetween);
+        }
 
-		private void CreateNeighbourStates(State oldState)
+		private State GetNextState(State old)
 		{
-			List<Status>[] status1, status2;
-			status1 = oldState.status1;
-			status2 = oldState.status2;
-			removedActionState1.RemoveRandomAction(status1);
-			removedActionState2.RemoveRandomAction(status2);
-			//AddedActionState. TODO: nog implementeren
-			SwappedWithinState1.SwapRandomActionsWithin(status1);
-			SwappedWithinState2.SwapRandomActionsWithin(status2);
-			SwappedBetweenState.SwapRandomActionsBetween(status1, status2);			
-		}
+            oldState = old;
+            status1 = old.status1;
+            status2 = old.status2;
+            // Start all the threads
+            successorfunctions[0].Start(1);
+            successorfunctions[1].Start(2);
+            successorfunctions[2].Start(1);
+            successorfunctions[3].Start(2);
+            successorfunctions[4].Start(1);
+            successorfunctions[5].Start(2);
+            successorfunctions[6].Start();
+            // Wait untill all threads finish
+            for(int i = 0; i < successorfunctions.Length; i++)
+            {
+                successorfunctions[i].Join();
+            }
+            return newState;
+        }
 
 
         // TODO: waarschijnlijk checken dat hij legen niet gaat swappen of herberekenen wanneer je moet legen
 
         // Remove a random action on a random day of the schedule of a truck
-        public List<Status>[] RemoveRandomAction(List<Status>[] statuses)
+        public void RemoveRandomAction1(object o)
         {
-            // pick a random day of the week
-            Random r = new Random();
-            int day = r.Next(6);
-            // pick a random action
-            int actionIndex = r.Next(statuses[day].Count);
-            // Remove the action
-            statuses[day].RemoveAt(actionIndex);
-            // Return the remaining schedule
-            return statuses;
+            List<Status>[] localStatus = GetStatus((int)o);
+            State localNew;
+            while (!foundSucc)
+            {
+                // pick a random day of the week
+                int day = r.Next(6);
+                // pick a random action
+                int actionIndex = r.Next(status1[day].Count);
+                // Remove the action
+                localNew = oldState.status1[day].RemoveAt(actionIndex);
+                // FIx the next action so that it starts from the right point
+                // Return the remaining schedule
+            }
+            return ;
+        }
+        // Remove a random action on a random day of the schedule of a truck
+
+        public void RemoveRandomAction1(object o)
+        {
+            List<Status> oldDay;
+            List<Status> newDay;
+            while (!foundSucc)
+            {
+                // pick a random day of the week
+                oldDay = oldState.status1[r.Next(6)];
+                newDay = oldDay;
+                int removedIndex = (r.Next(oldDay.Count);
+                // Remove a random action
+                newDay.RemoveAt(removedIndex);
+                // Fix the next action so that it starts from the right point
+                MoveAction(newDay, removedIndex);
+                // Return the remaining schedule
+            }
+            return;
         }
 
         // Swap two random actions between two trucks
-        public Tuple<List<Status>[], List<Status>[]> SwapRandomActionsBetween(List<Status>[] statuses1, List<Status>[] statuses2)
+        public Tuple<List<Status>[], List<Status>[]> SwapRandomActionsBetween()
         {
             // pick two random days of the week
             Random r = new Random();
@@ -69,7 +113,7 @@ namespace OptimaliserenPracticum
         }
 
         // Swap two random actions within a truck
-        public List<Status>[] SwapRandomActionsWithin(List<Status>[] statuses)
+        public List<Status>[] SwapRandomActionsWithin()
         {
             // pick two random days of the week
             Random r = new Random();
@@ -88,7 +132,7 @@ namespace OptimaliserenPracticum
         }
 
         // Change the day of an action
-        public List<Status>[] ChangeActionDay(List<Status>[] statuses)
+        public List<Status>[] ChangeActionDay()
         {
             // pick a random day of the week
             Random r = new Random();
@@ -104,6 +148,42 @@ namespace OptimaliserenPracticum
             // Return the remaining schedule
             return statuses;
         }
+
+        public int EvalDay(List<Status> day)
+        {
+            int score = 0;
+            // More orders on a day is generally better
+            score += day.Count * 100;
+            int previousEnd = 21600;
+            // Iterate over all actions
+            foreach(Status action in day)
+            {
+                // See if the two events overlap. If yes, deduct points
+                if (action.startTime < previousEnd) score -= ((previousEnd - action.startTime) * 10);
+                // Reward "free" time in between orders
+                else if (action.startTime > previousEnd) score += ((previousEnd - action.startTime) / 5);
+                // Check if there's a moment when the truck is full. deduct a lot of score for that
+                if (action.truck.CheckIfOverloaded()) score -= 1000;
+                // See if an order is placed on the wrong day (according to a pattern), punish that
+                // TODO: implement this
+            }
+            return score;
+        }
+        public List<Status> MoveAction(List<Status> list, int index)
+        {
+            Company comp = Datastructures.maarheeze;
+            int endTime = 21600;
+            if (index > 0)
+            {
+                comp = list[index - 1].company;
+                endTime = list[index - 1].endTime;
+            }
+            Status toSwap = list[index];
+            list[index] = new Status(toSwap.day, toSwap.endTime, toSwap.endTime + Datastructures.timeMatrix[comp.companyIndex, toSwap.company.companyIndex] + Datastructures.iets, toSwap.c, toSwap.truck.FillTruck(Datastructures.iets[toSwap.ordnr]), toSwap.ordnr);
+            return list;
+
+        }
+
 
 
         // x Swap actions of 2 cars

@@ -40,6 +40,11 @@ namespace OptimaliserenPracticum
             return capacity * 0.9 < currentCapacity;
         }
 
+        public bool CheckIfOverloaded()
+        {
+            return currentCapacity > capacity;
+        }
+
         public bool CheckIfEmpty()
         {
             return currentCapacity == 0;

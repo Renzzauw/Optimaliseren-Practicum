@@ -93,13 +93,15 @@ namespace OptimaliserenPracticum
 	}
     public class Status
     {
-        public float startTime, endTime;
+        public int day;
+        public int startTime, endTime;
         public Company company;
         public GarbageTruck truck;
         public int ordnr;
 
-        public Status(float s, float e, Company c, GarbageTruck gt, int ord)
+        public Status(int d,int s, int e, Company c, GarbageTruck gt, int ord)
         {
+            day = d;
             startTime = s;
             endTime = e;
             company = c;
