@@ -13,6 +13,7 @@ namespace OptimaliserenPracticum
 		public static int[,] distanceMatrix;        // Distance matrix
 		public static int[,] timeMatrix;            // Time matrix
 		public static Company maarheeze;
+		public static Dictionary<int, Order> orders;
 
 	}
 }

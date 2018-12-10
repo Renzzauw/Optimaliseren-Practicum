@@ -53,7 +53,7 @@ namespace OptimaliserenPracticum
 					List<Status> day = state.status1[i];
 					foreach (Status status in day)
 					{
-						// day, starttime, endtime, company, truck capacity, ordernummer
+						// day, starttime, endtime, company, truck capacity, truck number, ordernummer
 						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}", status.day, status.startTime, status.endTime, status.company, status.truck.currentCapacity, status.ordnr);
 						daycounter++;						
 					}
@@ -65,7 +65,7 @@ namespace OptimaliserenPracticum
 					List<Status> day = state.status2[i];
 					foreach (Status status in day)
 					{
-						// day, starttime, endtime, company, truck capacity, ordernummer
+						// day, starttime, endtime, company, truck capacity, truck number, ordernummer
 						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}", status.day, status.startTime, status.endTime, status.company, status.truck.currentCapacity, status.ordnr);
 						daycounter++;						
 					}
@@ -75,24 +75,28 @@ namespace OptimaliserenPracticum
 			}	
 		}
 
-		public State LoadState(string path)
+		public State LoadStates(string path)
 		{
 			State state = new State();
+			List<Status>[] states = new List<Status>[5]; 
 			StreamReader sr = File.OpenText(path);
 			// Read all lines from the text file
 			string line;
 			while ((line = sr.ReadLine()) != null)
 			{
-				// starttijd, eindtijd, company, truck (capacity (en current bedrijf?)), ordernummer
-				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);				
-				Status status = new Status(int.Parse(parts[0]), int.Parse(parts[1]), CompanyFromName(parts[2]), new GarbageTruck(int.Parse(parts[3])), int.Parse(parts[4]));
-				// TODO: DAG IN STATUS
+				// day, starttime, endtime, company, truck capacity, truck number, ordernummer
+				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);
+				// TODO: checken of de volgorde hier nog klopt
+				Status status = new Status(int.Parse(parts[0]), int.Parse(parts[1]), CompanyFromName(parts[2]), new GarbageTruck(int.Parse(parts[3])), int.Parse(parts[4]), int.Parse(parts[5]));
+				//states[int.Parse(parts[0])].Add(status);
+				//state.
 			}
 
 
 
 		}
 
+		// 
 		public Company CompanyFromName(string companyName)
 		{
 			// Check if any company has the name, if so return it

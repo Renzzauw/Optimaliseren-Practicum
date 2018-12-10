@@ -49,6 +49,8 @@ namespace OptimaliserenPracticum
 			// Loop through all orders
 			foreach (Order order in orderList)
             {
+				Datastructures.orders[order.orderNumber] = order;
+				
 				// Current company does not exist, create it and add the order
 				if (companylist[order.matrixID] == null) 
                 {
