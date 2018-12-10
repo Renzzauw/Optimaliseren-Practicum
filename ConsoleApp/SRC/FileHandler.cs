@@ -52,8 +52,9 @@ namespace OptimaliserenPracticum
 					daycounter = 1;
 					List<Status> day = state.status1[i];
 					foreach (Status status in day)
-					{						
-						sw.WriteLine("1; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+					{
+						// day, starttime, endtime, company, truck capacity, ordernummer
+						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}", status.day, status.startTime, status.endTime, status.company, status.truck.currentCapacity, status.ordnr);
 						daycounter++;						
 					}
 				}
@@ -63,8 +64,9 @@ namespace OptimaliserenPracticum
 					daycounter = 1;
 					List<Status> day = state.status2[i];
 					foreach (Status status in day)
-					{						
-						sw.WriteLine("2; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+					{
+						// day, starttime, endtime, company, truck capacity, ordernummer
+						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}", status.day, status.startTime, status.endTime, status.company, status.truck.currentCapacity, status.ordnr);
 						daycounter++;						
 					}
 				}
@@ -77,20 +79,32 @@ namespace OptimaliserenPracticum
 		{
 			State state = new State();
 			StreamReader sr = File.OpenText(path);
-			GarbageTruck truck1 = new GarbageTruck();
-			GarbageTruck truck2 = new GarbageTruck();
 			// Read all lines from the text file
 			string line;
 			while ((line = sr.ReadLine()) != null)
 			{
-				Status status = new Status();
 				// starttijd, eindtijd, company, truck (capacity (en current bedrijf?)), ordernummer
-				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);
-
+				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);				
+				Status status = new Status(int.Parse(parts[0]), int.Parse(parts[1]), CompanyFromName(parts[2]), new GarbageTruck(int.Parse(parts[3])), int.Parse(parts[4]));
+				// TODO: DAG IN STATUS
 			}
 
 
 
+		}
+
+		public Company CompanyFromName(string companyName)
+		{
+			// Check if any company has the name, if so return it
+			foreach (Company c in Datastructures.companyList)
+			{
+				if (c.placeName == companyName)
+				{
+					return c;
+				}
+			}
+			// Otherwise return null
+			return null;
 		}
 	}
 }
