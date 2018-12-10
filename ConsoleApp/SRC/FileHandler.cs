@@ -84,6 +84,7 @@ namespace OptimaliserenPracticum
 			while ((line = sr.ReadLine()) != null)
 			{
 				Status status = new Status();
+				// starttijd, eindtijd, company, truck (capacity (en current bedrijf?)), ordernummer
 				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);
 
 			}
