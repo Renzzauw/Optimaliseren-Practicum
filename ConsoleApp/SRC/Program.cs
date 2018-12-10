@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.IO;
 
 namespace OptimaliserenPracticum
@@ -31,6 +31,7 @@ namespace OptimaliserenPracticum
         int qCounter;                           // Keeps track of how many iterations we have had since our last T change
 		protected int seed;						// Seed for the random generators 
         Random r;                               // A random number generator to potentially accept worse states
+        StateGenerator generator;               // An instance of the stateGenerator class, which will calcuate successor states of a given state
 
         // Initialize the program
         public void Init()
@@ -53,9 +54,11 @@ namespace OptimaliserenPracticum
             q = 8; //TODO calcuate the total number of neighbours, times 8
             qCounter = 0;
             State initial = new State(data);
+            // Initialize the StateGenerator class
+            generator = new StateGenerator();
             // Stop the stopwatch and see how long the initialization took
             initWatch.Stop();
-            Console.WriteLine("Initializationtime: " + initWatch.ElapsedMilliseconds + " ms");
+            //Console.WriteLine("Initializationtime: " + initWatch.ElapsedMilliseconds + " ms");
             Run(initial);
 
         }
@@ -73,8 +76,8 @@ namespace OptimaliserenPracticum
             State current = initialState;
             State successor;
             //int currentR = getScore(current);
-            //int nextR = 0;
-            /*
+            int nextR = 0;
+            
             while (i < 1000000) //TODO: Change this to a stopping condition
             {
                 i++;
@@ -83,19 +86,10 @@ namespace OptimaliserenPracticum
                     t *= alpha;
                     qCounter = 0;
                 }
-                while (true)
-                {
-                    //successor = getSuccessor(current);
-                    //nextR = getScore(successor);
-                    //if (nextR < currentR && !PCheck(currentR, nextR) continue; // New state didn't get accepted, try again
-                    //current = successor;
-                    //currentR = nextR;
-                    break;
-                }
+                successor = generator.GetNewState(current);
             }
-            */
             runtimeWatch.Stop();
-            Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms");
+            //Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms");
             Print(current);
         }
 
@@ -109,11 +103,8 @@ namespace OptimaliserenPracticum
                 List<Status> day = state.status1[i];
                 foreach(Status status in day)
                 {
-                    if (status.IfCollecting())
-                    {
                         Console.WriteLine("1; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
                         daycounter++;
-                    }
                 }
             }
             // print the path of the second truck
@@ -124,11 +115,8 @@ namespace OptimaliserenPracticum
                 List<Status> day = state.status2[i];
                 foreach (Status status in day)
                 {
-                    if (status.IfCollecting())
-                    {
                         Console.WriteLine("2; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
                         daycounter++;
-                    }
                 }
             }
             }

@@ -39,11 +39,12 @@ namespace OptimaliserenPracticum
             float timestart = 21600;
             float newTime = 0;
             Company comp = data.maarheeze;
-            Status previous = new Status(0, timestart, 4, comp, initialTruck, 0);
+            Status previous = new Status(0, timestart, comp, initialTruck, 0);
             int companynr;
             int iterations = 0;
             GarbageTruck truck = initialTruck;
             Order ord;
+            // Allow up to 30 iterations to see whether it is possible to go to another address. If that is no longer possible, end the day
             while (iterations < 30)
             {
                 companynr = random.Next(data.companyList.Length);
@@ -63,29 +64,25 @@ namespace OptimaliserenPracticum
                     continue;
                 }
                 // Process the order
-                newTime = timestart + traveltime;
-                day.Add(new Status(timestart, newTime, 1, comp, truck, ord.orderNumber));
-                float newnewtime = newTime + processtime; // TODO: de naam
-                day.Add(new Status(newTime, newnewtime, 2, comp, truck.FillTruck(ord), ord.orderNumber));
+                newTime = timestart + traveltime + processtime;
+                day.Add(new Status(timestart, newTime, comp, truck.FillTruck(ord), ord.orderNumber));
                 ord.ordersDone = true;
-                timestart = newnewtime;
+                timestart = newTime;
                 iterations = 0;
                 // If the truck is full, and there is time to empty, do it
-                if (truck.CheckIfFull() && newnewtime + timeToMaarheze < 63000)
+                if (truck.CheckIfFull() && newTime + timeToMaarheze < 63000)
                 {
                     newTime = GetTraveltime(comp, data.maarheeze);
                     // Drive to Maarheze and empty the truck
-                    day.Add(new Status(timestart, newTime, 1, comp, truck, 0));
-                    previous = new Status(newTime, newTime + 1800, 3, data.maarheeze, truck.EmptyTruck(), 0);
+                    day.Add (new Status(timestart, newTime + 1800, data.maarheeze, truck.EmptyTruck(), 0));
                     timestart = newTime + 1800;
                     day.Add(previous);
                 }
 
             }
             newTime = GetTraveltime(comp, data.maarheeze);
-            // Drive to Maarheze and empty the truck, if its not already there and emptied
-            if (comp != data.maarheeze) day.Add(new Status(timestart, newTime, 1, comp, truck, 0));
-            if (!truck.CheckIfEmpty()) day.Add(new Status(newTime, newTime + 1800, 3, data.maarheeze, truck.EmptyTruck(), 0));
+            // Drive to Maarheze and empty the truck. TODO: check if the truck is aleady empty if its not already there and emptied
+            day.Add(new Status(timestart, newTime + 1800, data.maarheeze, truck.EmptyTruck(), 0));
             return day;
         }
 
@@ -93,126 +90,21 @@ namespace OptimaliserenPracticum
         {
             return data.timeMatrix[a.companyIndex, b.companyIndex];
         }
-
-		// TODO: waarschijnlijk checken dat hij legen niet gaat swappen of herberekenen wanneer je moet legen
-
-		// Remove a random action on a random day of the schedule of a truck
-		public List<Status>[] RemoveRandomAction(List<Status>[] statuses)
-		{
-			// pick a random day of the week
-			Random r = new Random();		
-			int day = r.Next(6);
-			// pick a random action
-			int actionIndex = r.Next(statuses[day].Count);
-			// Remove the action
-			statuses[day].RemoveAt(actionIndex);
-			// Return the remaining schedule
-			return statuses;
-		}
-
-		// Swap two random actions between two trucks
-		public Tuple<List<Status>[], List<Status>[]> SwapRandomActionsBetween(List<Status>[] statuses1, List<Status>[] statuses2)
-		{
-			// pick two random days of the week
-			Random r = new Random();
-			int day1 = r.Next(6);
-			int day2 = r.Next(6);
-			// pick two random actions			
-			int actionIndex1 = r.Next(statuses1[day1].Count);
-			int actionIndex2 = r.Next(statuses1[day1].Count);
-			Status status1 = statuses1[day1][actionIndex1];
-			Status status2 = statuses1[day2][actionIndex2];
-			// Swap the actions
-			statuses1[day1].RemoveAt(actionIndex1);
-			statuses1[day1].Insert(actionIndex1, status2);
-			statuses2[day2].RemoveAt(actionIndex2);
-			statuses2[day2].Insert(actionIndex2, status1);
-			// Return the new schedules
-			return new Tuple<List<Status>[], List<Status>[]>(statuses1, statuses2);
-		}
-
-		// Swap two random actions within a truck
-		public List<Status>[] SwapRandomActionsWithin(List<Status>[] statuses)
-		{
-			// pick two random days of the week
-			Random r = new Random();
-			int day1 = r.Next(6);
-			int day2 = r.Next(6);
-			// pick two random actions			
-			int actionIndex1 = r.Next(statuses[day1].Count);
-			int actionIndex2 = r.Next(statuses[day2].Count);
-			Status status1 = statuses[day1][actionIndex1];
-			Status status2 = statuses[day2][actionIndex2];
-			// Swap the actions
-			statuses[day1].Insert(actionIndex1, status2);
-			statuses[day2].Insert(actionIndex2, status1);
-			// Return the new schedules
-			return statuses;
-		}
-
-		// Change the day of an action
-		public List<Status>[] ChangeActionDay(List<Status>[] statuses)
-		{
-			// pick a random day of the week
-			Random r = new Random();
-			int day1 = r.Next(6);
-			int day2 = r.Next(6);
-			// pick a random action
-			int actionIndex1 = r.Next(statuses[day1].Count);
-			int actionIndex2 = r.Next(statuses[day2].Count);
-			// Remove the action
-			Status status = statuses[day1][actionIndex1];
-			statuses[day1].RemoveAt(actionIndex1);
-			statuses[day2].Insert(actionIndex2, status);
-			// Return the remaining schedule
-			return statuses;
-		}
-
-
-		// x Swap actions of 2 cars
-		// x Swap actions within a car
-		// Add action (wat voor actie? Ergens pakken uit een lijst?)
-		// x Remove action
-		// x Change day of action
-
 	}
     public class Status
     {
         public float startTime, endTime;
-        public enum Actione { Driving, Collecting, Emptying, Nothing } // Added the extra E to avoid conflicts with System.Action
-        public Actione action;
         public Company company;
         public GarbageTruck truck;
         public int ordnr;
 
-        public Status(float s, float e, float z, Company c, GarbageTruck gt, int ord)
+        public Status(float s, float e, Company c, GarbageTruck gt, int ord)
         {
             startTime = s;
             endTime = e;
-            switch (z)
-            {
-                case 1:
-                    action = Actione.Driving;
-                    break;
-                case 2:
-                    action = Actione.Collecting;
-                    break;
-                case 3:
-                    action = Actione.Emptying;
-                    break;
-                case 4:
-                    action = Actione.Nothing;
-                    break;
-                default:
-                    break;
-            }
             company = c;
             truck = gt;
             ordnr = ord;
-        }
-        public bool IfCollecting()
-        {
-            return action == Actione.Collecting || action == Actione.Emptying;
         }
     }
 
