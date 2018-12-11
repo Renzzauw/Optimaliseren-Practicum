@@ -498,7 +498,7 @@ namespace OptimaliserenPracticum
                 endTime = list[index - 1].endTime;
             }
             Status toSwap = list[index];
-            list[index] = new Status(toSwap.day, toSwap.endTime, toSwap.endTime + DTS.timeMatrix[comp.companyIndex, toSwap.company.companyIndex] + (int)DTS.orders[toSwap.ordnr].emptyingTime, toSwap.company, toSwap.truck.FillTruck(DTS.orders[toSwap.ordnr]), toSwap.ordnr);
+            list[index] = new Status(toSwap.day, toSwap., toSwap.endTime + DTS.timeMatrix[comp.companyIndex, toSwap.company.companyIndex] + (int)DTS.orders[toSwap.ordnr].emptyingTime, toSwap.company, toSwap.truck.FillTruck(DTS.orders[toSwap.ordnr]), toSwap.ordnr);
             return list;
         }
 
