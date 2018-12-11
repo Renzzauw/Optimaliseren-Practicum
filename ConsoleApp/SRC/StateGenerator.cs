@@ -216,7 +216,7 @@ namespace OptimaliserenPracticum
                 if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
                 {
                     foundSucc = true;
-                    Datastructures.availableOrders.Remove(ord);
+                    DTS.availableOrders.Remove(ord);
                     newState = oldState;
                     newState.status2[findDay] = newDay;
                 }
@@ -241,18 +241,18 @@ namespace OptimaliserenPracticum
                 addedTime = r.Next(21600, 64620);
                 timeIndex = listIndex = 0;
                 // Add a random available action in between two other actions
-                ord = Datastructures.availableOrders.ElementAt(r.Next(Datastructures.availableOrders.Count)).Value;
+                ord = DTS.availableOrders.ElementAt(r.Next(DTS.availableOrders.Count)).Value;
                 // Throw that random order on the given point in time. It can overlap with actions that are already in place, but we ignore that for now
                 for (int i = 0; i < oldDay.Count; i++)
                 {
-                    timeIndex = oldDay[i].startTime;
+                    timeIndex = oldDay[i].beginTime;
                     if (addedTime > timeIndex)
                     {
                         listIndex = i; break;
                     }
                 }
                 oldStat = oldDay[listIndex];
-                newStat = new Status(findDay, addedTime, addedTime + Datastructures.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), Datastructures.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
+                newStat = new Status(findDay, addedTime, addedTime + DTS.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), DTS.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
                 newDay.Insert(listIndex + 1, newStat);
                 // Fix the next action so that it starts from the right point
                 MoveAction(newDay, listIndex + 2);
@@ -260,7 +260,7 @@ namespace OptimaliserenPracticum
                 if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
                 {
                     foundSucc = true;
-                    Datastructures.availableOrders.Remove(ord.orderNumber);
+                    DTS.availableOrders.Remove(ord.orderNumber);
                     newState = oldState;
                     newState.status1[findDay] = newDay;
                 }
@@ -282,18 +282,18 @@ namespace OptimaliserenPracticum
                 addedTime = r.Next(21600, 64620);
                 timeIndex = listIndex = 0;
                 // Add a random available action in between two other actions
-                ord = Datastructures.availableOrders.ElementAt(r.Next(Datastructures.availableOrders.Count)).Value;
+                ord = DTS.availableOrders.ElementAt(r.Next(DTS.availableOrders.Count)).Value;
                 // Throw that random order on the given point in time. It can overlap with actions that are already in place, but we ignore that for now
                 for (int i = 0; i < oldDay.Count; i++)
                 {
-                    timeIndex = oldDay[i].startTime;
+                    timeIndex = oldDay[i].beginTime;
                     if (addedTime > timeIndex)
                     {
                         listIndex = i; break;
                     }
                 }
                 oldStat = oldDay[listIndex];
-                newStat = new Status(findDay, addedTime, addedTime + Datastructures.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), Datastructures.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
+                newStat = new Status(findDay, addedTime, addedTime + DTS.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), DTS.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
                 newDay.Insert(listIndex + 1, newStat);
                 // Fix the next action so that it starts from the right point
                 MoveAction(newDay, listIndex + 2);
@@ -301,7 +301,7 @@ namespace OptimaliserenPracticum
                 if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
                 {
                     foundSucc = true;
-                    Datastructures.availableOrders.Remove(ord.orderNumber);
+                    DTS.availableOrders.Remove(ord.orderNumber);
                     newState = oldState;
                     newState.status2[findDay] = newDay;
                 }
@@ -331,20 +331,20 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status1[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck(1, status1[day1][actionIndex1-1].truck.currentCapacity + SwapLOL ).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
                     prevstat2 = status1[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck(1, ).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
@@ -384,20 +384,20 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status2[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
                     prevstat2 = status2[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
@@ -435,20 +435,20 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status2[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
                     prevstat2 = status1[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
@@ -478,9 +478,9 @@ namespace OptimaliserenPracticum
             foreach (Status action in day)
             {
                 // See if the two events overlap. If yes, deduct points
-                if (action.startTime < previousEnd) score -= ((previousEnd - action.startTime) * 10);
+                if (action.beginTime < previousEnd) score -= ((previousEnd - action.beginTime) * 10);
                 // Reward "free" time in between orders
-                else if (action.startTime > previousEnd) score += ((previousEnd - action.startTime) / 5);
+                else if (action.beginTime > previousEnd) score += ((previousEnd - action.beginTime) / 5);
                 // Check if there's a moment when the truck is full. deduct a lot of score for that
                 if (action.truck.CheckIfOverloaded()) score -= 1000;
                 // See if an order is placed on the wrong day (according to a pattern), punish that
@@ -490,7 +490,7 @@ namespace OptimaliserenPracticum
         }
         public List<Status> MoveAction(List<Status> list, int index)
         {
-            Company comp = Datastructures.maarheeze;
+            Company comp = DTS.maarheeze;
             int endTime = 21600;
             if (index > 0)
             {
@@ -498,7 +498,7 @@ namespace OptimaliserenPracticum
                 endTime = list[index - 1].endTime;
             }
             Status toSwap = list[index];
-            list[index] = new Status(toSwap.day, toSwap.endTime, toSwap.endTime + Datastructures.timeMatrix[comp.companyIndex, toSwap.company.companyIndex] + (int)Datastructures.orders[toSwap.ordnr].emptyingTime, toSwap.company, toSwap.truck.FillTruck(Datastructures.orders[toSwap.ordnr]), toSwap.ordnr);
+            list[index] = new Status(toSwap.day, toSwap.endTime, toSwap.endTime + DTS.timeMatrix[comp.companyIndex, toSwap.company.companyIndex] + (int)DTS.orders[toSwap.ordnr].emptyingTime, toSwap.company, toSwap.truck.FillTruck(DTS.orders[toSwap.ordnr]), toSwap.ordnr);
             return list;
         }
 
@@ -518,7 +518,7 @@ namespace OptimaliserenPracticum
         // Checks if the P is smaller than a random number. Return true if yes.
         public bool PCheck(int fx, int fy)
         {
-            return Math.Pow(Math.E, (fx - fy) / Datastructures.temperature) < r.Next(0, 1);
+            return Math.Pow(Math.E, (fx - fy) / DTS.temperature) < r.Next(0, 1);
         }
 
 

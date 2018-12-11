@@ -41,14 +41,14 @@ namespace OptimaliserenPracticum
 			Initialization init = new Initialization();
 			//data = new Datastructures();
 			var adjacencyList = init.GetAdjacencyList();
-			Datastructures.distanceMatrix = adjacencyList.Item1;
-			Datastructures.timeMatrix = adjacencyList.Item2;
+			DTS.distanceMatrix = adjacencyList.Item1;
+			DTS.timeMatrix = adjacencyList.Item2;
 			// initialize orders
-			Datastructures.companyList = init.MakeCompanies();
-			Datastructures.maarheeze = Datastructures.companyList[287];
+			DTS.companyList = init.MakeCompanies();
+			DTS.maarheeze = DTS.companyList[287];
 			// Initialize all other variables
 			i = 0;
-			Datastructures.temperature = 10000;
+			DTS.temperature = 10000;
 			alpha = 0.99F;
 			q = 8; //TODO calcuate the total number of neighbours, times 8
 			qCounter = 0;
@@ -82,7 +82,7 @@ namespace OptimaliserenPracticum
 				i++;
 				if (qCounter == q)
 				{
-					Datastructures.temperature *= alpha;
+					DTS.temperature *= alpha;
 					qCounter = 0;
 				}
 				successor = generator.GetNextState(current);

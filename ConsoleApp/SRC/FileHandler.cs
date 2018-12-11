@@ -47,7 +47,7 @@ namespace OptimaliserenPracticum
 					foreach (Status status in day)
 					{
 						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
-						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}; {6}", status.day, status.startTime, status.endTime, status.company.placeName, status.truck.truckNumber, status.truck.currentCapacity, status.ordnr);
+						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}; {6}", status.day, status.beginTime, status.endTime, status.company.placeName, status.truck.truckNumber, status.truck.currentCapacity, status.ordnr);
 						daycounter++;
 					}
 
@@ -96,7 +96,7 @@ namespace OptimaliserenPracticum
 		public Company CompanyFromName(string companyName)
 		{
 			// Check if any company has the name, if so return it
-			foreach (Company c in Datastructures.companyList)
+			foreach (Company c in DTS.companyList)
 			{
 				if (c.placeName == companyName) return c;
 			}
