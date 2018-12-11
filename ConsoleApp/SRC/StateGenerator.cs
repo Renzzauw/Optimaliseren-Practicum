@@ -6,8 +6,8 @@ using System.Threading;
 
 namespace OptimaliserenPracticum
 {
-	public class StateGenerator : SimulatedAnnealing 
-	{
+    public class StateGenerator : SimulatedAnnealing
+    {
         private Thread[] successorfunctions;                       // A list of threads, each containing a successorfunction
         private State oldState, newState;                              // Each iteration is given an old state, and must return a new state
         private List<Status>[] status1, status2;                        // The two seperate days of the old state, written explicitely to make calcuations easier
@@ -15,7 +15,7 @@ namespace OptimaliserenPracticum
         private Random r;                                              // Random number generator that is used sometimes
 
         public StateGenerator()
-		{
+        {
             // Initialize the thread array
             successorfunctions = new Thread[7];
             r = new Random();
@@ -28,8 +28,8 @@ namespace OptimaliserenPracticum
             successorfunctions[6] = new Thread(SwapRandomActionsBetween);
         }
 
-		public State GetNextState(State old)
-		{
+        public State GetNextState(State old)
+        {
             oldState = old;
             status1 = old.status1;
             status2 = old.status2;
@@ -42,7 +42,7 @@ namespace OptimaliserenPracticum
             successorfunctions[5].Start(2);
             successorfunctions[6].Start();
             // Wait untill all threads finish
-            for(int i = 0; i < successorfunctions.Length; i++)
+            for (int i = 0; i < successorfunctions.Length; i++)
             {
                 successorfunctions[i].Join();
             }
@@ -168,361 +168,361 @@ namespace OptimaliserenPracticum
         #region Removers
         // Remove a random action on a random day of the schedule of a truck
         public void RemoveRandomAction1(object o)
-{
-    List<Status> oldDay;
-    List<Status> newDay;
-    int findDay, removedIndex;
-    while (!foundSucc)
-    {
-        // pick a random day of the week
-        findDay = r.Next(6);
-        oldDay = oldState.status1[findDay];
-        newDay = oldDay;
-        removedIndex = r.Next(oldDay.Count);
-        // Remove a random action
-        newDay.RemoveAt(removedIndex);
-        // Fix the next action so that it starts from the right point
-        MoveAction(newDay, removedIndex);
-        // Give ratings to the old and new day, and evaluate them
-        if(AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
         {
-            foundSucc = true;
-            newState = oldState;
-            newState.status1[findDay] = newDay;
-        }
-    }
-}
-
-// Remove a random action on a random day of the schedule of a truck
-public void RemoveRandomAction2(object o)
-{
-    List<Status> oldDay;
-    List<Status> newDay;
-    int ord;
-    int findDay, removedIndex;
-    while (!foundSucc)
-    {
-        // pick a random day of the week
-        findDay = r.Next(6);
-        oldDay = oldState.status2[findDay];
-        newDay = oldDay;
-        removedIndex = r.Next(oldDay.Count);
-        // Remove a random action
-        ord = newDay[removedIndex].ordnr;
-        newDay.RemoveAt(removedIndex);
-        // Fix the next action so that it starts from the right point
-        MoveAction(newDay, removedIndex);
-        // Give ratings to the old and new day, and evaluate them
-        if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
-        {
-            foundSucc = true;
-            Datastructures.availableOrders.Remove(ord);
-            newState = oldState;
-            newState.status2[findDay] = newDay;
-        }
-    }
-}
-#endregion
-#region Adders
-// Add a random action at a random time, ignoring whether it is possible or not
-public void AddRandomAction1()
-{
-    List<Status> oldDay;
-    List<Status> newDay;
-    int findDay, addedTime, timeIndex, listIndex;
-    Order ord;
-    Status newStat, oldStat;
-    while (!foundSucc)
-    {
-        // pick a random day of the week
-        findDay = r.Next(6);
-        oldDay = oldState.status1[findDay];
-        newDay = oldDay;
-        addedTime = r.Next(21600, 64620);
-        timeIndex = listIndex = 0;
-        // Add a random available action in between two other actions
-        ord = Datastructures.availableOrders.ElementAt(r.Next(Datastructures.availableOrders.Count)).Value;
-        // Throw that random order on the given point in time. It can overlap with actions that are already in place, but we ignore that for now
-        for (int i = 0; i < oldDay.Count; i++)
-        {
-            timeIndex = oldDay[i].startTime;
-            if (addedTime > timeIndex)
+            List<Status> oldDay;
+            List<Status> newDay;
+            int findDay, removedIndex;
+            while (!foundSucc)
             {
-                listIndex = i; break;
+                // pick a random day of the week
+                findDay = r.Next(6);
+                oldDay = oldState.status1[findDay];
+                newDay = oldDay;
+                removedIndex = r.Next(oldDay.Count);
+                // Remove a random action
+                newDay.RemoveAt(removedIndex);
+                // Fix the next action so that it starts from the right point
+                MoveAction(newDay, removedIndex);
+                // Give ratings to the old and new day, and evaluate them
+                if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
+                {
+                    foundSucc = true;
+                    newState = oldState;
+                    newState.status1[findDay] = newDay;
+                }
             }
         }
-        oldStat = oldDay[listIndex];
-        newStat = new Status(findDay, addedTime, addedTime + Datastructures.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), Datastructures.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
-        newDay.Insert(listIndex + 1, newStat);
-        // Fix the next action so that it starts from the right point
-        MoveAction(newDay, listIndex + 2);
-        // Give ratings to the old and new day, and evaluate them
-        if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
-        {
-            foundSucc = true;
-            Datastructures.availableOrders.Remove(ord.orderNumber);
-            newState = oldState;
-            newState.status1[findDay] = newDay;
-        }
-    }
-}
 
-public void AddRandomAction2()
-{
-    List<Status> oldDay, newDay;
-    int findDay, addedTime, timeIndex, listIndex;
-    Order ord;
-    Status newStat, oldStat;
-    while (!foundSucc)
-    {
-        // pick a random day of the week
-        findDay = r.Next(6);
-        oldDay = oldState.status2[findDay];
-        newDay = oldDay;
-        addedTime = r.Next(21600, 64620);
-        timeIndex = listIndex = 0;
-        // Add a random available action in between two other actions
-        ord = Datastructures.availableOrders.ElementAt(r.Next(Datastructures.availableOrders.Count)).Value;
-        // Throw that random order on the given point in time. It can overlap with actions that are already in place, but we ignore that for now
-        for (int i = 0; i < oldDay.Count; i++)
+        // Remove a random action on a random day of the schedule of a truck
+        public void RemoveRandomAction2(object o)
         {
-            timeIndex = oldDay[i].startTime;
-            if (addedTime > timeIndex)
+            List<Status> oldDay;
+            List<Status> newDay;
+            int ord;
+            int findDay, removedIndex;
+            while (!foundSucc)
             {
-                listIndex = i; break;
+                // pick a random day of the week
+                findDay = r.Next(6);
+                oldDay = oldState.status2[findDay];
+                newDay = oldDay;
+                removedIndex = r.Next(oldDay.Count);
+                // Remove a random action
+                ord = newDay[removedIndex].ordnr;
+                newDay.RemoveAt(removedIndex);
+                // Fix the next action so that it starts from the right point
+                MoveAction(newDay, removedIndex);
+                // Give ratings to the old and new day, and evaluate them
+                if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
+                {
+                    foundSucc = true;
+                    Datastructures.availableOrders.Remove(ord);
+                    newState = oldState;
+                    newState.status2[findDay] = newDay;
+                }
             }
         }
-        oldStat = oldDay[listIndex];
-        newStat = new Status(findDay, addedTime, addedTime + Datastructures.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), Datastructures.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
-        newDay.Insert(listIndex + 1, newStat);
-        // Fix the next action so that it starts from the right point
-        MoveAction(newDay, listIndex + 2);
-        // Give ratings to the old and new day, and evaluate them
-        if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
+        #endregion
+        #region Adders
+        // Add a random action at a random time, ignoring whether it is possible or not
+        public void AddRandomAction1()
         {
-            foundSucc = true;
-            Datastructures.availableOrders.Remove(ord.orderNumber);
-            newState = oldState;
-            newState.status2[findDay] = newDay;
+            List<Status> oldDay;
+            List<Status> newDay;
+            int findDay, addedTime, timeIndex, listIndex;
+            Order ord;
+            Status newStat, oldStat;
+            while (!foundSucc)
+            {
+                // pick a random day of the week
+                findDay = r.Next(6);
+                oldDay = oldState.status1[findDay];
+                newDay = oldDay;
+                addedTime = r.Next(21600, 64620);
+                timeIndex = listIndex = 0;
+                // Add a random available action in between two other actions
+                ord = Datastructures.availableOrders.ElementAt(r.Next(Datastructures.availableOrders.Count)).Value;
+                // Throw that random order on the given point in time. It can overlap with actions that are already in place, but we ignore that for now
+                for (int i = 0; i < oldDay.Count; i++)
+                {
+                    timeIndex = oldDay[i].startTime;
+                    if (addedTime > timeIndex)
+                    {
+                        listIndex = i; break;
+                    }
+                }
+                oldStat = oldDay[listIndex];
+                newStat = new Status(findDay, addedTime, addedTime + Datastructures.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), Datastructures.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
+                newDay.Insert(listIndex + 1, newStat);
+                // Fix the next action so that it starts from the right point
+                MoveAction(newDay, listIndex + 2);
+                // Give ratings to the old and new day, and evaluate them
+                if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
+                {
+                    foundSucc = true;
+                    Datastructures.availableOrders.Remove(ord.orderNumber);
+                    newState = oldState;
+                    newState.status1[findDay] = newDay;
+                }
+            }
         }
+
+        public void AddRandomAction2()
+        {
+            List<Status> oldDay, newDay;
+            int findDay, addedTime, timeIndex, listIndex;
+            Order ord;
+            Status newStat, oldStat;
+            while (!foundSucc)
+            {
+                // pick a random day of the week
+                findDay = r.Next(6);
+                oldDay = oldState.status2[findDay];
+                newDay = oldDay;
+                addedTime = r.Next(21600, 64620);
+                timeIndex = listIndex = 0;
+                // Add a random available action in between two other actions
+                ord = Datastructures.availableOrders.ElementAt(r.Next(Datastructures.availableOrders.Count)).Value;
+                // Throw that random order on the given point in time. It can overlap with actions that are already in place, but we ignore that for now
+                for (int i = 0; i < oldDay.Count; i++)
+                {
+                    timeIndex = oldDay[i].startTime;
+                    if (addedTime > timeIndex)
+                    {
+                        listIndex = i; break;
+                    }
+                }
+                oldStat = oldDay[listIndex];
+                newStat = new Status(findDay, addedTime, addedTime + Datastructures.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), Datastructures.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
+                newDay.Insert(listIndex + 1, newStat);
+                // Fix the next action so that it starts from the right point
+                MoveAction(newDay, listIndex + 2);
+                // Give ratings to the old and new day, and evaluate them
+                if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
+                {
+                    foundSucc = true;
+                    Datastructures.availableOrders.Remove(ord.orderNumber);
+                    newState = oldState;
+                    newState.status2[findDay] = newDay;
+                }
+            }
+        }
+        #endregion
+        #region Swappers
+        // Swap two random actions within a truck
+        public void SwapRandomActionsWithin1()
+        {
+            List<Status> oldDay1, oldDay2, newDay1, newDay2;
+            int day1, day2;
+            Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
+            int actionIndex1, actionIndex2;
+            while (!foundSucc)
+            {
+                day1 = r.Next(6);
+                day2 = r.Next(6);
+                oldDay1 = newDay1 = status1[day1];
+                oldDay2 = newDay2 = status1[day2];
+                // pick two random actions			
+                actionIndex1 = r.Next(status1[day1].Count);
+                actionIndex2 = r.Next(status1[day2].Count);
+                stat1 = status1[day1][actionIndex1];
+                stat2 = status1[day2][actionIndex2];
+                // Change times so that they are correct, if there was a different action before
+                if (actionIndex1 != 0)
+                {
+                    prevstat1 = status1[day1][actionIndex1 - 1];
+                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                }
+                else
+                {
+                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                }
+                if (actionIndex2 != 0)
+                {
+                    prevstat2 = status1[day1][actionIndex2 - 1];
+                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                }
+                else
+                {
+                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                }
+                // Swap the actions
+                newDay1.Insert(actionIndex1, tempstat2);
+                newDay2.Insert(actionIndex2, tempstat1);
+                // Fix the next action so that it starts from the right point
+                MoveAction(newDay1, actionIndex1 + 1);
+                MoveAction(newDay2, actionIndex2 + 1);
+                if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
+                {
+                    foundSucc = true;
+                    newState = oldState;
+                    newState.status1[day1] = newDay1;
+                    newState.status1[day2] = newDay2;
+                }
+            }
+        }
+
+        // Swap two random actions within a truck
+        public void SwapRandomActionsWithin2()
+        {
+            List<Status> oldDay1, oldDay2, newDay1, newDay2;
+            int day1, day2;
+            Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
+            int actionIndex1, actionIndex2;
+            while (!foundSucc)
+            {
+                day1 = r.Next(6);
+                day2 = r.Next(6);
+                oldDay1 = newDay1 = status2[day1];
+                oldDay2 = newDay2 = status2[day2];
+                // pick two random actions			
+                actionIndex1 = r.Next(status2[day1].Count);
+                actionIndex2 = r.Next(status2[day2].Count);
+                stat1 = status2[day1][actionIndex1];
+                stat2 = status2[day2][actionIndex2];
+                // Change times so that they are correct, if there was a different action before
+                if (actionIndex1 != 0)
+                {
+                    prevstat1 = status2[day1][actionIndex1 - 1];
+                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                }
+                else
+                {
+                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                }
+                if (actionIndex2 != 0)
+                {
+                    prevstat2 = status2[day1][actionIndex2 - 1];
+                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                }
+                else
+                {
+                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                }
+                // Swap the actions
+                newDay1.Insert(actionIndex1, tempstat2);
+                newDay2.Insert(actionIndex2, tempstat1);
+                // Fix the next action so that it starts from the right point
+                MoveAction(newDay1, actionIndex1 + 1);
+                MoveAction(newDay2, actionIndex2 + 1);
+                if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
+                {
+                    foundSucc = true;
+                    newState = oldState;
+                    newState.status2[day1] = newDay1;
+                    newState.status2[day2] = newDay2;
+                }
+            }
+        }
+        public void SwapRandomActionsBetween()
+        {
+            List<Status> oldDay1, oldDay2, newDay1, newDay2;
+            int day1, day2;
+            Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
+            int actionIndex1, actionIndex2;
+            while (!foundSucc)
+            {
+                day1 = r.Next(6);
+                day2 = r.Next(6);
+                oldDay1 = newDay1 = status1[day1];
+                oldDay2 = newDay2 = status2[day2];
+                // pick two random actions			
+                actionIndex1 = r.Next(status1[day1].Count);
+                actionIndex2 = r.Next(status2[day2].Count);
+                stat1 = status1[day1][actionIndex1];
+                stat2 = status2[day2][actionIndex2];
+                // Change times so that they are correct, if there was a different action before
+                if (actionIndex1 != 0)
+                {
+                    prevstat1 = status2[day1][actionIndex1 - 1];
+                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                }
+                else
+                {
+                    tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
+                }
+                if (actionIndex2 != 0)
+                {
+                    prevstat2 = status1[day1][actionIndex2 - 1];
+                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                }
+                else
+                {
+                    tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
+                }
+                // Swap the actions
+                newDay1.Insert(actionIndex1, tempstat2);
+                newDay2.Insert(actionIndex2, tempstat1);
+                // Fix the next action so that it starts from the right point
+                MoveAction(newDay1, actionIndex1 + 1);
+                MoveAction(newDay2, actionIndex2 + 1);
+                if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
+                {
+                    foundSucc = true;
+                    newState = oldState;
+                    newState.status1[day1] = newDay1;
+                    newState.status2[day2] = newDay2;
+                }
+            }
+        }
+
+        #endregion
+
+        public int EvalDay(List<Status> day)
+        {
+            int score = 0;
+            // More orders on a day is generally better
+            score += day.Count * 100;
+            int previousEnd = 21600;
+            // Iterate over all actions
+            foreach (Status action in day)
+            {
+                // See if the two events overlap. If yes, deduct points
+                if (action.startTime < previousEnd) score -= ((previousEnd - action.startTime) * 10);
+                // Reward "free" time in between orders
+                else if (action.startTime > previousEnd) score += ((previousEnd - action.startTime) / 5);
+                // Check if there's a moment when the truck is full. deduct a lot of score for that
+                if (action.truck.CheckIfOverloaded()) score -= 1000;
+                // See if an order is placed on the wrong day (according to a pattern), punish that
+                // TODO: implement this
+            }
+            return score;
+        }
+        public List<Status> MoveAction(List<Status> list, int index)
+        {
+            Company comp = Datastructures.maarheeze;
+            int endTime = 21600;
+            if (index > 0)
+            {
+                comp = list[index - 1].company;
+                endTime = list[index - 1].endTime;
+            }
+            Status toSwap = list[index];
+            list[index] = new Status(toSwap.day, toSwap.endTime, toSwap.endTime + Datastructures.timeMatrix[comp.companyIndex, toSwap.company.companyIndex] + (int)Datastructures.orders[toSwap.ordnr].emptyingTime, toSwap.company, toSwap.truck.FillTruck(Datastructures.orders[toSwap.ordnr]), toSwap.ordnr);
+            return list;
+        }
+
+        // Function that returns whether a new Day, and so, the new state would be accepted
+        public bool AcceptNewDay(int oldrating, int newrating)
+        {
+            return (newrating > oldrating) || PCheck(oldrating, newrating);
+        }
+
+
+        // x Swap actions of 2 cars
+        // x Swap actions within a car
+        // Add action (wat voor actie? Ergens pakken uit een lijst?)
+        // x Remove action
+        // x Change day of action
+
+        // Checks if the P is smaller than a random number. Return true if yes.
+        public bool PCheck(int fx, int fy)
+        {
+            return Math.Pow(Math.E, (fx - fy) / Datastructures.temperature) < r.Next(0, 1);
+        }
+
+
+
+
     }
-}
-#endregion
-#region Swappers
-// Swap two random actions within a truck
-public void SwapRandomActionsWithin1()
-{
-    List<Status> oldDay1, oldDay2, newDay1, newDay2;
-    int day1, day2;
-    Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
-    int actionIndex1, actionIndex2;
-    while (!foundSucc)
-    {
-        day1 = r.Next(6);
-        day2 = r.Next(6);
-        oldDay1 = newDay1 = status1[day1];
-        oldDay2 = newDay2 = status1[day2];
-        // pick two random actions			
-        actionIndex1 = r.Next(status1[day1].Count);
-        actionIndex2 = r.Next(status1[day2].Count);
-        stat1 = status1[day1][actionIndex1];
-        stat2 = status1[day2][actionIndex2];
-        // Change times so that they are correct, if there was a different action before
-        if (actionIndex1 != 0)
-        {
-            prevstat1 = status1[day1][actionIndex1 - 1];
-            tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex],stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
-        }
-        else
-        {
-            tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
-        }
-        if (actionIndex2 != 0)
-        {
-            prevstat2 = status1[day1][actionIndex2 - 1];
-            tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
-        }
-        else
-        {
-            tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
-        }
-        // Swap the actions
-        newDay1.Insert(actionIndex1, tempstat2);
-        newDay2.Insert(actionIndex2, tempstat1);
-        // Fix the next action so that it starts from the right point
-        MoveAction(newDay1, actionIndex1 + 1);
-        MoveAction(newDay2, actionIndex2 + 1);
-        if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
-        {
-            foundSucc = true;
-            newState = oldState;
-            newState.status1[day1] = newDay1;
-            newState.status1[day2] = newDay2;
-        }
-    }
-    }
-
-// Swap two random actions within a truck
-public void SwapRandomActionsWithin2()
-{
-    List<Status> oldDay1, oldDay2, newDay1, newDay2;
-    int day1, day2;
-    Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
-    int actionIndex1, actionIndex2;
-    while (!foundSucc)
-    {
-        day1 = r.Next(6);
-        day2 = r.Next(6);
-        oldDay1 = newDay1 = status2[day1];
-        oldDay2 = newDay2 = status2[day2];
-        // pick two random actions			
-        actionIndex1 = r.Next(status2[day1].Count);
-        actionIndex2 = r.Next(status2[day2].Count);
-        stat1 = status2[day1][actionIndex1];
-        stat2 = status2[day2][actionIndex2];
-        // Change times so that they are correct, if there was a different action before
-        if (actionIndex1 != 0)
-        {
-            prevstat1 = status2[day1][actionIndex1 - 1];
-            tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
-        }
-        else
-        {
-            tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
-        }
-        if (actionIndex2 != 0)
-        {
-            prevstat2 = status2[day1][actionIndex2 - 1];
-            tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
-        }
-        else
-        {
-            tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
-        }
-        // Swap the actions
-        newDay1.Insert(actionIndex1, tempstat2);
-        newDay2.Insert(actionIndex2, tempstat1);
-        // Fix the next action so that it starts from the right point
-        MoveAction(newDay1, actionIndex1 + 1);
-        MoveAction(newDay2, actionIndex2 + 1);
-        if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
-        {
-            foundSucc = true;
-            newState = oldState;
-            newState.status2[day1] = newDay1;
-            newState.status2[day2] = newDay2;
-        }
-    }
-}
-public void SwapRandomActionsBetween()
-{
-    List<Status> oldDay1, oldDay2, newDay1, newDay2;
-    int day1, day2;
-    Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
-    int actionIndex1, actionIndex2;
-    while (!foundSucc)
-    {
-        day1 = r.Next(6);
-        day2 = r.Next(6);
-        oldDay1 = newDay1 = status1[day1];
-        oldDay2 = newDay2 = status2[day2];
-        // pick two random actions			
-        actionIndex1 = r.Next(status1[day1].Count);
-        actionIndex2 = r.Next(status2[day2].Count);
-        stat1 = status1[day1][actionIndex1];
-        stat2 = status2[day2][actionIndex2];
-        // Change times so that they are correct, if there was a different action before
-        if (actionIndex1 != 0)
-        {
-            prevstat1 = status2[day1][actionIndex1 - 1];
-            tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
-        }
-        else
-        {
-            tempstat2 = new Status(day1, stat1.startTime, stat1.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(Datastructures.orders[stat2.ordnr]), stat2.ordnr);
-        }
-        if (actionIndex2 != 0)
-        {
-            prevstat2 = status1[day1][actionIndex2 - 1];
-            tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
-        }
-        else
-        {
-            tempstat1 = new Status(day2, stat2.startTime, stat2.startTime + Datastructures.distanceMatrix[Datastructures.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(Datastructures.orders[stat1.ordnr]), stat1.ordnr);
-        }
-        // Swap the actions
-        newDay1.Insert(actionIndex1, tempstat2);
-        newDay2.Insert(actionIndex2, tempstat1);
-        // Fix the next action so that it starts from the right point
-        MoveAction(newDay1, actionIndex1 + 1);
-        MoveAction(newDay2, actionIndex2 + 1);
-        if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
-        {
-            foundSucc = true;
-            newState = oldState;
-            newState.status1[day1] = newDay1;
-            newState.status2[day2] = newDay2;
-        }
-    }
-}
-
-#endregion
-
-public int EvalDay(List<Status> day)
-{
-    int score = 0;
-    // More orders on a day is generally better
-    score += day.Count * 100;
-    int previousEnd = 21600;
-    // Iterate over all actions
-    foreach(Status action in day)
-    {
-        // See if the two events overlap. If yes, deduct points
-        if (action.startTime < previousEnd) score -= ((previousEnd - action.startTime) * 10);
-        // Reward "free" time in between orders
-        else if (action.startTime > previousEnd) score += ((previousEnd - action.startTime) / 5);
-        // Check if there's a moment when the truck is full. deduct a lot of score for that
-        if (action.truck.CheckIfOverloaded()) score -= 1000;
-        // See if an order is placed on the wrong day (according to a pattern), punish that
-        // TODO: implement this
-    }
-    return score;
-}
-public List<Status> MoveAction(List<Status> list, int index)
-{
-    Company comp = Datastructures.maarheeze;
-    int endTime = 21600;
-    if (index > 0)
-    {
-        comp = list[index - 1].company;
-        endTime = list[index - 1].endTime;
-    }
-    Status toSwap = list[index];
-    list[index] = new Status(toSwap.day, toSwap.endTime, toSwap.endTime + Datastructures.timeMatrix[comp.companyIndex, toSwap.company.companyIndex] + (int)Datastructures.orders[toSwap.ordnr].emptyingTime, toSwap.company, toSwap.truck.FillTruck(Datastructures.orders[toSwap.ordnr]), toSwap.ordnr);
-    return list;
-}
-
-// Function that returns whether a new Day, and so, the new state would be accepted
-public bool AcceptNewDay(int oldrating, int newrating)
-{
-    return (newrating > oldrating) || PCheck(oldrating, newrating);
-}
-
-
-// x Swap actions of 2 cars
-// x Swap actions within a car
-// Add action (wat voor actie? Ergens pakken uit een lijst?)
-// x Remove action
-// x Change day of action
-
-// Checks if the P is smaller than a random number. Return true if yes.
-public bool PCheck(int fx, int fy)
-{
-    return Math.Pow(Math.E, (fx - fy) / Datastructures.temperature) < r.Next(0, 1);
-}
-
-
-
-
-}
 }
