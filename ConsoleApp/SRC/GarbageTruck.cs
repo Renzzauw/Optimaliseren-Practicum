@@ -10,14 +10,16 @@ namespace OptimaliserenPracticum
 	public class GarbageTruck
 	{
 		// Variables
+		public int truckNumber;				// Number of the truck (1 or 2)
 		public const int capacity = 100000;	// Capacity of the truck in liters, times 5 because in reality garbage gets compressed
 		public const int emptyTime = 30;    // Time to empty garbage truck in minutes
-		public int currentCapacity;         // Current content of the truck in liters
+		public int currentCapacity = 0;     // Current content of the truck in liters
 		public Company currentCompany;      // Company where the truck currently is
 
 		// Constructor
-		public GarbageTruck(int currentCapacity = 0)
+		public GarbageTruck(int truckNumber, int currentCapacity)
 		{
+			this.truckNumber = truckNumber;
 			this.currentCapacity = currentCapacity;
 		}
 

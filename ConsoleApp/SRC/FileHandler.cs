@@ -53,8 +53,8 @@ namespace OptimaliserenPracticum
 					List<Status> day = state.status1[i];
 					foreach (Status status in day)
 					{
-						// day, starttime, endtime, company, truck capacity, truck number, ordernummer
-						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}", status.day, status.startTime, status.endTime, status.company, status.truck.currentCapacity, status.ordnr);
+						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
+						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}; {6}", status.day, status.startTime, status.endTime, status.company.placeName, 1, status.truck.currentCapacity, status.ordnr);
 						daycounter++;						
 					}
 				}
@@ -65,8 +65,8 @@ namespace OptimaliserenPracticum
 					List<Status> day = state.status2[i];
 					foreach (Status status in day)
 					{
-						// day, starttime, endtime, company, truck capacity, truck number, ordernummer
-						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}", status.day, status.startTime, status.endTime, status.company, status.truck.currentCapacity, status.ordnr);
+						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
+						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}; {6}", status.day, status.startTime, status.endTime, status.company.placeName, 2, status.truck.currentCapacity, status.ordnr);
 						daycounter++;						
 					}
 				}
@@ -78,25 +78,37 @@ namespace OptimaliserenPracticum
 		public State LoadStates(string path)
 		{
 			State state = new State();
-			List<Status>[] states = new List<Status>[5]; 
-			StreamReader sr = File.OpenText(path);
+			List<Status>[] status1 = new List<Status>[5];
+			List<Status>[] status2 = new List<Status>[5];
+			
 			// Read all lines from the text file
+			StreamReader sr = File.OpenText(path);			
 			string line;
 			while ((line = sr.ReadLine()) != null)
 			{
-				// day, starttime, endtime, company, truck capacity, truck number, ordernummer
+				// Split the input in: day, starttime, endtime, company, truck number, truck capacity, ordernummer
 				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);
-				// TODO: checken of de volgorde hier nog klopt
-				Status status = new Status(int.Parse(parts[0]), int.Parse(parts[1]), CompanyFromName(parts[2]), new GarbageTruck(int.Parse(parts[3])), int.Parse(parts[4]), int.Parse(parts[5]));
-				//states[int.Parse(parts[0])].Add(status);
-				//state.
+				int day = int.Parse(parts[0]);
+				int startTime = int.Parse(parts[1]);
+				int endTime = int.Parse(parts[2]);
+				Company comp = CompanyFromName(parts[3]);
+				int trucknr = int.Parse(parts[4]);
+				GarbageTruck truck = new GarbageTruck(trucknr, int.Parse(parts[5]));
+				int ordnr = int.Parse(parts[6]);
+				// Create a status from the input
+				Status status = new Status(day, startTime, endTime, comp, truck, ordnr);
+				// Add the status to the right day and list 
+				if (trucknr == 1) status1[day].Add(status);
+				else status2[day].Add(status);				
 			}
-
-
-
+			// Close the filestream
+			sr.Close();
+			// Fill the state
+			state.status1 = status1;
+			state.status2 = status2;
+			return state;
 		}
 
-		// 
 		public Company CompanyFromName(string companyName)
 		{
 			// Check if any company has the name, if so return it
