@@ -14,6 +14,8 @@ namespace OptimaliserenPracticum
 		public static int[,] timeMatrix;            // Time matrix
 		public static Company maarheeze;
 		public static Dictionary<int, Order> orders;
+        public static Dictionary<int, Order> availableOrders;
+        public static int temperature;
 
 	}
 }

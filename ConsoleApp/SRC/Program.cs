@@ -25,7 +25,6 @@ namespace OptimaliserenPracticum
 		Stopwatch initWatch;                    // Stopwatches to keep track of time
 		Stopwatch runtimeWatch;
 		ulong i;                                // A counter that keeps track of the total amount of iterations
-		float t;                                // The control parameter
 		float alpha;                            // The percentage to reduce T with, every q iterations
 		int q;                                  // The number of iterations before q gets reduced
 		int qCounter;                           // Keeps track of how many iterations we have had since our last T change
@@ -49,7 +48,7 @@ namespace OptimaliserenPracticum
 			Datastructures.maarheeze = Datastructures.companyList[287];
 			// Initialize all other variables
 			i = 0;
-			t = 10000;
+			Datastructures.temperature = 10000;
 			alpha = 0.99F;
 			q = 8; //TODO calcuate the total number of neighbours, times 8
 			qCounter = 0;
@@ -83,48 +82,13 @@ namespace OptimaliserenPracticum
 				i++;
 				if (qCounter == q)
 				{
-					t *= alpha;
+					Datastructures.temperature *= alpha;
 					qCounter = 0;
 				}
-				successor = generator.GetNewState(current);
+				successor = generator.GetNextState(current);
 			}
 			runtimeWatch.Stop();
-			//Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms");
-			Print(current);
-		}
-
-		public void Print(State state)
-		{
-			int daycounter = 1;
-			// print the path of the first truck
-			for (int i = 0; i < 5; i++)
-			{
-				daycounter = 1;
-				List<Status> day = state.status1[i];
-				foreach (Status status in day)
-				{
-					Console.WriteLine("1; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
-					daycounter++;
-				}
-			}
-			// print the path of the second truck
-			// TODO: losse functie
-			for (int i = 0; i < 5; i++)
-			{
-				daycounter = 1;
-				List<Status> day = state.status2[i];
-				foreach (Status status in day)
-				{
-					Console.WriteLine("2; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
-					daycounter++;
-				}
-			}
-		}
-
-		// Checks if the P is smaller than a random number. Return true if yes.
-		public bool PCheck(int fx, int fy)
-		{
-			return Math.Pow(Math.E, (fx - fy) / t) < r.Next(0, 1);
+			//Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms"
 		}
 	}
 

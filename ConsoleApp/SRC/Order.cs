@@ -28,7 +28,5 @@ namespace OptimaliserenPracticum
 			this.xCoordinate = xCoordinate;
 			this.yCoordinate = yCoordinate;
 		}
-
-
 	}
 }

@@ -50,9 +50,9 @@ namespace OptimaliserenPracticum
 			foreach (Order order in orderList)
             {
 				Datastructures.orders[order.orderNumber] = order;
-				
-				// Current company does not exist, create it and add the order
-				if (companylist[order.matrixID] == null) 
+                Datastructures.availableOrders[order.orderNumber] = order;
+                // Current company does not exist, create it and add the order
+                if (companylist[order.matrixID] == null) 
                 {
                     Company company = new Company(order.matrixID, order.xCoordinate, order.yCoordinate, order.placeName, new List<Order>());
 					companylist[order.matrixID] = company;
