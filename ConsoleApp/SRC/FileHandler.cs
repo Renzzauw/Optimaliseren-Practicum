@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace OptimaliserenPracticum
 {
+	// Class for handling input/output of the various neighbour states
 	public class FileHandler
 	{
+		// Print all the actions to the console
 		public void Print(State state)
 		{
 			int daycounter = 1;
@@ -17,26 +19,17 @@ namespace OptimaliserenPracticum
 			{
 				daycounter = 1;
 				List<Status> day = state.status1[i];
+				day.AddRange(state.status2[i]);
+				// Print the routes in the format of the autochecker
 				foreach (Status status in day)
 				{
-					Console.WriteLine("1; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
-					daycounter++;
-				}
-			}
-			// print the path of the second truck
-			// TODO: losse functie
-			for (int i = 0; i < 5; i++)
-			{
-				daycounter = 1;
-				List<Status> day = state.status2[i];
-				foreach (Status status in day)
-				{					
-					Console.WriteLine("2; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+					Console.WriteLine(status.truck.truckNumber + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
 					daycounter++;
 				}
 			}
 		}
 
+		// Save a state to a textfile with the current datetime
 		public void SaveState(State state)
 		{
 			// Create a filename for saving the state with the current time
@@ -44,37 +37,27 @@ namespace OptimaliserenPracticum
 			if (!File.Exists(path))
 			{
 				StreamWriter sw = File.CreateText(path);
-
 				int daycounter = 1;
-				// Write the path of the first truck
+				// Write the path of both trucks
 				for (int i = 0; i < 5; i++)
 				{
 					daycounter = 1;
 					List<Status> day = state.status1[i];
+					day.AddRange(state.status2[i]);
 					foreach (Status status in day)
 					{
 						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
-						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}; {6}", status.day, status.startTime, status.endTime, status.company.placeName, 1, status.truck.currentCapacity, status.ordnr);
-						daycounter++;						
+						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}; {6}", status.day, status.startTime, status.endTime, status.company.placeName, status.truck.truckNumber, status.truck.currentCapacity, status.ordnr);
+						daycounter++;
 					}
+
+					// Close the streamwriter
+					sw.Close();
 				}
-				// Write the path of the second truck
-				for (int i = 0; i < 5; i++)
-				{
-					daycounter = 1;
-					List<Status> day = state.status2[i];
-					foreach (Status status in day)
-					{
-						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
-						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}; {6}", status.day, status.startTime, status.endTime, status.company.placeName, 2, status.truck.currentCapacity, status.ordnr);
-						daycounter++;						
-					}
-				}
-				// Close the streamwriter
-				sw.Close();
-			}	
+			}
 		}
 
+		// Load a state from a given filepath
 		public State LoadStates(string path)
 		{
 			State state = new State();
@@ -109,15 +92,13 @@ namespace OptimaliserenPracticum
 			return state;
 		}
 
+		// Return a company given its name
 		public Company CompanyFromName(string companyName)
 		{
 			// Check if any company has the name, if so return it
 			foreach (Company c in Datastructures.companyList)
 			{
-				if (c.placeName == companyName)
-				{
-					return c;
-				}
+				if (c.placeName == companyName) return c;
 			}
 			// Otherwise return null
 			return null;
