@@ -11,14 +11,16 @@ namespace OptimaliserenPracticum
         private Thread[] successorfunctions;                       // A list of threads, each containing a successorfunction
         private State oldState, newState;                              // Each iteration is given an old state, and must return a new state
         private List<Status>[] status1, status2;                        // The two seperate days of the old state, written explicitely to make calcuations easier
-        private bool foundSucc;                                        // A bool that checks whether a successor has been found
-        private Random r;                                              // Random number generator that is used sometimes
+        private volatile bool foundSucc;                                        // A bool that checks whether a successor has been found
+        private object orderLock;
 
-        public StateGenerator()
+        public StateGenerator(State initial)
         {
+            foundSucc = true;
+            orderLock = new object();
+            oldState = initial;
             // Initialize the thread array
             successorfunctions = new Thread[7];
-            r = new Random();
             successorfunctions[0] = new Thread(RemoveRandomAction1);
             successorfunctions[1] = new Thread(RemoveRandomAction2);
             successorfunctions[2] = new Thread(AddRandomAction1);
@@ -26,39 +28,19 @@ namespace OptimaliserenPracticum
             successorfunctions[4] = new Thread(SwapRandomActionsWithin1);
             successorfunctions[5] = new Thread(SwapRandomActionsWithin2);
             successorfunctions[6] = new Thread(SwapRandomActionsBetween);
+            for(int i = 0; i < 7; i++)
+            {
+                successorfunctions[i].Start();
+            }
         }
 
         public State GetNextState(State old)
         {
             oldState = old;
-            status1 = old.status1;
-            status2 = old.status2;
-            // Start all the threads
-            /*
-            successorfunctions[0].Start();
-            successorfunctions[1].Start();
-            successorfunctions[2].Start();
-            successorfunctions[3].Start();
-            successorfunctions[4].Start();
-            successorfunctions[5].Start();
-            successorfunctions[6].Start();
-            // Wait untill all threads finish
-            for (int i = 0; i < successorfunctions.Length; i++)
-            {
-                successorfunctions[i].Join();
-            }
-            */
-            int function = 2;// r.Next(7);
-            switch (function)
-            {
-                case 0: RemoveRandomAction1(); break;
-                case 1: RemoveRandomAction2(); break;
-                case 2: AddRandomAction1(); break;
-                case 3: AddRandomAction2(); break;
-                case 4: SwapRandomActionsWithin1(); break;
-                case 5: SwapRandomActionsWithin2(); break;
-                case 6: SwapRandomActionsBetween(); break;
-            }
+            status1 = oldState.status1;
+            status2 = oldState.status2;
+            foundSucc = false;
+            while (!foundSucc) { }
             return newState;
         }
 
@@ -182,267 +164,307 @@ namespace OptimaliserenPracticum
         // Remove a random action on a random day of the schedule of a truck
         public void RemoveRandomAction1()
         {
+            Random r = new Random();
             List<Status> oldDay;
             List<Status> newDay;
+            int orda;
             int findDay, removedIndex;
-            while (!foundSucc)
+        loop1:
+            while (foundSucc) { }
+            // pick a random day of the week
+            findDay = r.Next(5);
+            if (oldState.status1[findDay].Count == 0) goto loop1;
+            oldDay = oldState.status1[findDay];
+            newDay = new List<Status>(oldDay);
+            removedIndex = r.Next(1, oldDay.Count - 1);
+            // Remove a random action
+            orda = newDay[removedIndex].ordnr;
+            if (orda == 0) goto loop1;
+            newDay.RemoveAt(removedIndex);
+            // Give ratings to the old and new day, and evaluate them
+            if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay), r))
             {
-                // pick a random day of the week
-                findDay = r.Next(5);
-                if (oldState.status1[findDay].Count == 0) continue;
-                oldDay = oldState.status1[findDay];
-                newDay = new List<Status>(oldDay);
-                removedIndex = r.Next(1, oldDay.Count - 1);
-                // Remove a random action
-                newDay.RemoveAt(removedIndex);
-                // Give ratings to the old and new day, and evaluate them
-                if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
+                lock (orderLock)
                 {
-                    foundSucc = true;
-                    newState = oldState;
-                    newState.status1[findDay] = newDay;
+                    try
+                    {
+                        DTS.availableOrders.Add(orda, DTS.orders[orda]);
+                    }
+                    catch
+                    {
+                        // Niet nodig om extra toe te veogen
+                    }
                 }
+                newState = oldState;
+                newState.status1[findDay] = newDay;
+                foundSucc = true;
             }
+            goto loop1;
         }
 
         // Remove a random action on a random day of the schedule of a truck
         public void RemoveRandomAction2()
         {
+            Random r = new Random();
             List<Status> oldDay;
             List<Status> newDay;
-            int ord;
+            int ordb;
             int findDay, removedIndex;
-            while (!foundSucc)
+        loop2:
+            while (foundSucc) { }
+            // pick a random day of the week
+            findDay = r.Next(5);
+            if (oldState.status1[findDay].Count == 0) goto loop2;
+            oldDay = oldState.status2[findDay];
+            newDay = new List<Status>(oldDay);
+            removedIndex = r.Next(1, oldDay.Count - 1);
+            // Remove a random action
+            ordb = newDay[removedIndex].ordnr;
+            if (ordb == 0) goto loop2;
+            newDay.RemoveAt(removedIndex);
+            // Give ratings to the old and new day, and evaluate them
+            if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay), r))
             {
-                // pick a random day of the week
-                findDay = r.Next(5);
-                oldDay = oldState.status2[findDay];
-                newDay = new List<Status>(oldDay);
-                removedIndex = r.Next(1, oldDay.Count - 1);
-                // Remove a random action
-                ord = newDay[removedIndex].ordnr;
-                newDay.RemoveAt(removedIndex);
-                // Give ratings to the old and new day, and evaluate them
-                if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
+                lock (orderLock)
                 {
-                    foundSucc = true;
-                    DTS.availableOrders.Remove(ord);
-                    newState = oldState;
-                    newState.status2[findDay] = newDay;
+                    try
+                    {
+                        DTS.availableOrders.Add(ordb, DTS.orders[ordb]);
+                    }
+                    catch
+                    {
+                        // Niet nodig om extra toe te veogen
+                    }
                 }
+                newState = oldState;
+                newState.status2[findDay] = newDay;
+                foundSucc = true;
             }
+            goto loop2;
         }
         #endregion
         #region Adders
         // Add a random action at a random time, ignoring whether it is possible or not
         public void AddRandomAction1()
         {
+            Random r = new Random();
             List<Status> oldDay, newDay;
             int findDay, addedIndex;
             Order ord;
-            while (!foundSucc)
+        loop3:
+            while (foundSucc) { }
+            // pick a random day of the week
+            findDay = r.Next(5);
+            oldDay = oldState.status1[findDay];
+            newDay = new List<Status>(oldDay);
+            addedIndex = r.Next(oldDay.Count);
+            // Add a random available action in between two other actions
+            lock (orderLock)
             {
-                // pick a random day of the week
-                findDay = r.Next(5);
-                oldDay = oldState.status1[findDay];
-                newDay = new List<Status>(oldDay);
-                addedIndex = r.Next(oldDay.Count);
-                // Add a random available action in between two other actions
-                ord = DTS.availableOrders.ElementAt(r.Next(DTS.availableOrders.Count)).Value;
-                // Add a random available action in between two other actions
-                ord = DTS.availableOrders.ElementAt(r.Next(DTS.availableOrders.Count)).Value;
-                newDay.Insert(addedIndex, new Status(findDay, DTS.companyList[ord.matrixID], ord.orderNumber));
-                // Give ratings to the old and new day, and evaluate them
-                if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
-                {
-                    foundSucc = true;
-                    DTS.availableOrders.Remove(ord.orderNumber);
-                    newState = oldState;
-                    newState.status1[findDay] = newDay;
-                }
+                int rand = r.Next(DTS.availableOrders.Count);
+                ord = DTS.availableOrders.ElementAt(rand).Value;
             }
+            newDay.Insert(addedIndex, new Status(findDay, DTS.companyList[ord.matrixID], ord.orderNumber));
+            // Give ratings to the old and new day, and evaluate them
+            if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay), r))
+            {
+                lock (orderLock) DTS.availableOrders.Remove(ord.orderNumber);
+                newState = oldState;
+                newState.status1[findDay] = newDay;
+                foundSucc = true;
+            }
+            goto loop3;
         }
 
         public void AddRandomAction2()
         {
+            Random r = new Random();
             List<Status> oldDay, newDay;
             int findDay, addedIndex;
             Order ord;
-            while (!foundSucc)
+        loop4:
+            while (foundSucc) { }
+            // pick a random day of the week
+            findDay = r.Next(5);
+            oldDay = oldState.status2[findDay];
+            newDay = new List<Status>(oldDay);
+            addedIndex = r.Next(oldDay.Count);
+            // Add a random available action in between two other actions
+            lock (orderLock)
             {
-                // pick a random day of the week
-                findDay = r.Next(5);
-                oldDay = oldState.status2[findDay];
-                newDay = new List<Status>(oldDay);
-                addedIndex = r.Next(oldDay.Count);
-                // Add a random available action in between two other actions
                 ord = DTS.availableOrders.ElementAt(r.Next(DTS.availableOrders.Count)).Value;
-                newDay.Insert(addedIndex, new Status(findDay, DTS.companyList[ord.matrixID], ord.orderNumber));
-                // Give ratings to the old and new day, and evaluate them
-                if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
-                {
-                    foundSucc = true;
-                    DTS.availableOrders.Remove(ord.orderNumber);
-                    newState = oldState;
-                    newState.status2[findDay] = newDay;
-                }
             }
+            newDay.Insert(addedIndex, new Status(findDay, DTS.companyList[ord.matrixID], ord.orderNumber));
+            int a = EvalDay(oldDay);
+            int b = EvalDay(newDay);
+            // Give ratings to the old and new day, and evaluate them
+            if (AcceptNewDay(a, b, r))
+            {
+                lock (orderLock) DTS.availableOrders.Remove(ord.orderNumber);
+                newState = oldState;
+                newState.status2[findDay] = newDay;
+                foundSucc = true;
+            }
+            goto loop4;
         }
         #endregion
         #region Swappers
         // Swap two random actions within a truck
         public void SwapRandomActionsWithin1()
         {
-            List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2;
-            Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
-            int actionIndex1, actionIndex2;
-            while (!foundSucc)
-            {
-                day1 = r.Next(5);
-                day2 = r.Next(5);
-                oldDay1 = status1[day1];
-                oldDay2 = status1[day2];
-                newDay1 = new List<Status>(oldDay1);
-                newDay2 = new List<Status>(oldDay2);
+            Random r = new Random();
+            List<Status> oldDaya1, oldDaya2, newDaya1, newDaya2;
+            int daya1, daya2;
+            Status stata1, stata2, tempstata1, tempstata2;
+            int actionIndexa1, actionIndexa2;
+        loop5:
+            while (foundSucc) { }
+            daya1 = r.Next(5);
+            daya2 = r.Next(5);
+            oldDaya1 = status1[daya1];
+            oldDaya2 = status1[daya2];
+            newDaya1 = new List<Status>(oldDaya1);
+            newDaya2 = new List<Status>(oldDaya2);
 
-                // pick two random actions			
-                actionIndex1 = r.Next(1, status1[day1].Count - 1);
-                actionIndex2 = r.Next(1, status1[day2].Count - 1);
-                stat1 = status1[day1][actionIndex1];
-                stat2 = status1[day2][actionIndex2];
-                // Change times so that they are correct, if there was a different action before
-                if (actionIndex1 != 0)
-                {
-                    prevstat1 = status1[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
-                }
-                else
-                {
-                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
-                }
-                if (actionIndex2 != 0)
-                {
-                    prevstat2 = status1[day2][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
-                }
-                else
-                {
-                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
-                }
-                // Swap the actions
-                newDay1.Insert(actionIndex1, tempstat2);
-                newDay2.Insert(actionIndex2, tempstat1);
-                if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
-                {
-                    foundSucc = true;
-                    newState = oldState;
-                    newState.status1[day1] = newDay1;
-                    newState.status1[day2] = newDay2;
-                }
+            // pick two random actions			
+            actionIndexa1 = r.Next(1, status1[daya1].Count - 1);
+            actionIndexa2 = r.Next(1, status1[daya2].Count - 1);
+            stata1 = oldDaya1[actionIndexa1];
+            stata2 = oldDaya2[actionIndexa2];
+            // Change times so that they are correct, if there was a different action before
+            if (actionIndexa1 != 0)
+            {
+                tempstata2 = new Status(daya1, stata2.company, stata2.ordnr);
             }
+            else
+            {
+                tempstata2 = new Status(daya1, stata2.company, stata2.ordnr);
+            }
+            if (actionIndexa2 != 0)
+            {
+                tempstata1 = new Status(daya2, stata1.company, stata1.ordnr);
+            }
+            else
+            {
+                tempstata1 = new Status(daya2, stata1.company, stata1.ordnr);
+            }
+            // Swap the actions
+            newDaya1.Remove(stata1);
+            newDaya2.Remove(stata2);
+            newDaya1.Insert(actionIndexa1, tempstata2);
+            newDaya2.Insert(actionIndexa2, tempstata1);
+            if (AcceptNewDay(EvalDay(oldDaya1) + EvalDay(oldDaya2), EvalDay(newDaya1) + EvalDay(newDaya2), r))
+            {
+                newState = oldState;
+                newState.status1[daya1] = newDaya1;
+                newState.status1[daya2] = newDaya2;
+                foundSucc = true;
+            }
+            goto loop5;
         }
 
         // Swap two random actions within a truck
         public void SwapRandomActionsWithin2()
         {
-            List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2;
-            Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
-            int actionIndex1, actionIndex2;
-            while (!foundSucc)
+            Random r = new Random();
+            List<Status> oldDayb1, oldDayb2, newDayb1, newDayb2;
+            int dayb1, dayb2;
+            Status statb1, statb2, tempstatb1, tempstatb2;
+            int actionIndexb1, actionIndexb2;
+        loop6:
+            while (foundSucc) { }
+            dayb1 = r.Next(5);
+            dayb2 = r.Next(5);
+            oldDayb1 = status2[dayb1];
+            oldDayb2 = status2[dayb2];
+            newDayb1 = new List<Status>(oldDayb1);
+            newDayb2 = new List<Status>(oldDayb2);
+            // pick two random actions			
+            actionIndexb1 = r.Next(1, status2[dayb1].Count - 1);
+            actionIndexb2 = r.Next(1, status2[dayb2].Count - 1);
+            statb1 = oldDayb1[actionIndexb1];
+            statb2 = oldDayb2[actionIndexb2];
+            // Change times so that they are correct, if there was a different action before
+            if (actionIndexb1 != 0)
             {
-                day1 = r.Next(5);
-                day2 = r.Next(5);
-                oldDay1 = status2[day1];
-                oldDay2 = status2[day2];
-                newDay1 = new List<Status>(oldDay1);
-                newDay2 = new List<Status>(oldDay2);
-                // pick two random actions			
-                actionIndex1 = r.Next(1, status2[day1].Count - 1);
-                actionIndex2 = r.Next(1, status2[day2].Count - 1);
-                stat1 = status2[day1][actionIndex1];
-                stat2 = status2[day2][actionIndex2];
-                // Change times so that they are correct, if there was a different action before
-                if (actionIndex1 != 0)
-                {
-                    prevstat1 = status2[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
-                }
-                else
-                {
-                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
-                }
-                if (actionIndex2 != 0)
-                {
-                    prevstat2 = status2[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
-                }
-                else
-                {
-                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
-                }
-                // Swap the actions
-                newDay1.Insert(actionIndex1, tempstat2);
-                newDay2.Insert(actionIndex2, tempstat1);
-                if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
-                {
-                    foundSucc = true;
-                    newState = oldState;
-                    newState.status2[day1] = newDay1;
-                    newState.status2[day2] = newDay2;
-                }
+                tempstatb2 = new Status(dayb1, statb2.company, statb2.ordnr);
             }
+            else
+            {
+                tempstatb2 = new Status(dayb1, statb2.company, statb2.ordnr);
+            }
+            if (actionIndexb2 != 0)
+            {
+                tempstatb1 = new Status(dayb2, statb1.company, statb1.ordnr);
+            }
+            else
+            {
+                tempstatb1 = new Status(dayb2, statb1.company, statb1.ordnr);
+            }
+            // Swap the actions
+            newDayb1.Remove(statb1);
+            newDayb2.Remove(statb2);
+            newDayb1.Insert(actionIndexb1, tempstatb2);
+            newDayb2.Insert(actionIndexb2, tempstatb1);
+            if (AcceptNewDay(EvalDay(oldDayb1) + EvalDay(oldDayb2), EvalDay(newDayb1) + EvalDay(newDayb2), r))
+            {
+                newState = oldState;
+                newState.status2[dayb1] = newDayb1;
+                newState.status2[dayb2] = newDayb2;
+                foundSucc = true;
+            }
+            goto loop6;
         }
+
         public void SwapRandomActionsBetween()
         {
-            List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2;
-            Status stat1, stat2, tempstat1, tempstat2, prevstat1, prevstat2;
-            int actionIndex1, actionIndex2;
-            while (!foundSucc)
+            Random r = new Random();
+            List<Status> oldDayc1, oldDayc2, newDayc1, newDayc2;
+            int dayc1, dayc2;
+            Status statc1, statc2, tempstatc1, tempstatc2;
+            int actionIndexc1, actionIndexc2;
+        loop7:
+            while (foundSucc) { }
+            dayc1 = r.Next(5);
+            dayc2 = r.Next(5);
+            oldDayc1 = status1[dayc1];
+            oldDayc2 = status2[dayc2];
+            newDayc1 = new List<Status>(oldDayc1);
+            newDayc2 = new List<Status>(oldDayc2);
+            // pick two random actions			
+            actionIndexc1 = r.Next(1, status1[dayc1].Count - 1);
+            actionIndexc2 = r.Next(1, status2[dayc2].Count - 1);
+            statc1 = oldDayc1[actionIndexc1];
+            statc2 = oldDayc2[actionIndexc2];
+            if (actionIndexc1 != 0)
             {
-                day1 = r.Next(5);
-                day2 = r.Next(5);
-                oldDay1 = status1[day1];
-                oldDay2 = status2[day2];
-                newDay1 = new List<Status>(oldDay1);
-                newDay2 = new List<Status>(oldDay2);
-                // pick two random actions			
-                actionIndex1 = r.Next(1,status1[day1].Count - 1);
-                actionIndex2 = r.Next(1,status2[day2].Count - 1);
-                stat1 = status1[day1][actionIndex1];
-                stat2 = status2[day2][actionIndex2];
-                // Change times so that they are correct, if there was a different action before
-                if (actionIndex1 != 0)
-                {
-                    prevstat1 = status2[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
-                }
-                else
-                {
-                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
-                }
-                if (actionIndex2 != 0)
-                {
-                    prevstat2 = status1[day2][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
-                }
-                else
-                {
-                    tempstat1 = new Status(day2,stat1.company, stat1.ordnr);
-                }
-                // Swap the actions
-                newDay1.Insert(actionIndex1, tempstat2);
-                newDay2.Insert(actionIndex2, tempstat1);
-                if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
-                {
-                    foundSucc = true;
-                    newState = oldState;
-                    newState.status1[day1] = newDay1;
-                    newState.status2[day2] = newDay2;
-                }
+                tempstatc2 = new Status(dayc1, statc2.company, statc2.ordnr);
             }
+            else
+            {
+                tempstatc2 = new Status(dayc1, statc2.company, statc2.ordnr);
+            }
+            if (actionIndexc2 != 0)
+            {
+                tempstatc1 = new Status(dayc2, statc1.company, statc1.ordnr);
+            }
+            else
+            {
+                tempstatc1 = new Status(dayc2, statc1.company, statc1.ordnr);
+            }
+            // Swap the actions
+            newDayc1.Remove(statc1);
+            newDayc2.Remove(statc2);
+            newDayc1.Insert(actionIndexc1, tempstatc2);
+            newDayc2.Insert(actionIndexc2, tempstatc1);
+            if (AcceptNewDay(EvalDay(oldDayc1) + EvalDay(oldDayc2), EvalDay(newDayc1) + EvalDay(newDayc2), r))
+            {
+                newState = oldState;
+                newState.status1[dayc1] = newDayc1;
+                newState.status2[dayc2] = newDayc2;
+                foundSucc = true;
+            }
+            goto loop7;
         }
 
         #endregion
@@ -482,9 +504,9 @@ namespace OptimaliserenPracticum
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted
-        public bool AcceptNewDay(int oldrating, int newrating)
+        public bool AcceptNewDay(int oldrating, int newrating, Random r)
         {
-            return (newrating > oldrating) || PCheck(oldrating, newrating);
+            return (newrating > oldrating) || PCheck(oldrating, newrating, r);
         }
 
 
@@ -495,9 +517,9 @@ namespace OptimaliserenPracticum
         // x Change day of action
 
         // Checks if the P is smaller than a random number. Return true if yes.
-        public bool PCheck(int fx, int fy)
+        public bool PCheck(int fx, int fy, Random r)
         {
-            return Math.Pow(Math.E, (fx - fy) / DTS.temperature) < r.Next(0, 1);
+            return Math.Pow(Math.E, (fx - fy) / DTS.temperature) < r.NextDouble();
         }
 
 

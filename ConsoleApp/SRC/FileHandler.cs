@@ -18,22 +18,27 @@ namespace OptimaliserenPracticum
 			for (int i = 0; i < 5; i++)
 			{
 				daycounter = 1;
-				List<Status> day = state.status1[i];
-				day.AddRange(state.status2[i]);
+				List<Status> day1 = state.status1[i];
+				List<Status> day2 = state.status2[i];
 				// Print the routes in the format of the autochecker
-				foreach (Status status in day)
+				foreach (Status status in day1)
 				{
-					Console.WriteLine(status.truck.truckNumber + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+					Console.WriteLine(1 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
 					daycounter++;
 				}
-			}
+                foreach (Status status in day2)
+                {
+                    Console.WriteLine(2 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+                    daycounter++;
+                }
+            }
 		}
 
 		// Save a state to a textfile with the current datetime
 		public static void SaveState(State state)
 		{
 			// Create a filename for saving the state with the current time
-			string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1));
+			string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + DateTime.UtcNow.ToFileTime();
 			if (!File.Exists(path))
 			{
 				StreamWriter sw = File.CreateText(path);
@@ -42,19 +47,24 @@ namespace OptimaliserenPracticum
 				for (int i = 0; i < 5; i++)
 				{
 					daycounter = 1;
-					List<Status> day = state.status1[i];
-					day.AddRange(state.status2[i]);
-					foreach (Status status in day)
+                    List<Status> day1 = state.status1[i];
+                    List<Status> day2 = state.status2[i];
+                    foreach (Status status in day1)
 					{
 						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
-						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}", status.day, status.beginTime, status.company.placeName, status.truck.truckNumber, status.truck.currentCapacity, status.ordnr);
+						sw.WriteLine("{0}; {1}; {2}; {3}",1, status.day, status.company.placeName, status.ordnr);
 						daycounter++;
 					}
-
-					// Close the streamwriter
-					sw.Close();
+                    foreach (Status status in day2)
+                    {
+                        // day, starttime, endtime, company, truck number, truck capacity, ordernummer
+                        sw.WriteLine("{0}; {1}; {2}; {3}",2, status.day, status.company.placeName, status.ordnr);
+                        daycounter++;
+                    }
 				}
-			}
+                // Close the streamwriter
+                sw.Close();
+            }
 		}
 
 		// Load a state from a given filepath
@@ -71,15 +81,12 @@ namespace OptimaliserenPracticum
 			{
 				// Split the input in: day, starttime, endtime, company, truck number, truck capacity, ordernummer
 				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);
-				int day = int.Parse(parts[0]);
-				int startTime = int.Parse(parts[1]);
-				int endTime = int.Parse(parts[2]);
-				Company comp = CompanyFromName(parts[3]);
-				int trucknr = int.Parse(parts[4]);
-				GarbageTruck truck = new GarbageTruck(trucknr, int.Parse(parts[5]));
-				int ordnr = int.Parse(parts[6]);
+                int trucknr = int.Parse(parts[0]);
+                int day = int.Parse(parts[1]);
+				Company comp = CompanyFromName(parts[2]);
+				int ordnr = int.Parse(parts[3]);
 				// Create a status from the input
-				Status status = new Status(day, startTime, comp, truck, ordnr);
+				Status status = new Status(day, comp, ordnr);
 				// Add the status to the right day and list 
 				if (trucknr == 1) status1[day].Add(status);
 				else status2[day].Add(status);				

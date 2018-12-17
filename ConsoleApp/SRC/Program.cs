@@ -24,10 +24,9 @@ namespace OptimaliserenPracticum
 		// Variables      
 		Stopwatch initWatch;                    // Stopwatches to keep track of time
 		Stopwatch runtimeWatch;
-		ulong i;                                // A counter that keeps track of the total amount of iterations
+		int i;                                // A counter that keeps track of the total amount of iterations
 		float alpha;                            // The percentage to reduce T with, every q iterations
 		int q;                                  // The number of iterations before q gets reduced
-		int qCounter;                           // Keeps track of how many iterations we have had since our last T change
 		protected int seed;                     // Seed for the random generators 
 		StateGenerator generator;               // An instance of the stateGenerator class, which will calcuate successor states of a given state
 
@@ -54,11 +53,10 @@ namespace OptimaliserenPracticum
 			i = 0;
 			DTS.temperature = 10000;
 			alpha = 0.99F;
-			q = 8; //TODO calcuate the total number of neighbours, times 8
-			qCounter = 0;
+			q = 10000; //TODO calcuate the total number of neighbours, times 8
 			State initial = new State();
 			// Initialize the StateGenerator class
-			generator = new StateGenerator();
+			generator = new StateGenerator(initial);
 			// Stop the stopwatch and see how long the initialization took
 			initWatch.Stop();
 			//Console.WriteLine("Initializationtime: " + initWatch.ElapsedMilliseconds + " ms");
@@ -80,17 +78,14 @@ namespace OptimaliserenPracticum
 			while (i < 1000000) //TODO: Change this to a better stopping condition
 			{
 				i++;
-				if (qCounter == q)
+				if (i % q == 0)
 				{
 					DTS.temperature *= alpha;
-					qCounter = 0;
 				}
 				current = generator.GetNextState(current);
 			}
-			runtimeWatch.Stop();
-
-			FileHandler.SaveState(current);
-
+            FileHandler.SaveState(current);
+            runtimeWatch.Stop();
             Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms");
 		}
 	}
