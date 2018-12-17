@@ -38,7 +38,6 @@ namespace OptimaliserenPracticum
         {
             List<Status> day = new List<Status>();
             int timestart = 21600;
-            int newTime = 0;
             Company comp = DTS.maarheeze;
             Status previous = new Status(0, timestart, comp, initialTruck, 0);
 			int iterations = 0;
@@ -65,20 +64,18 @@ namespace OptimaliserenPracticum
                 // Process the order          
                 day.Add(new Status(dayIndex, timestart, comp, truck.FillTruck(ord), ord.orderNumber));
 				timestart += traveltime + processtime;
+                DTS.availableOrders.Remove(ord.orderNumber);
 				ord.ordersDone = true;
-                timestart = newTime;
                 iterations = 0;
                 // If the truck is full, and there is time to empty, do it
-                if (truck.CheckIfFull() && newTime + timeToMaarheze < 63000)
+                if (truck.CheckIfFull() && timestart + timeToMaarheze < 63000)
                 {
-                    newTime = DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
 					// Drive to Maarheze and empty the truck
 					day.Add (new Status(dayIndex, timestart, DTS.maarheeze, truck.EmptyTruck(), 0));
-                    timestart += 1800;
+                    timestart += 1800 + DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
                     day.Add(previous);
                 }
             }
-            newTime = DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
 			// Drive to Maarheze and empty the truck. TODO: check if the truck is aleady empty if its not already there and emptied
 			day.Add(new Status(dayIndex, timestart, DTS.maarheeze, truck.EmptyTruck(), 0));
             return day;

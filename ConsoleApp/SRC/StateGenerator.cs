@@ -34,6 +34,7 @@ namespace OptimaliserenPracticum
             status1 = old.status1;
             status2 = old.status2;
             // Start all the threads
+            /*
             successorfunctions[0].Start();
             successorfunctions[1].Start();
             successorfunctions[2].Start();
@@ -45,6 +46,18 @@ namespace OptimaliserenPracticum
             for (int i = 0; i < successorfunctions.Length; i++)
             {
                 successorfunctions[i].Join();
+            }
+            */
+            int function = r.Next(7);
+            switch (function)
+            {
+                case 0: RemoveRandomAction1(); break;
+                case 1: RemoveRandomAction2(); break;
+                case 2: AddRandomAction1(); break;
+                case 3: AddRandomAction2(); break;
+                case 4: SwapRandomActionsWithin1(); break;
+                case 5: SwapRandomActionsWithin2(); break;
+                case 6: SwapRandomActionsBetween(); break;
             }
             return newState;
         }
@@ -167,7 +180,7 @@ namespace OptimaliserenPracticum
         // TODO: waarschijnlijk checken dat hij legen niet gaat swappen of herberekenen wanneer je moet legen, plus de dubbele code verwijderen
         #region Removers
         // Remove a random action on a random day of the schedule of a truck
-        public void RemoveRandomAction1(object o)
+        public void RemoveRandomAction1()
         {
             List<Status> oldDay;
             List<Status> newDay;
@@ -175,10 +188,11 @@ namespace OptimaliserenPracticum
             while (!foundSucc)
             {
                 // pick a random day of the week
-                findDay = r.Next(6);
+                findDay = r.Next(5);
+                if (oldState.status1[findDay].Count == 0) continue;
                 oldDay = oldState.status1[findDay];
                 newDay = oldDay;
-                removedIndex = r.Next(oldDay.Count);
+                removedIndex = r.Next(1, oldDay.Count - 1);
                 // Remove a random action
                 newDay.RemoveAt(removedIndex);
                 // Fix the next action so that it starts from the right point
@@ -194,7 +208,7 @@ namespace OptimaliserenPracticum
         }
 
         // Remove a random action on a random day of the schedule of a truck
-        public void RemoveRandomAction2(object o)
+        public void RemoveRandomAction2()
         {
             List<Status> oldDay;
             List<Status> newDay;
@@ -203,10 +217,10 @@ namespace OptimaliserenPracticum
             while (!foundSucc)
             {
                 // pick a random day of the week
-                findDay = r.Next(6);
+                findDay = r.Next(5);
                 oldDay = oldState.status2[findDay];
                 newDay = oldDay;
-                removedIndex = r.Next(oldDay.Count);
+                removedIndex = r.Next(1, oldDay.Count - 1);
                 // Remove a random action
                 ord = newDay[removedIndex].ordnr;
                 newDay.RemoveAt(removedIndex);
@@ -235,7 +249,8 @@ namespace OptimaliserenPracticum
             while (!foundSucc)
             {
                 // pick a random day of the week
-                findDay = r.Next(6);
+                findDay = r.Next(5);
+                if (oldState.status1[findDay].Count == 0) continue;
                 oldDay = oldState.status1[findDay];
                 newDay = oldDay;
                 addedTime = r.Next(21600, 64620);
@@ -276,7 +291,7 @@ namespace OptimaliserenPracticum
             while (!foundSucc)
             {
                 // pick a random day of the week
-                findDay = r.Next(6);
+                findDay = r.Next(5);
                 oldDay = oldState.status2[findDay];
                 newDay = oldDay;
                 addedTime = r.Next(21600, 64620);
@@ -318,13 +333,13 @@ namespace OptimaliserenPracticum
             int actionIndex1, actionIndex2;
             while (!foundSucc)
             {
-                day1 = r.Next(6);
-                day2 = r.Next(6);
+                day1 = r.Next(5);
+                day2 = r.Next(5);
                 oldDay1 = newDay1 = status1[day1];
                 oldDay2 = newDay2 = status1[day2];
                 // pick two random actions			
-                actionIndex1 = r.Next(status1[day1].Count);
-                actionIndex2 = r.Next(status1[day2].Count);
+                actionIndex1 = r.Next(1, status1[day1].Count - 1);
+                actionIndex2 = r.Next(1, status1[day2].Count - 1);
                 stat1 = status1[day1][actionIndex1];
                 stat2 = status1[day2][actionIndex2];
                 // Change times so that they are correct, if there was a different action before
@@ -339,7 +354,7 @@ namespace OptimaliserenPracticum
                 }
                 if (actionIndex2 != 0)
                 {
-                    prevstat2 = status1[day1][actionIndex2 - 1];
+                    prevstat2 = status1[day2][actionIndex2 - 1];
                     tempstat1 = new Status(day2, stat2.beginTime, stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 else
@@ -371,13 +386,13 @@ namespace OptimaliserenPracticum
             int actionIndex1, actionIndex2;
             while (!foundSucc)
             {
-                day1 = r.Next(6);
-                day2 = r.Next(6);
+                day1 = r.Next(5);
+                day2 = r.Next(5);
                 oldDay1 = newDay1 = status2[day1];
                 oldDay2 = newDay2 = status2[day2];
                 // pick two random actions			
-                actionIndex1 = r.Next(status2[day1].Count);
-                actionIndex2 = r.Next(status2[day2].Count);
+                actionIndex1 = r.Next(1, status2[day1].Count - 1);
+                actionIndex2 = r.Next(1, status2[day2].Count - 1);
                 stat1 = status2[day1][actionIndex1];
                 stat2 = status2[day2][actionIndex2];
                 // Change times so that they are correct, if there was a different action before
@@ -388,7 +403,7 @@ namespace OptimaliserenPracticum
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(2, status2[day1][actionIndex1 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(2, 0).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
@@ -397,7 +412,7 @@ namespace OptimaliserenPracticum
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(2, status2[day2][actionIndex2 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(2, 0).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
@@ -422,13 +437,13 @@ namespace OptimaliserenPracticum
             int actionIndex1, actionIndex2;
             while (!foundSucc)
             {
-                day1 = r.Next(6);
-                day2 = r.Next(6);
+                day1 = r.Next(5);
+                day2 = r.Next(5);
                 oldDay1 = newDay1 = status1[day1];
                 oldDay2 = newDay2 = status2[day2];
                 // pick two random actions			
-                actionIndex1 = r.Next(status1[day1].Count);
-                actionIndex2 = r.Next(status2[day2].Count);
+                actionIndex1 = r.Next(1,status1[day1].Count - 1);
+                actionIndex2 = r.Next(1,status2[day2].Count - 1);
                 stat1 = status1[day1][actionIndex1];
                 stat2 = status2[day2][actionIndex2];
                 // Change times so that they are correct, if there was a different action before
@@ -439,7 +454,7 @@ namespace OptimaliserenPracticum
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(1, status1[day1][actionIndex1 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(1, 0).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
@@ -448,7 +463,7 @@ namespace OptimaliserenPracticum
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(2, status2[day2][actionIndex2 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(2, 0).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
@@ -491,12 +506,14 @@ namespace OptimaliserenPracticum
         
         public List<Status> MoveAction(List<Status> list, int index)
         {
+            if (index == list.Count) return list; // return if the action that was removed was the last one, and nothing has to be moved
             Company comp = DTS.maarheeze;
             if (index > 0)
             {
                 comp = list[index - 1].company;
             }
             Status toSwap = list[index];
+            if (toSwap.ordnr == 0) return list; // For now, return if an emptying state is being swapped
             list[index] = new Status(toSwap.day, toSwap.beginTime, toSwap.company, toSwap.truck.FillTruck(DTS.orders[toSwap.ordnr]), toSwap.ordnr);
             return list;
         }
