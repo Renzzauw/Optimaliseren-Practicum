@@ -12,6 +12,8 @@ namespace OptimaliserenPracticum
 		public static Company[] companyList;        // List of companies
 		public static int[,] distanceMatrix;        // Distance matrix
 		public static int[,] timeMatrix;            // Time matrix
+        public static int dayStart, dayEnd;
+        public static int emptyingTime;
 		public static Company maarheeze;
 		public static Dictionary<int, Order> orders;
         public static Dictionary<int, Order> availableOrders;

@@ -19,29 +19,29 @@ namespace OptimaliserenPracticum
         {
             random = new Random();
 			// TODO: hou dit ff in de gaten of die nullen kloppen :thonking:
-            status1 = MakeRandomState(new GarbageTruck(1, 0));
-            status2 = MakeRandomState(new GarbageTruck(2, 0));
+            status1 = MakeRandomState();
+            status2 = MakeRandomState();
         }
 
-		public List<Status>[] MakeRandomState(GarbageTruck truck)
+		public List<Status>[] MakeRandomState()
         {
             List<Status>[] statusList = new List<Status>[5];
             for (int i = 0; i < 5; i++)
             {
-                statusList[i] = MakeRandomDay(truck, i);
+                statusList[i] = MakeRandomDay(i);
             }
 
             return statusList;
         }
 
-        public List<Status> MakeRandomDay(GarbageTruck initialTruck, int dayIndex)
+        public List<Status> MakeRandomDay(int dayIndex)
         {
             List<Status> day = new List<Status>();
-            int timestart = 21600;
+            int timestart = DTS.dayStart;
             Company comp = DTS.maarheeze;
-            Status previous = new Status(0, timestart, comp, initialTruck, 0);
+            GarbageTruck truck = new GarbageTruck();
+            Status previous = new Status(0, comp, 0);
 			int iterations = 0;
-            GarbageTruck truck = initialTruck;
             Order ord;
             // Allow up to 30 iterations to see whether it is possible to go to another address. If that is no longer possible, end the day
             while (iterations < 30)
@@ -62,7 +62,8 @@ namespace OptimaliserenPracticum
                     continue;
                 }
                 // Process the order          
-                day.Add(new Status(dayIndex, timestart, comp, truck.FillTruck(ord), ord.orderNumber));
+                day.Add(new Status(dayIndex, comp, ord.orderNumber));
+                truck.FillTruck(ord);
 				timestart += traveltime + processtime;
                 DTS.availableOrders.Remove(ord.orderNumber);
 				ord.ordersDone = true;
@@ -71,13 +72,14 @@ namespace OptimaliserenPracticum
                 if (truck.CheckIfFull() && timestart + timeToMaarheze < 63000)
                 {
 					// Drive to Maarheze and empty the truck
-					day.Add (new Status(dayIndex, timestart, DTS.maarheeze, truck.EmptyTruck(), 0));
-                    timestart += 1800 + DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
+					day.Add (new Status(dayIndex, DTS.maarheeze, 0));
+                    timestart += DTS.emptyingTime + DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
+                    truck.EmptyTruck();
                     day.Add(previous);
                 }
             }
 			// Drive to Maarheze and empty the truck. TODO: check if the truck is aleady empty if its not already there and emptied
-			day.Add(new Status(dayIndex, timestart, DTS.maarheeze, truck.EmptyTruck(), 0));
+			day.Add(new Status(dayIndex, DTS.maarheeze, 0));
             return day;
         }
 
@@ -85,17 +87,13 @@ namespace OptimaliserenPracticum
     public class Status
     {
         public int day;
-        public int beginTime;
         public Company company;
-        public GarbageTruck truck;
         public int ordnr;
 
-        public Status(int d, int startTime, Company c, GarbageTruck gt, int ord)
+        public Status(int d, Company c, int ord)
         {
             day = d;
-            beginTime = startTime;
             company = c;
-            truck = gt;
             ordnr = ord;
         }
     }

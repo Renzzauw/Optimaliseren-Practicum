@@ -44,6 +44,9 @@ namespace OptimaliserenPracticum
 			var adjacencyList = init.GetAdjacencyList();
 			DTS.distanceMatrix = adjacencyList.Item1;
 			DTS.timeMatrix = adjacencyList.Item2;
+            DTS.dayStart = 21600;
+            DTS.dayEnd = 64800;
+            DTS.emptyingTime = 1800;
 			// initialize orders
 			DTS.companyList = init.MakeCompanies();
 			DTS.maarheeze = DTS.companyList[287];

@@ -48,7 +48,7 @@ namespace OptimaliserenPracticum
                 successorfunctions[i].Join();
             }
             */
-            int function = r.Next(7);
+            int function = 2;// r.Next(7);
             switch (function)
             {
                 case 0: RemoveRandomAction1(); break;
@@ -191,12 +191,10 @@ namespace OptimaliserenPracticum
                 findDay = r.Next(5);
                 if (oldState.status1[findDay].Count == 0) continue;
                 oldDay = oldState.status1[findDay];
-                newDay = oldDay;
+                newDay = new List<Status>(oldDay);
                 removedIndex = r.Next(1, oldDay.Count - 1);
                 // Remove a random action
                 newDay.RemoveAt(removedIndex);
-                // Fix the next action so that it starts from the right point
-                MoveAction(newDay, removedIndex);
                 // Give ratings to the old and new day, and evaluate them
                 if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
                 {
@@ -219,13 +217,11 @@ namespace OptimaliserenPracticum
                 // pick a random day of the week
                 findDay = r.Next(5);
                 oldDay = oldState.status2[findDay];
-                newDay = oldDay;
+                newDay = new List<Status>(oldDay);
                 removedIndex = r.Next(1, oldDay.Count - 1);
                 // Remove a random action
                 ord = newDay[removedIndex].ordnr;
                 newDay.RemoveAt(removedIndex);
-                // Fix the next action so that it starts from the right point
-                MoveAction(newDay, removedIndex);
                 // Give ratings to the old and new day, and evaluate them
                 if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
                 {
@@ -241,36 +237,21 @@ namespace OptimaliserenPracticum
         // Add a random action at a random time, ignoring whether it is possible or not
         public void AddRandomAction1()
         {
-            List<Status> oldDay;
-            List<Status> newDay;
-            int findDay, addedTime, timeIndex, listIndex;
+            List<Status> oldDay, newDay;
+            int findDay, addedIndex;
             Order ord;
-            Status newStat, oldStat;
             while (!foundSucc)
             {
                 // pick a random day of the week
                 findDay = r.Next(5);
-                if (oldState.status1[findDay].Count == 0) continue;
                 oldDay = oldState.status1[findDay];
-                newDay = oldDay;
-                addedTime = r.Next(21600, 64620);
-                timeIndex = listIndex = 0;
+                newDay = new List<Status>(oldDay);
+                addedIndex = r.Next(oldDay.Count);
                 // Add a random available action in between two other actions
                 ord = DTS.availableOrders.ElementAt(r.Next(DTS.availableOrders.Count)).Value;
-                // Throw that random order on the given point in time. It can overlap with actions that are already in place, but we ignore that for now
-                for (int i = 0; i < oldDay.Count; i++)
-                {
-                    timeIndex = oldDay[i].beginTime;
-                    if (addedTime > timeIndex)
-                    {
-                        listIndex = i; break;
-                    }
-                }
-                oldStat = oldDay[listIndex];
-                newStat = new Status(findDay, addedTime, DTS.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
-                newDay.Insert(listIndex + 1, newStat);
-                // Fix the next action so that it starts from the right point
-                MoveAction(newDay, listIndex + 2);
+                // Add a random available action in between two other actions
+                ord = DTS.availableOrders.ElementAt(r.Next(DTS.availableOrders.Count)).Value;
+                newDay.Insert(addedIndex, new Status(findDay, DTS.companyList[ord.matrixID], ord.orderNumber));
                 // Give ratings to the old and new day, and evaluate them
                 if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
                 {
@@ -285,33 +266,18 @@ namespace OptimaliserenPracticum
         public void AddRandomAction2()
         {
             List<Status> oldDay, newDay;
-            int findDay, addedTime, timeIndex, listIndex;
+            int findDay, addedIndex;
             Order ord;
-            Status newStat, oldStat;
             while (!foundSucc)
             {
                 // pick a random day of the week
                 findDay = r.Next(5);
                 oldDay = oldState.status2[findDay];
-                newDay = oldDay;
-                addedTime = r.Next(21600, 64620);
-                timeIndex = listIndex = 0;
+                newDay = new List<Status>(oldDay);
+                addedIndex = r.Next(oldDay.Count);
                 // Add a random available action in between two other actions
                 ord = DTS.availableOrders.ElementAt(r.Next(DTS.availableOrders.Count)).Value;
-                // Throw that random order on the given point in time. It can overlap with actions that are already in place, but we ignore that for now
-                for (int i = 0; i < oldDay.Count; i++)
-                {
-                    timeIndex = oldDay[i].beginTime;
-                    if (addedTime > timeIndex)
-                    {
-                        listIndex = i; break;
-                    }
-                }
-                oldStat = oldDay[listIndex];
-                newStat = new Status(findDay, addedTime, DTS.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
-                newDay.Insert(listIndex + 1, newStat);
-                // Fix the next action so that it starts from the right point
-                MoveAction(newDay, listIndex + 2);
+                newDay.Insert(addedIndex, new Status(findDay, DTS.companyList[ord.matrixID], ord.orderNumber));
                 // Give ratings to the old and new day, and evaluate them
                 if (AcceptNewDay(EvalDay(oldDay), EvalDay(newDay)))
                 {
@@ -335,8 +301,11 @@ namespace OptimaliserenPracticum
             {
                 day1 = r.Next(5);
                 day2 = r.Next(5);
-                oldDay1 = newDay1 = status1[day1];
-                oldDay2 = newDay2 = status1[day2];
+                oldDay1 = status1[day1];
+                oldDay2 = status1[day2];
+                newDay1 = new List<Status>(oldDay1);
+                newDay2 = new List<Status>(oldDay2);
+
                 // pick two random actions			
                 actionIndex1 = r.Next(1, status1[day1].Count - 1);
                 actionIndex2 = r.Next(1, status1[day2].Count - 1);
@@ -346,27 +315,24 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status1[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(1, status1[day1][actionIndex1-1].truck.currentCapacity).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
                     prevstat2 = status1[day2][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(1, status1[day2][actionIndex2 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
                 newDay2.Insert(actionIndex2, tempstat1);
-                // Fix the next action so that it starts from the right point
-                MoveAction(newDay1, actionIndex1 + 1);
-                MoveAction(newDay2, actionIndex2 + 1);
                 if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
                 {
                     foundSucc = true;
@@ -388,8 +354,10 @@ namespace OptimaliserenPracticum
             {
                 day1 = r.Next(5);
                 day2 = r.Next(5);
-                oldDay1 = newDay1 = status2[day1];
-                oldDay2 = newDay2 = status2[day2];
+                oldDay1 = status2[day1];
+                oldDay2 = status2[day2];
+                newDay1 = new List<Status>(oldDay1);
+                newDay2 = new List<Status>(oldDay2);
                 // pick two random actions			
                 actionIndex1 = r.Next(1, status2[day1].Count - 1);
                 actionIndex2 = r.Next(1, status2[day2].Count - 1);
@@ -399,27 +367,24 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status2[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(2, 0).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
                     prevstat2 = status2[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(2, 0).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
                 newDay2.Insert(actionIndex2, tempstat1);
-                // Fix the next action so that it starts from the right point
-                MoveAction(newDay1, actionIndex1 + 1);
-                MoveAction(newDay2, actionIndex2 + 1);
                 if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
                 {
                     foundSucc = true;
@@ -439,8 +404,10 @@ namespace OptimaliserenPracticum
             {
                 day1 = r.Next(5);
                 day2 = r.Next(5);
-                oldDay1 = newDay1 = status1[day1];
-                oldDay2 = newDay2 = status2[day2];
+                oldDay1 = status1[day1];
+                oldDay2 = status2[day2];
+                newDay1 = new List<Status>(oldDay1);
+                newDay2 = new List<Status>(oldDay2);
                 // pick two random actions			
                 actionIndex1 = r.Next(1,status1[day1].Count - 1);
                 actionIndex2 = r.Next(1,status2[day2].Count - 1);
@@ -450,27 +417,24 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status2[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(1, 0).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat2.company, stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
-                    prevstat2 = status1[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    prevstat2 = status1[day2][actionIndex2 - 1];
+                    tempstat1 = new Status(day2, stat1.company, stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(2, 0).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2,stat1.company, stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
                 newDay2.Insert(actionIndex2, tempstat1);
-                // Fix the next action so that it starts from the right point
-                MoveAction(newDay1, actionIndex1 + 1);
-                MoveAction(newDay2, actionIndex2 + 1);
                 if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2)))
                 {
                     foundSucc = true;
@@ -482,40 +446,39 @@ namespace OptimaliserenPracticum
         }
 
         #endregion
-
+        // TODO: Compleet herschrijven
         public int EvalDay(List<Status> day)
         {
             int score = 0;
-            // More orders on a day is generally better
-            score += day.Count * 100;
-            int previousEnd = 21600;
+            int newstart = DTS.dayStart;
+            Company previousLoc = DTS.maarheeze;
+            GarbageTruck truck = new GarbageTruck();
             // Iterate over all actions
             foreach (Status action in day)
             {
-                // See if the two events overlap. If yes, deduct points
-                if (action.beginTime < previousEnd) score -= ((previousEnd - action.beginTime) * 10);
-                // Reward "free" time in between orders
-                else if (action.beginTime > previousEnd) score += ((previousEnd - action.beginTime) / 5);
-                // Check if there's a moment when the truck is full. deduct a lot of score for that
-                if (action.truck.CheckIfOverloaded()) score -= 1000;
+                if (action.ordnr == 0)
+                {
+                    newstart += DTS.timeMatrix[previousLoc.companyIndex, action.company.companyIndex] + DTS.emptyingTime;
+                    truck.EmptyTruck();
+                    previousLoc = DTS.maarheeze;
+                }
+                else
+                {
+                    // More orders on a day is generally better
+                    Order ord = DTS.orders[action.ordnr];
+                    score += day.Count * 100;
+                    newstart += DTS.timeMatrix[previousLoc.companyIndex, action.company.companyIndex] + (int)ord.emptyingTime;
+                    truck.FillTruck(ord);
+                    // Check if there's a moment when the truck is full. deduct a lot of score for that
+                    if (truck.CheckIfOverloaded()) score -= 1000;
+                }
                 // See if an order is placed on the wrong day (according to a pattern), punish that
                 // TODO: implement this
             }
+            // Reward "free" time at the end, deduct heavily for overtime
+            if (newstart <= DTS.dayEnd) score += DTS.dayEnd - newstart;
+            else score += DTS.dayEnd - newstart * 5;
             return score;
-        }
-        
-        public List<Status> MoveAction(List<Status> list, int index)
-        {
-            if (index == list.Count) return list; // return if the action that was removed was the last one, and nothing has to be moved
-            Company comp = DTS.maarheeze;
-            if (index > 0)
-            {
-                comp = list[index - 1].company;
-            }
-            Status toSwap = list[index];
-            if (toSwap.ordnr == 0) return list; // For now, return if an emptying state is being swapped
-            list[index] = new Status(toSwap.day, toSwap.beginTime, toSwap.company, toSwap.truck.FillTruck(DTS.orders[toSwap.ordnr]), toSwap.ordnr);
-            return list;
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted
