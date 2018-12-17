@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 namespace OptimaliserenPracticum
 {
 	// Class for handling input/output of the various neighbour states
-	public class FileHandler
+	public static class FileHandler
 	{
 		// Print all the actions to the console
-		public void Print(State state)
+		public static void Print(State state)
 		{
 			int daycounter = 1;
 			// print the path of the first truck
@@ -30,7 +30,7 @@ namespace OptimaliserenPracticum
 		}
 
 		// Save a state to a textfile with the current datetime
-		public void SaveState(State state)
+		public static void SaveState(State state)
 		{
 			// Create a filename for saving the state with the current time
 			string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1));
@@ -47,7 +47,7 @@ namespace OptimaliserenPracticum
 					foreach (Status status in day)
 					{
 						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
-						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}; {6}", status.day, status.beginTime, status.endTime, status.company.placeName, status.truck.truckNumber, status.truck.currentCapacity, status.ordnr);
+						sw.WriteLine("{0}; {1}; {2}; {3}; {4}; {5}", status.day, status.beginTime, status.company.placeName, status.truck.truckNumber, status.truck.currentCapacity, status.ordnr);
 						daycounter++;
 					}
 
@@ -58,7 +58,7 @@ namespace OptimaliserenPracticum
 		}
 
 		// Load a state from a given filepath
-		public State LoadStates(string path)
+		public static State LoadStates(string path)
 		{
 			State state = new State();
 			List<Status>[] status1 = new List<Status>[5];
@@ -79,7 +79,7 @@ namespace OptimaliserenPracticum
 				GarbageTruck truck = new GarbageTruck(trucknr, int.Parse(parts[5]));
 				int ordnr = int.Parse(parts[6]);
 				// Create a status from the input
-				Status status = new Status(day, startTime, endTime, comp, truck, ordnr);
+				Status status = new Status(day, startTime, comp, truck, ordnr);
 				// Add the status to the right day and list 
 				if (trucknr == 1) status1[day].Add(status);
 				else status2[day].Add(status);				
@@ -93,7 +93,7 @@ namespace OptimaliserenPracticum
 		}
 
 		// Return a company given its name
-		public Company CompanyFromName(string companyName)
+		public static Company CompanyFromName(string companyName)
 		{
 			// Check if any company has the name, if so return it
 			foreach (Company c in DTS.companyList)

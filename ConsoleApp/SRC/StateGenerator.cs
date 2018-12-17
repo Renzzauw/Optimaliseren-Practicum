@@ -34,12 +34,12 @@ namespace OptimaliserenPracticum
             status1 = old.status1;
             status2 = old.status2;
             // Start all the threads
-            successorfunctions[0].Start(1);
-            successorfunctions[1].Start(2);
-            successorfunctions[2].Start(1);
-            successorfunctions[3].Start(2);
-            successorfunctions[4].Start(1);
-            successorfunctions[5].Start(2);
+            successorfunctions[0].Start();
+            successorfunctions[1].Start();
+            successorfunctions[2].Start();
+            successorfunctions[3].Start();
+            successorfunctions[4].Start();
+            successorfunctions[5].Start();
             successorfunctions[6].Start();
             // Wait untill all threads finish
             for (int i = 0; i < successorfunctions.Length; i++)

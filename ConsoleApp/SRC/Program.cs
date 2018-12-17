@@ -37,6 +37,8 @@ namespace OptimaliserenPracticum
 			// Start the stopwatch
 			initWatch.Start();
 			// Load all variables from the two input files
+			DTS.orders = new Dictionary<int, Order>();
+			DTS.availableOrders = new Dictionary<int, Order>();
 			Initialization init = new Initialization();
 			//data = new Datastructures();
 			var adjacencyList = init.GetAdjacencyList();
@@ -72,7 +74,6 @@ namespace OptimaliserenPracticum
 		{
 			runtimeWatch.Start();
 			State current = initialState;
-			State successor;
 			while (i < 1000000) //TODO: Change this to a better stopping condition
 			{
 				i++;
@@ -81,9 +82,11 @@ namespace OptimaliserenPracticum
 					DTS.temperature *= alpha;
 					qCounter = 0;
 				}
-				successor = generator.GetNextState(current);
+				current = generator.GetNextState(current);
 			}
 			runtimeWatch.Stop();
+
+			FileHandler.SaveState(current);
 
             Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms");
 		}

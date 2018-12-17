@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace OptimaliserenPracticum
 {
 	// Global class for important data
-	public struct DTS
+	public static class DTS
 	{
 		public static Company[] companyList;        // List of companies
 		public static int[,] distanceMatrix;        // Distance matrix
