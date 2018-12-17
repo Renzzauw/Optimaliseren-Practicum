@@ -29,7 +29,6 @@ namespace OptimaliserenPracticum
 		int q;                                  // The number of iterations before q gets reduced
 		int qCounter;                           // Keeps track of how many iterations we have had since our last T change
 		protected int seed;                     // Seed for the random generators 
-		Random r;                               // A random number generator to potentially accept worse states
 		StateGenerator generator;               // An instance of the stateGenerator class, which will calcuate successor states of a given state
 
 		// Initialize the program
@@ -74,10 +73,7 @@ namespace OptimaliserenPracticum
 			runtimeWatch.Start();
 			State current = initialState;
 			State successor;
-			//int currentR = getScore(current);
-			int nextR = 0;
-
-			while (i < 1000000) //TODO: Change this to a stopping condition
+			while (i < 1000000) //TODO: Change this to a better stopping condition
 			{
 				i++;
 				if (qCounter == q)
@@ -88,7 +84,8 @@ namespace OptimaliserenPracticum
 				successor = generator.GetNextState(current);
 			}
 			runtimeWatch.Stop();
-			//Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms"
+
+            Console.WriteLine("Runtime: " + initWatch.ElapsedMilliseconds + " ms");
 		}
 	}
 

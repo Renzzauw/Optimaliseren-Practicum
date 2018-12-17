@@ -252,7 +252,7 @@ namespace OptimaliserenPracticum
                     }
                 }
                 oldStat = oldDay[listIndex];
-                newStat = new Status(findDay, addedTime, addedTime + DTS.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), DTS.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
+                newStat = new Status(findDay, addedTime, DTS.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
                 newDay.Insert(listIndex + 1, newStat);
                 // Fix the next action so that it starts from the right point
                 MoveAction(newDay, listIndex + 2);
@@ -293,7 +293,7 @@ namespace OptimaliserenPracticum
                     }
                 }
                 oldStat = oldDay[listIndex];
-                newStat = new Status(findDay, addedTime, addedTime + DTS.distanceMatrix[oldStat.company.companyIndex, ord.matrixID] + (int)(ord.emptyingTime * 60), DTS.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
+                newStat = new Status(findDay, addedTime, DTS.companyList[ord.matrixID], oldStat.truck.FillTruck(ord), ord.orderNumber);
                 newDay.Insert(listIndex + 1, newStat);
                 // Fix the next action so that it starts from the right point
                 MoveAction(newDay, listIndex + 2);
@@ -331,20 +331,20 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status1[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck(1, status1[day1][actionIndex1-1].truck.currentCapacity + SwapLOL ).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(1, status1[day1][actionIndex1-1].truck.currentCapacity).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
                     prevstat2 = status1[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck(1, ).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(1, status1[day2][actionIndex2 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
@@ -384,20 +384,20 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status2[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(2, status2[day1][actionIndex1 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
                     prevstat2 = status2[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(2, status2[day2][actionIndex2 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
@@ -435,20 +435,20 @@ namespace OptimaliserenPracticum
                 if (actionIndex1 != 0)
                 {
                     prevstat1 = status2[day1][actionIndex1 - 1];
-                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[prevstat1.company.companyIndex, stat2.company.companyIndex], stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, prevstat1.truck.FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 else
                 {
-                    tempstat2 = new Status(day1, stat1.beginTime, stat1.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat2.company.companyIndex], stat2.company, new GarbageTruck().FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
+                    tempstat2 = new Status(day1, stat1.beginTime, stat2.company, new GarbageTruck(1, status1[day1][actionIndex1 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat2.ordnr]), stat2.ordnr);
                 }
                 if (actionIndex2 != 0)
                 {
                     prevstat2 = status1[day1][actionIndex2 - 1];
-                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[prevstat2.company.companyIndex, stat1.company.companyIndex], stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, prevstat2.truck.FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 else
                 {
-                    tempstat1 = new Status(day2, stat2.beginTime, stat2.beginTime + DTS.distanceMatrix[DTS.maarheeze.companyIndex, stat1.company.companyIndex], stat1.company, new GarbageTruck().FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
+                    tempstat1 = new Status(day2, stat2.beginTime, stat1.company, new GarbageTruck(2, status2[day2][actionIndex2 - 1].truck.currentCapacity).FillTruck(DTS.orders[stat1.ordnr]), stat1.ordnr);
                 }
                 // Swap the actions
                 newDay1.Insert(actionIndex1, tempstat2);
@@ -488,17 +488,16 @@ namespace OptimaliserenPracticum
             }
             return score;
         }
+        
         public List<Status> MoveAction(List<Status> list, int index)
         {
             Company comp = DTS.maarheeze;
-            int endTime = 21600;
             if (index > 0)
             {
                 comp = list[index - 1].company;
-                endTime = list[index - 1].endTime;
             }
             Status toSwap = list[index];
-            list[index] = new Status(toSwap.day, toSwap., toSwap.endTime + DTS.timeMatrix[comp.companyIndex, toSwap.company.companyIndex] + (int)DTS.orders[toSwap.ordnr].emptyingTime, toSwap.company, toSwap.truck.FillTruck(DTS.orders[toSwap.ordnr]), toSwap.ordnr);
+            list[index] = new Status(toSwap.day, toSwap.beginTime, toSwap.company, toSwap.truck.FillTruck(DTS.orders[toSwap.ordnr]), toSwap.ordnr);
             return list;
         }
 

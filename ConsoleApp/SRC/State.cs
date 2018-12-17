@@ -54,7 +54,7 @@ namespace OptimaliserenPracticum
                 ord = comp.RandomOrder();
                 // Calculate the time needed to process and order when having to return immediately
                 int traveltime = DTS.timeMatrix[previous.company.companyIndex, comp.companyIndex];
-                int processtime = ord.emptyingTime;
+                int processtime = (int)ord.emptyingTime;
                 int timeToMaarheze = DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
                 // If there is no time to complete the order and return to the depot, try again
                 if (timestart + traveltime + processtime + timeToMaarheze > 63000)
