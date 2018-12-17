@@ -18,8 +18,8 @@ namespace OptimaliserenPracticum
 			for (int i = 0; i < 5; i++)
 			{
 				daycounter = 1;
-				List<Status> day1 = state.status1[i];
-				List<Status> day2 = state.status2[i];
+				List<Status> day1 = state.status[0][i];
+				List<Status> day2 = state.status[1][i];
 				// Print the routes in the format of the autochecker
 				foreach (Status status in day1)
 				{
@@ -47,8 +47,8 @@ namespace OptimaliserenPracticum
 				for (int i = 0; i < 5; i++)
 				{
 					daycounter = 1;
-                    List<Status> day1 = state.status1[i];
-                    List<Status> day2 = state.status2[i];
+                    List<Status> day1 = state.status[0][i];
+                    List<Status> day2 = state.status[1][i];
                     foreach (Status status in day1)
 					{
 						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
@@ -94,8 +94,8 @@ namespace OptimaliserenPracticum
 			// Close the filestream
 			sr.Close();
 			// Fill the state
-			state.status1 = status1;
-			state.status2 = status2;
+			state.status[0] = status1;
+			state.status[1] = status2;
 			return state;
 		}
 

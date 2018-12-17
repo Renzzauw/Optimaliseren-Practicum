@@ -11,16 +11,16 @@ namespace OptimaliserenPracticum
     public class State : SimulatedAnnealing
     {	
 		// Variables
-        public List<Status>[] status1, status2; // The week for each truck: It contains 5 dictionaries, one for each day. Each truck gets their own status
+        public List<Status>[][] status; // The week for each truck: It contains 5 dictionaries, one for each day. Each truck gets their own status
         //private Datastructures data;
         private Random random;
         // Make a (random) initial state
         public State()
         {
             random = new Random();
-			// TODO: hou dit ff in de gaten of die nullen kloppen :thonking:
-            status1 = MakeRandomState();
-            status2 = MakeRandomState();
+            status = new List<Status>[2][];
+            status[0] = MakeRandomState();
+            status[1] = MakeRandomState();
         }
 
 		public List<Status>[] MakeRandomState()
