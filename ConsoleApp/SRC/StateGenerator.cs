@@ -10,14 +10,14 @@ namespace OptimaliserenPracticum
     {
         private Thread[] successorfunctions;                       // A list of threads, each containing a successorfunction
         private State oldState, newState;                              // Each iteration is given an old state, and must return a new state
-        private volatile bool foundSucc;                                        // A bool that checks whether a successor has been found
+        private volatile bool foundSucc;                                        // A bool that checks whether a successor has been found on multiple threads (multithreading)
         private object orderLock;
         private int check;
         private Random r;
 
         public StateGenerator(State initial)
         {
-            foundSucc = true;
+            foundSucc = true;  
             orderLock = new object();
             oldState = initial;
             r = new Random();
