@@ -26,6 +26,7 @@ namespace OptimaliserenPracticum
 					Console.WriteLine(1 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
 					daycounter++;
 				}
+                daycounter = 1;
                 foreach (Status status in day2)
                 {
                     Console.WriteLine(2 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
@@ -60,6 +61,7 @@ namespace OptimaliserenPracticum
                         // day, starttime, endtime, company, truck number, truck capacity, ordernummer
                         sw.WriteLine("{0}; {1}; {2}; {3}",2, status.day, status.company.placeName, status.ordnr);
                         daycounter++;
+                        
                     }
 				}
                 // Close the streamwriter

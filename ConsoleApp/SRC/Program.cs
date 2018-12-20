@@ -66,7 +66,7 @@ namespace OptimaliserenPracticum
 		{
             Diagnostics.runtimeWatch.Start();
 			State current = initialState;
-			while (i < 10000000) //TODO: Change this to a better stopping condition
+			while (i < 500000) //TODO: Change this to a better stopping condition
 			{
                 Diagnostics.IterationsPerSecond++;
                 if (Diagnostics.runtimeWatch.ElapsedMilliseconds > 1000 * Diagnostics.second)

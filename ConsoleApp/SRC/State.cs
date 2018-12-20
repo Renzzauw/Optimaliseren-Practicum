@@ -14,6 +14,8 @@ namespace OptimaliserenPracticum
         public List<Status>[][] status; // The week for each truck: It contains 5 dictionaries, one for each day. Each truck gets their own status
         //private Datastructures data;
         private Random random;
+        private bool emptiedTruck;
+
         // Make a (random) initial state
         public State()
         {
@@ -79,8 +81,14 @@ namespace OptimaliserenPracticum
                 }
             }
 			// Drive to Maarheze and empty the truck. TODO: check if the truck is aleady empty if its not already there and emptied
-			day.Add(new Status(dayIndex, DTS.maarheeze, 0));
-            return day;
+            if (!truck.CheckIfEmpty())
+            {
+                day.Add(new Status(dayIndex, DTS.maarheeze, 0));
+            }
+           
+           return day;
+
+
         }
 
 	}

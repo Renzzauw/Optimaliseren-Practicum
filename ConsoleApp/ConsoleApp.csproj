@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SRC\Datastructures.cs" />
+    <Compile Include="SRC\Diagnostics.cs" />
+    <Compile Include="SRC\FileHandler.cs" />
     <Compile Include="SRC\Initialization.cs" />
     <Compile Include="SRC\Company.cs" />
     <Compile Include="SRC\GarbageTruck.cs" />
@@ -50,6 +53,7 @@
     <Compile Include="SRC\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SRC\State.cs" />
+    <Compile Include="SRC\StateGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
