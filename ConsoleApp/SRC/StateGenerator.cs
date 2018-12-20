@@ -289,6 +289,7 @@ namespace OptimaliserenPracticum
             oldDaya2 = oldStatus[daya2];
             newDaya1 = new List<Status>(oldDaya1);
             newDaya2 = new List<Status>(oldDaya2);
+            if (daya1 == daya2) return null;
             if (newDaya1.Count < 2 || newDaya2.Count < 2) return null;
             // pick two random actions			
             actionIndexa1 = r.Next(oldDaya1.Count - 2);
