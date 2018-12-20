@@ -51,7 +51,7 @@ namespace OptimaliserenPracticum
 			DTS.maarheeze = DTS.companyList[287];
 			// Initialize all other variables
 			i = 0;
-			DTS.temperature = 6000;
+			DTS.temperature = 90000;
 			alpha = 0.99F;
 			q = 10000; //TODO calcuate the total number of neighbours, times 8
 			State initial = new State();
@@ -67,7 +67,7 @@ namespace OptimaliserenPracticum
 		{
             Diagnostics.runtimeWatch.Start();
 			State current = initialState;
-			while (i < 50000) //TODO: Change this to a better stopping condition
+			while (i < 100000) //TODO: Change this to a better stopping condition
 			{
                 Diagnostics.IterationsPerSecond++;
                 if (Diagnostics.runtimeWatch.ElapsedMilliseconds > 1000 * Diagnostics.second)
