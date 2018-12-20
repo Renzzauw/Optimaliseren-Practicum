@@ -429,8 +429,8 @@ namespace OptimaliserenPracticum
         public bool PCheck(int fx, int fy, Random r)
         {
             if (Math.Sign(fx) == -1 || Math.Sign(fy) == -1) return false;
-            double quickmaffs = Math.Pow(Math.E, (fx - fy) / DTS.temperature);
-            return quickmaffs < r.NextDouble();
+            double quickmaffs = Math.Pow(Math.E, (fy - fx) / DTS.temperature);
+            return quickmaffs >= r.NextDouble();
         }
 
 
