@@ -49,7 +49,7 @@ namespace OptimaliserenPracticum
             {
                 comp = DTS.companyList.ElementAt(random.Next(DTS.companyList.Length));
                 // Check if that company has outstanding orders, or whether it has aready been visited
-                if (!comp.HasOrders() || comp.IsDayVisited(dayIndex)) continue;
+                if (!comp.HasOrders() || comp.IsDayVisited(dayIndex)) continue; // DIT kan gwn want hij mag verschillende orders doen van een bepaalde company op de zelfde dag FOUT. Niet dezelfde order nog een keer met frequenty hoger dan 1.
                 // Select one of the outstanding orders of that company
                 ord = comp.RandomOrder();
                 // Calculate the time needed to process and order when having to return immediately
@@ -65,6 +65,7 @@ namespace OptimaliserenPracticum
                 // Process the order          
                 day.Add(new Status(dayIndex, comp, ord.orderNumber));
                 truck.FillTruck(ord);
+                previous = new Status(dayIndex, comp, ord.orderNumber);
 				timestart += traveltime + processtime;
                 DTS.availableOrders.Remove(ord.orderNumber);
 				ord.ordersDone = true;

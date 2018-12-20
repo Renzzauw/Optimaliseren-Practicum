@@ -20,7 +20,7 @@ namespace OptimaliserenPracticum
 		public string placeName;				// Name of the place where this company is
 		public List<Order> orders;              // The list of orders of the company
         public int visitDays = 0;               // Binary representation of the days the company has been visited 
-        public byte visitCount = 0;             // Amount of times the company has been visited]
+        public byte visitCount = 0;             // Amount of times the company has been visited
         private Random r;                       // Random that is used for picking an order
 
         // Constructor
@@ -50,6 +50,7 @@ namespace OptimaliserenPracticum
             while (true) {
                 rand = r.Next(orders.Count);
                 ord = orders[rand];
+                    //VERWIJDER ord.frequency > 1 RAAR.
                 if (ord.ordersDone || ord.frequency > 1) continue;
                 return ord;
             }

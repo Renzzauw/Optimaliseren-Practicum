@@ -50,6 +50,7 @@ namespace OptimaliserenPracticum
             foundSucc = false;
             while (newwState == null)
             {
+                //todo terug zetten naar 7
                 int i = r.Next(7);
                 switch (i)
                 {
@@ -63,7 +64,7 @@ namespace OptimaliserenPracticum
                     default: break;
                 }
             }
-            return newState;
+            return newwState;
         }
 
         #region ASCII
