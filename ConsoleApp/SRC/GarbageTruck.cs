@@ -17,7 +17,7 @@ namespace OptimaliserenPracticum
 		// Function that handles the emptying of the garbage truck
 		public GarbageTruck EmptyTruck()
 		{
-			// TODO: iets met timer vooruitzetten?
+			// TODO: iets met timer vooruitzetten?   IS DENK IK GEDAAN.
 			currentCapacity = 0;
             return this;
 		}

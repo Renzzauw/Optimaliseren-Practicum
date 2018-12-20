@@ -237,7 +237,10 @@ namespace OptimaliserenPracticum
             List<Status> oldDay, newDay;
             int findDay, addedIndex;
             Order ord;
+
+            //WTF IS DIT???? behalve crash programma.
             while (foundSucc) { }
+
             oldStatus = oldState.status[x];
             // pick a random day of the week
             findDay = r.Next(5);
@@ -377,6 +380,7 @@ namespace OptimaliserenPracticum
         }
 
         #endregion
+        
         // TODO: Compleet herschrijven
         public int EvalDay(List<Status> day)
         {
@@ -397,7 +401,11 @@ namespace OptimaliserenPracticum
                 {
                     // More orders on a day is generally better
                     Order ord = DTS.orders[action.ordnr];
-                    score += day.Count * 100;
+
+                    //DIT IS ECHT TOTALEN CANCER.... Score die je krijgt is PER ACTIE * 100 dus 31 * 100 voor de 31ste actie en 3200 bonus als je er een actie BIJ GOOIT. er kan maar 1000 af en wat tijd. DUS ja..... Dit is jammer.
+                    //bonus geven is kut dus doen we niet anders die regel uit de FOREACH HALEN.
+                    //score += day.Count * 100;
+
                     newstart += DTS.timeMatrix[previousLoc.companyIndex, action.company.companyIndex] + (int)ord.emptyingTime;
                     truck.FillTruck(ord);
                     // Check if there's a moment when the truck is full. deduct a lot of score for that
@@ -406,6 +414,9 @@ namespace OptimaliserenPracticum
                 // See if an order is placed on the wrong day (according to a pattern), punish that
                 // TODO: implement this
             }
+            //score + de tijd die de checke
+            
+
             // Reward "free" time at the end, deduct heavily for overtime
             if (newstart <= DTS.dayEnd) score += DTS.dayEnd - newstart;
             else score += DTS.dayEnd - newstart * 5;

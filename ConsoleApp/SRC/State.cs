@@ -14,7 +14,6 @@ namespace OptimaliserenPracticum
         public List<Status>[][] status; // The week for each truck: It contains 5 dictionaries, one for each day. Each truck gets their own status
         //private Datastructures data;
         private Random random;
-        private bool emptiedTruck;
 
         // Make a (random) initial state
         public State()

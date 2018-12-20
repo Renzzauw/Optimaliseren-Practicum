@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.IO;
+using System.Windows.Input;
 
 namespace OptimaliserenPracticum
 {
@@ -50,7 +51,7 @@ namespace OptimaliserenPracticum
 			DTS.maarheeze = DTS.companyList[287];
 			// Initialize all other variables
 			i = 0;
-			DTS.temperature = 300;
+			DTS.temperature = 600;
 			alpha = 0.99F;
 			q = 10000; //TODO calcuate the total number of neighbours, times 8
 			State initial = new State();
