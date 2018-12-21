@@ -47,7 +47,6 @@
     <Compile Include="SRC\Diagnostics.cs" />
     <Compile Include="SRC\FileHandler.cs" />
     <Compile Include="SRC\Initialization.cs" />
-    <Compile Include="SRC\Company.cs" />
     <Compile Include="SRC\GarbageTruck.cs" />
     <Compile Include="SRC\Order.cs" />
     <Compile Include="SRC\Program.cs" />

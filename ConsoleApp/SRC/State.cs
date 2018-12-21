@@ -23,8 +23,25 @@ namespace OptimaliserenPracticum
             status[1] = MakeRandomWeek();
         }
 
+
+        // The constructor copies from an old state
+        public State(List<Status>[][] status)
+        {
+            status = new List<Status>[2][];
+            status[0] = new List<Status>[5];
+            for (int i = 0; i < 5; i++)
+            {
+                status[0][i] = new List<Status>(status[0][i]);
+            }
+            status[1] = new List<Status>[5];
+            for (int i = 0; i < 5; i++)
+            {
+                status[1][i] = new List<Status>(status[1][i]);
+            }
+        }
+
         // Function that generater a random week
-		public List<Status>[] MakeRandomWeek()
+        public List<Status>[] MakeRandomWeek()
         {
             // Create each of the 5 days seperately
             List<Status>[] statusList = new List<Status>[5];

@@ -14,11 +14,11 @@ namespace OptimaliserenPracticum
         public static List<int> availableOrders;      // A list containing all ID's of available orders
         public static float temperature;              // The temperature used in SA 
         public static State bestState;                // The best state ever found during SA, at a given moment
-        public static int bestRating;                 // The rating belonging to that state
+        public static double bestRating;                 // The rating belonging to that state
         public static int timeSinceNewBest;           // The amount of iterations since the best state was changed last
 
         // Function that changes the best state found, if the new rating is better than the old one
-        public static void NewBest(State state, int rating)
+        public static void NewBest(State state, double rating)
         {
             // Right now we also replace of the new state is as good as the best one, so that the program doesn't terminate too early
             if (rating >= bestRating)

@@ -43,9 +43,10 @@ namespace OptimaliserenPracticum
         {
             // Declare all of the necissary variables
             int x = (int)i;
-            List<Status>[] oldStatus;
+            List<Status>[] oldStatus, newStatus;
             List<Status> oldDay, newDay;
-            int orda, findDay, removedIndex, rating1, rating2;
+            int orda, findDay, removedIndex;
+            double rating1, rating2;
             oldStatus = oldState.status[x];
             // Pick a random day of the week
             findDay = r.Next(5);
@@ -57,15 +58,19 @@ namespace OptimaliserenPracticum
             orda = newDay[removedIndex].ordnr;
             if (orda == 0) return null; // Return if you try to delete an emptying moment
             newDay.RemoveAt(removedIndex);
+            //change the day in the week for a new week
+            newStatus = oldStatus;
+            newStatus[findDay] = newDay;
+            // Already make the the new state, so that it can be properly evaluated
+            newState = new State(oldState.status);
+            newState.status[x][findDay] = newDay;
             // Give ratings to the old and new day, and evaluate them
-            rating1 = EvalDay(oldDay);
-            rating2 = EvalDay(newDay);
+            rating1 = Eval(oldState);
+            rating2 = Eval(newState);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(orda);
-                newState = oldState;
-                newState.status[x][findDay] = newDay;
                 DTS.NewBest(newState, rating2);
                 return newState;
             }
@@ -79,7 +84,8 @@ namespace OptimaliserenPracticum
             int x = (int)i;
             List<Status>[] oldStatus;
             List<Status> oldDay, newDay;
-            int findDay, addedIndex, rating1, rating2;
+            int findDay, addedIndex;
+            double rating1, rating2;
             Order ord;
             oldStatus = oldState.status[x];
             // pick a random day of the week
@@ -91,15 +97,16 @@ namespace OptimaliserenPracticum
             if (DTS.availableOrders.Count == 0) return null; // Return when there are no available orders
             ord = DTS.orders[DTS.availableOrders[r.Next(DTS.availableOrders.Count)]];
             newDay.Insert(addedIndex, new Status(findDay, ord.matrixID, ord.orderNumber));
+            // Already make the the new state, so that it can be properly evaluated
+            newState = new State(oldState.status);
+            newState.status[x][findDay] = newDay;
             // Give ratings to the old and new day, and evaluate them
-            rating1 = EvalDay(oldDay);
-            rating2 = EvalDay(newDay);
+            rating1 = Eval(oldState);
+            rating2 = Eval(newState);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
-                newState = oldState;
-                newState.status[x][findDay] = newDay;
                 DTS.NewBest(newState, rating2);
                 return newState;
             }
@@ -113,7 +120,8 @@ namespace OptimaliserenPracticum
             int x = (int) i;
             List<Status>[] oldStatus;
             List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2, rating1, rating2, actionIndex1, actionIndex2;
+            int day1, day2, actionIndex1, actionIndex2;
+            double rating1, rating2;
             Status stat1, stat2, tempstat1, tempstat2;
             oldStatus = oldState.status[x];
             // Pick two random days in which to swap
@@ -137,15 +145,16 @@ namespace OptimaliserenPracticum
             newDay2.Remove(stat2);
             newDay1.Insert(actionIndex1, tempstat2);
             newDay2.Insert(actionIndex2, tempstat1);
+            // Already make the the new state, so that it can be properly evaluated
+            newState = new State(oldState.status);
+            newState.status[x][day1] = newDay1;
+            newState.status[x][day2] = newDay2;
             // Give ratings to the old and new day, and evaluate them
-            rating1 = EvalDay(oldDay1) + EvalDay(oldDay2);
-            rating2 = EvalDay(newDay1) + EvalDay(newDay2);
-            if (AcceptNewDay(EvalDay(oldDay1) + EvalDay(oldDay2), EvalDay(newDay1) + EvalDay(newDay2), r))
+            rating1 = Eval(oldState);
+            rating2 = Eval(newState);
+            if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, return the new state
-                newState = oldState;
-                newState.status[x][day1] = newDay1;
-                newState.status[x][day2] = newDay2;
                 DTS.NewBest(newState, rating2);
                 return newState;
             }
@@ -156,7 +165,8 @@ namespace OptimaliserenPracticum
         {
             // Declare all of the necissary variables
             List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2, actionIndex1, actionIndex2, rating1, rating2; ;
+            int day1, day2, actionIndex1, actionIndex2;
+            double rating1, rating2;
             Status stat1, stat2, tempstat1, tempstat2;
             // Pick two random days, each for a different truck
             day1 = r.Next(5);
@@ -178,15 +188,16 @@ namespace OptimaliserenPracticum
             newDay2.Remove(stat2);
             newDay1.Insert(actionIndex1, tempstat2);
             newDay2.Insert(actionIndex2, tempstat1);
+            // Already make the the new state, so that it can be properly evaluated
+            newState = new State(oldState.status);
+            newState.status[0][day1] = newDay1;
+            newState.status[1][day2] = newDay2;
             // Give ratings to the old and new day, and evaluate them
-            rating1 = EvalDay(oldDay1) + EvalDay(oldDay2);
-            rating2 = EvalDay(newDay1) + EvalDay(newDay2);
+            rating1 = Eval(oldState);
+            rating2 = Eval(newState);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, return the new state
-                newState = oldState;
-                newState.status[0][day1] = newDay1;
-                newState.status[1][day2] = newDay2;
                 DTS.NewBest(newState, rating2);
                 return newState;
             }
@@ -196,63 +207,122 @@ namespace OptimaliserenPracticum
 
         // TODO: Compleet herschrijven
         // TODO: Compleet herschrijven
-        public int EvalDay(List<Status> day)
+        // TODO: Compleet herschrijven
+        public double Eval(State state)
         {
-            int score = 0;
-            int newstart = DTS.dayStart;
-            int previousId = DTS.maarheeze;
-            GarbageTruck truck = new GarbageTruck();
-            // Iterate over all actions
-            foreach (Status action in day)
-            {
-                if (action.ordnr == 0)
-                {
-                    newstart += DTS.timeMatrix[previousId, action.ordid] + DTS.emptyingTime;
-                    truck.EmptyTruck();
-                    previousId = DTS.maarheeze;
-                }
-                else
-                {
-                    Order ord = DTS.orders[action.ordnr];
-                    newstart += DTS.timeMatrix[previousId, action.ordid] + (int)ord.emptyingTime;
-                    
-                    //DIT DENK IK HIDDE HULP HEEL ERG AANGEZIEN WE WILLEN UPDATE.
-                    previousId = action.ordid;
+            List<Status>[] actionstruck1, actionstruck2;
+            double score = 0;
+            List<Status>[][] statuses = state.status;
+            actionstruck1 = statuses[0];
+            actionstruck2 = statuses[1];
+            GarbageTruck truck1 = new GarbageTruck();
+            GarbageTruck truck2 = new GarbageTruck();
+            int truck1totaaltijd = 0;
+            int truck2totaaltijd = 0;
 
-                    truck.FillTruck(ord);
-                    // Check if there's a moment when the truck is full. deduct a lot of score for that
-                    if (truck.CheckIfOverloaded()) score -= 1000;
+            int previousId = DTS.maarheeze;
+
+            foreach (List<Status> day in actionstruck1)
+            {
+                //reset the day how its supposed to.
+                int newstart = DTS.dayStart;
+
+                //iterate over all actions
+                foreach (Status action in day)
+                {
+
+                    if (action.ordnr == 0)
+                    {
+                        newstart += DTS.timeMatrix[previousId, action.ordid] + DTS.emptyingTime;
+                        truck1.EmptyTruck();
+                        previousId = DTS.maarheeze;
+                    }
+                    else
+                    {
+                        Order ord = DTS.orders[action.ordnr];
+                        newstart += DTS.timeMatrix[previousId, action.ordid] + (int)ord.emptyingTime;
+
+                        //DIT DENK IK HIDDE HULP HEEL ERG AANGEZIEN WE WILLEN UPDATE.
+                        previousId = action.ordid;
+
+                        truck1.FillTruck(ord);
+                        // Check if there's a moment when the truck is full. deduct a lot of score for that
+                        if (truck1.CheckIfOverloaded()) score -= 1000;
+                    }
+           
+
                 }
-                // See if an order is placed on the wrong day (according to a pattern), punish that
-                // TODO: implement this
+                //Punish overtime pretty heavily en rest time normally
+                if (newstart >= DTS.dayEnd)
+                {
+                    truck1totaaltijd += (newstart - DTS.dayEnd) * 10;
+                }
+                truck1totaaltijd += newstart;
             }
+
+            previousId = DTS.maarheeze;
+
+            foreach (List<Status> day in actionstruck2)
+            {
+                //reset the day how its supposed to.
+                int newstart = DTS.dayStart;
+
+                //iterate over all actions
+                foreach (Status action in day)
+                {
+
+                    if (action.ordnr == 0)
+                    {
+                        newstart += DTS.timeMatrix[previousId, action.ordid] + DTS.emptyingTime;
+                        truck2.EmptyTruck();
+                        previousId = DTS.maarheeze;
+                    }
+                    else
+                    {
+                        Order ord = DTS.orders[action.ordnr];
+                        newstart += DTS.timeMatrix[previousId, action.ordid] + (int)ord.emptyingTime;
+
+                        //DIT DENK IK HIDDE HULP HEEL ERG AANGEZIEN WE WILLEN UPDATE.
+                        previousId = action.ordid;
+
+                        truck2.FillTruck(ord);
+                        // Check if there's a moment when the truck is full. deduct a lot of score for that
+                        if (truck2.CheckIfOverloaded()) score -= 1000;
+                    }
+
+
+                }
+                //Punish overtime pretty heavily en rest time normally
+                if (newstart >= DTS.dayEnd)
+                {
+                    truck2totaaltijd += (newstart - DTS.dayEnd) * 10;
+                }
+                truck2totaaltijd += newstart;
+            }
+
+            score -= (truck1totaaltijd + truck2totaaltijd);
+
+
+
             //deducing score acoringly for not doing an order.
             foreach (int x in DTS.availableOrders)
             {
-                score -= 3 * (int)(DTS.orders[x].emptyingTime) / 5;
+                score -= 3 * (int)(DTS.orders[x].emptyingTime * DTS.orders[x].frequency);
             }
-            // Punish overtime pretty heavily en rest time normally
-            if (newstart >= DTS.dayEnd)
-            {
-                score += DTS.dayEnd - newstart * 10;
-            }
-            else
-            {
-                score -= newstart - DTS.dayEnd;
-            }
-            return score;
+
+            
+            return (score / 60);
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted
-        public bool AcceptNewDay(int oldrating, int newrating, Random r)
+        public bool AcceptNewDay(double oldrating, double newrating, Random r)
         {
             return (newrating >= oldrating) || PCheck(oldrating, newrating, r);
         }
 
         // Checks if the P is smaller than a random number. Return true if yes.
-        public bool PCheck(int fx, int fy, Random r)
+        public bool PCheck(double fx, double fy, Random r)
         {
-            if (fy <  0) return false;
             evalValue = Math.Pow(Math.E, (fy - fx) / DTS.temperature);
             return evalValue >= r.NextDouble();
         }
