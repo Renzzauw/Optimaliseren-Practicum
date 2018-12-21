@@ -5,7 +5,6 @@ namespace OptimaliserenPracticum
 	// Global class for important data
 	public static class DTS
 	{
-		public static Company[] companyList;          // List of companies
 		public static int[,] distanceMatrix;          // Distance matrix
 		public static int[,] timeMatrix;              // Time matrix
         public static int dayStart, dayEnd;           // The time when the day starts and end, in seconds

@@ -35,9 +35,9 @@ namespace OptimaliserenPracticum
 			DTS.availableOrders = new List<int>();
             // Construct the distance and time matrix
 			Initialization init = new Initialization();
-			var adjacencyList = init.GetAdjacencyList();
-			DTS.distanceMatrix = adjacencyList.Item1;
-			DTS.timeMatrix = adjacencyList.Item2;
+			var distTime = init.GetDistTimeMatrix();
+			DTS.distanceMatrix = distTime.Item1;
+			DTS.timeMatrix = distTime.Item2;
             // Initialize all other DTS variables
             DTS.dayStart = 0;
             DTS.dayEnd = 43200;
@@ -46,7 +46,7 @@ namespace OptimaliserenPracticum
             DTS.temperature = 100;
             DTS.maarheeze = 287;
             // initialize orders
-            DTS.companyList = init.MakeCompanies();
+            init.MakeOrders();
 			// Initialize all other variables
 			i = 0;
 			alpha = 0.99F;
