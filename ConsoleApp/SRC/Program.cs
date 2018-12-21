@@ -31,7 +31,7 @@ namespace OptimaliserenPracticum
 		// Initialize the program
 		public void Init()
 		{
-            // Start the stopwatch
+            // Start the diagnostics
             Diagnostics.initWatch = new Stopwatch();
             Diagnostics.runtimeWatch = new Stopwatch();
 			Diagnostics.initWatch.Start();
@@ -46,17 +46,19 @@ namespace OptimaliserenPracticum
             DTS.dayStart = 0;
             DTS.dayEnd = 43200;
             DTS.emptyingTime = 1800;
+            DTS.timeSinceNewBest = 0;
 			// initialize orders
 			DTS.companyList = init.MakeCompanies();
 			DTS.maarheeze = DTS.companyList[287];
 			// Initialize all other variables
 			i = 0;
-			DTS.temperature = 90000;
+			DTS.temperature = 100;
 			alpha = 0.99F;
 			q = 10000; //TODO calcuate the total number of neighbours, times 8
 			State initial = new State();
-			// Initialize the StateGenerator class
-			generator = new StateGenerator(initial);
+            DTS.bestState = initial;
+            // Initialize the StateGenerator class
+            generator = new StateGenerator(initial);
             // Stop the stopwatch and see how long the initialization took
             Diagnostics.initWatch.Stop();
 			Console.WriteLine("Initializationtime: " + Diagnostics.initWatch.ElapsedMilliseconds + " ms");
@@ -67,7 +69,7 @@ namespace OptimaliserenPracticum
 		{
             Diagnostics.runtimeWatch.Start();
 			State current = initialState;
-			while (i < 1000000) //TODO: Change this to a better stopping condition
+			while (DTS.timeSinceNewBest < DTS.temperature * 1000)
 			{
                 Diagnostics.IterationsPerSecond++;
                 if (Diagnostics.runtimeWatch.ElapsedMilliseconds > 1000 * Diagnostics.second)
@@ -84,11 +86,11 @@ namespace OptimaliserenPracticum
                 i++;
 
             }
-            FileHandler.SaveState(current);
-            FileHandler.Print(current);
-            Console.ReadKey();
+            FileHandler.SaveState(DTS.bestState);
+            FileHandler.Print(DTS.bestState);
             Diagnostics.runtimeWatch.Stop();
             Console.WriteLine("Runtime: " + Diagnostics.runtimeWatch.ElapsedMilliseconds + " ms");
+            Console.ReadKey();
 		}
 	}
 

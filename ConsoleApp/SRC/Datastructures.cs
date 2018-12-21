@@ -18,6 +18,20 @@ namespace OptimaliserenPracticum
 		public static Dictionary<int, Order> orders;
         public static List<int> availableOrders;
         public static float temperature;
+        public static State bestState;
+        public static int bestRating;
+        public static int timeSinceNewBest;
 
+        public static void NewBest(State state, int rating)
+        {
+            if (rating >= bestRating)
+            {
+                bestState = state;
+                bestRating = rating;
+                timeSinceNewBest = 0;
+            }
+            timeSinceNewBest++;
+
+        }
 	}
 }
