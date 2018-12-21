@@ -21,7 +21,7 @@ namespace OptimaliserenPracticum
             while (newwState == null)
             {
                 // Try one of the successorfunctions, and keep on trying untill one of them returns a successor
-                int i = r.Next(7);
+                int i = r.Next(4);
                 switch (i)
                 {
                     case 0: newwState = RemoveRandomAction(0); break;
@@ -215,6 +215,10 @@ namespace OptimaliserenPracticum
                 {
                     Order ord = DTS.orders[action.ordnr];
                     newstart += DTS.timeMatrix[previousId, action.ordid] + (int)ord.emptyingTime;
+                    
+                    //DIT DENK IK HIDDE HULP HEEL ERG AANGEZIEN WE WILLEN UPDATE.
+                    previousId = action.ordid;
+
                     truck.FillTruck(ord);
                     // Check if there's a moment when the truck is full. deduct a lot of score for that
                     if (truck.CheckIfOverloaded()) score -= 1000;
