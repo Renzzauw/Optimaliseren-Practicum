@@ -59,21 +59,26 @@ namespace OptimaliserenPracticum
             if (orda == 0) return null; // Return if you try to delete an emptying moment
             newDay.RemoveAt(removedIndex);
             //change the day in the week for a new week
-            newStatus = oldStatus;
+            newStatus = new List<Status>[5];
+            for (int a = 0; a < 5; a++)
+            {
+                newStatus[a] = oldStatus[a];
+            }
             newStatus[findDay] = newDay;
             // Already make the the new state, so that it can be properly evaluated
             newState = new State(oldState.status);
             newState.status[x][findDay] = newDay;
+            DTS.availableOrders.Add(orda);
             // Give ratings to the old and new day, and evaluate them
             rating1 = Eval(oldState);
             rating2 = Eval(newState);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
-                DTS.availableOrders.Add(orda);
                 DTS.NewBest(newState, rating2);
                 return newState;
             }
+            DTS.availableOrders.Remove(orda);
             return null;
         }
 
@@ -100,16 +105,17 @@ namespace OptimaliserenPracticum
             // Already make the the new state, so that it can be properly evaluated
             newState = new State(oldState.status);
             newState.status[x][findDay] = newDay;
+            DTS.availableOrders.Remove(ord.orderNumber);
             // Give ratings to the old and new day, and evaluate them
             rating1 = Eval(oldState);
             rating2 = Eval(newState);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
-                DTS.availableOrders.Remove(ord.orderNumber);
                 DTS.NewBest(newState, rating2);
                 return newState;
             }
+            DTS.availableOrders.Add(ord.orderNumber);
             return null;
         }
 
@@ -206,8 +212,6 @@ namespace OptimaliserenPracticum
 
 
         // TODO: Compleet herschrijven
-        // TODO: Compleet herschrijven
-        // TODO: Compleet herschrijven
         public double Eval(State state)
         {
             List<Status>[] actionstruck1, actionstruck2;
@@ -241,8 +245,6 @@ namespace OptimaliserenPracticum
                     {
                         Order ord = DTS.orders[action.ordnr];
                         newstart += DTS.timeMatrix[previousId, action.ordid] + (int)ord.emptyingTime;
-
-                        //DIT DENK IK HIDDE HULP HEEL ERG AANGEZIEN WE WILLEN UPDATE.
                         previousId = action.ordid;
 
                         truck1.FillTruck(ord);
@@ -281,10 +283,7 @@ namespace OptimaliserenPracticum
                     {
                         Order ord = DTS.orders[action.ordnr];
                         newstart += DTS.timeMatrix[previousId, action.ordid] + (int)ord.emptyingTime;
-
-                        //DIT DENK IK HIDDE HULP HEEL ERG AANGEZIEN WE WILLEN UPDATE.
                         previousId = action.ordid;
-
                         truck2.FillTruck(ord);
                         // Check if there's a moment when the truck is full. deduct a lot of score for that
                         if (truck2.CheckIfOverloaded()) score -= 1000;
@@ -300,24 +299,28 @@ namespace OptimaliserenPracticum
                 truck2totaaltijd += newstart;
             }
 
-            score -= (truck1totaaltijd + truck2totaaltijd);
+            score -= truck1totaaltijd + truck2totaaltijd;
 
 
 
             //deducing score acoringly for not doing an order.
             foreach (int x in DTS.availableOrders)
             {
-                score -= 3 * (int)(DTS.orders[x].emptyingTime * DTS.orders[x].frequency);
+                score -= 3 * (DTS.orders[x].emptyingTime * DTS.orders[x].frequency);
             }
 
             
-            return (score / 60);
+            return score / 60;
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted
         public bool AcceptNewDay(double oldrating, double newrating, Random r)
         {
-            return (newrating >= oldrating) || PCheck(oldrating, newrating, r);
+            if (newrating > oldrating)
+            {
+                return true;
+            }
+            return PCheck(oldrating, newrating, r);
         }
 
         // Checks if the P is smaller than a random number. Return true if yes.

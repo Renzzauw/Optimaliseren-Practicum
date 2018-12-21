@@ -25,18 +25,18 @@ namespace OptimaliserenPracticum
 
 
         // The constructor copies from an old state
-        public State(List<Status>[][] status)
+        public State(List<Status>[][] stat)
         {
             status = new List<Status>[2][];
             status[0] = new List<Status>[5];
             for (int i = 0; i < 5; i++)
             {
-                status[0][i] = new List<Status>(status[0][i]);
+                status[0][i] = new List<Status>(stat[0][i]);
             }
             status[1] = new List<Status>[5];
             for (int i = 0; i < 5; i++)
             {
-                status[1][i] = new List<Status>(status[1][i]);
+                status[1][i] = new List<Status>(stat[1][i]);
             }
         }
 
@@ -75,7 +75,7 @@ namespace OptimaliserenPracticum
                 processtime = (int)ord.emptyingTime;
                 timeToMaarheze = DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
                 // If there is no time to complete the order and return to the depot, try again
-                if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd - 1800)
+                if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd - DTS.emptyingTime)
                 {
                     iterations++;
                     continue;
