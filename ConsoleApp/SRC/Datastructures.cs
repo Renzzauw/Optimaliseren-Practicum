@@ -1,29 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace OptimaliserenPracticum
 {
 	// Global class for important data
 	public static class DTS
 	{
-		public static Company[] companyList;        // List of companies
-		public static int[,] distanceMatrix;        // Distance matrix
-		public static int[,] timeMatrix;            // Time matrix
-        public static int dayStart, dayEnd;
-        public static int emptyingTime;
-		public static Company maarheeze;
-		public static Dictionary<int, Order> orders;
-        public static List<int> availableOrders;
-        public static float temperature;
-        public static State bestState;
-        public static int bestRating;
-        public static int timeSinceNewBest;
+		public static Company[] companyList;          // List of companies
+		public static int[,] distanceMatrix;          // Distance matrix
+		public static int[,] timeMatrix;              // Time matrix
+        public static int dayStart, dayEnd;           // The time when the day starts and end, in seconds
+        public static int emptyingTime;               // The time that it takes to empty the truck in Maarheze, in seconds
+        public static Company maarheeze;              // The Company where the dumping spot is located. TODO: delet this
+		public static Dictionary<int, Order> orders;  // A dictionary that contains all orders, with their ID as key
+        public static List<int> availableOrders;      // A list containing all ID's of available orders
+        public static float temperature;              // The temperature used in SA 
+        public static State bestState;                // The best state ever found during SA, at a given moment
+        public static int bestRating;                 // The rating belonging to that state
+        public static int timeSinceNewBest;           // The amount of iterations since the best state was changed last
 
+        // Function that changes the best state found, if the new rating is better than the old one
         public static void NewBest(State state, int rating)
         {
+            // Right now we also replace of the new state is as good as the best one, so that the program doesn't terminate too early
             if (rating >= bestRating)
             {
                 bestState = state;

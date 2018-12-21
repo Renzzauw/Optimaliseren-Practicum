@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OptimaliserenPracticum
+﻿namespace OptimaliserenPracticum
 {
-	// Order object
 	public class Order
 	{
-		// Variables (these are the values given as input)
-		public int orderNumber, frequency, containerCount, volumePerContainer, matrixID, xCoordinate, yCoordinate;
+        // These variables are the same as the ones that are in the .txt file
+        public int orderNumber, frequency, containerCount, volumePerContainer, matrixID, xCoordinate, yCoordinate; 
 		public string placeName;
-		public float emptyingTime;
-		public bool ordersDone = false;
+		public float emptyingTime; // Emptyingtime has been adjusted so that it is in seconds
+		public bool ordersDone = false; // Bool that checks if the order has been forfilled
 
-		// Constructor
+		// Constructor, set all of the above variables
 		public Order(int orderNumber, string placeName, int frequency, int containerCount, int volumePerContainer, float emptyingTime, int matrixID, int xCoordinate, int yCoordinate)
 		{
 			this.orderNumber = orderNumber;
