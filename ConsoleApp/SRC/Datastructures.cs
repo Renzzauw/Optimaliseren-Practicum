@@ -16,7 +16,7 @@ namespace OptimaliserenPracticum
         public static int emptyingTime;
 		public static Company maarheeze;
 		public static Dictionary<int, Order> orders;
-        public static Dictionary<int, Order> availableOrders;
+        public static List<int> availableOrders;
         public static float temperature;
 
 	}

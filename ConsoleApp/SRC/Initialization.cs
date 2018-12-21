@@ -50,7 +50,7 @@ namespace OptimaliserenPracticum
 			foreach (Order order in orderList)
             {
 				DTS.orders[order.orderNumber] = order;
-                DTS.availableOrders[order.orderNumber] = order;
+                DTS.availableOrders.Add(order.orderNumber);
                 // Current company does not exist, create it and add the order
                 if (companylist[order.matrixID] == null) 
                 {

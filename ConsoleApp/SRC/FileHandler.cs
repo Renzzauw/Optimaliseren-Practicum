@@ -7,36 +7,41 @@ using System.Threading.Tasks;
 
 namespace OptimaliserenPracticum
 {
-	// Class for handling input/output of the various neighbour states
-	public static class FileHandler
-	{
-		// Print all the actions to the console
-		public static void Print(State state)
-		{
-			int daycounter = 1;
-			// print the path of the first truck
-			for (int i = 0; i < 5; i++)
-			{
-				daycounter = 1;
-				List<Status> day1 = state.status[0][i];
-				List<Status> day2 = state.status[1][i];
-				// Print the routes in the format of the autochecker
-				foreach (Status status in day1)
-				{
-					Console.WriteLine(1 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
-					daycounter++;
-				}
+    // Class for handling input/output of the various neighbour states
+    public static class FileHandler
+    {
+        // Print all the actions to the console
+        public static void Print(State state)
+        {
+            int daycounter = 1;
+            for (int i = 0; i < 5; i++)
+            {
+                List<Status> day1 = state.status[0][i];
+                // Print the routes in the format of the autochecker
+                foreach (Status status in day1)
+                {
+                    Console.WriteLine(1 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+                    daycounter++;
+                }
+                daycounter = 1;
+            }
+            // print the path of the second truck
+            for (int i = 0; i < 5; i++)
+            {
+                List<Status> day2 = state.status[1][i];
                 daycounter = 1;
                 foreach (Status status in day2)
                 {
                     Console.WriteLine(2 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
                     daycounter++;
                 }
+                daycounter = 1;
             }
-		}
 
-		// Save a state to a textfile with the current datetime
-		public static void SaveState(State state)
+        }
+
+        // Save a state to a textfile with the current datetime
+        public static void SaveState(State state)
 		{
 			// Create a filename for saving the state with the current time
 			string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + DateTime.UtcNow.ToFileTime();

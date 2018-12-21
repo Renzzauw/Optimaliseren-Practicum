@@ -38,13 +38,13 @@ namespace OptimaliserenPracticum
             Diagnostics.second = 1;
 			// Load all variables from the two input files
 			DTS.orders = new Dictionary<int, Order>();
-			DTS.availableOrders = new Dictionary<int, Order>();
+			DTS.availableOrders = new List<int>();
 			Initialization init = new Initialization();
 			var adjacencyList = init.GetAdjacencyList();
 			DTS.distanceMatrix = adjacencyList.Item1;
 			DTS.timeMatrix = adjacencyList.Item2;
-            DTS.dayStart = 21600;
-            DTS.dayEnd = 64800;
+            DTS.dayStart = 0;
+            DTS.dayEnd = 43200;
             DTS.emptyingTime = 1800;
 			// initialize orders
 			DTS.companyList = init.MakeCompanies();
@@ -67,7 +67,7 @@ namespace OptimaliserenPracticum
 		{
             Diagnostics.runtimeWatch.Start();
 			State current = initialState;
-			while (i < 100000) //TODO: Change this to a better stopping condition
+			while (i < 1000000) //TODO: Change this to a better stopping condition
 			{
                 Diagnostics.IterationsPerSecond++;
                 if (Diagnostics.runtimeWatch.ElapsedMilliseconds > 1000 * Diagnostics.second)
