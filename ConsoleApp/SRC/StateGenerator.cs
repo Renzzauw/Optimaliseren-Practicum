@@ -225,10 +225,50 @@ namespace OptimaliserenPracticum
             return null;
         }
 
-        
+
         // TODO: Compleet herschrijven
-        public int EvalDay(Status Week)
+        // TODO: Compleet herschrijven
+        public int EvalDay(List<Status> day)
         {
+            int score = 0;
+            int newstart = DTS.dayStart;
+            Company previousLoc = DTS.maarheeze;
+            GarbageTruck truck = new GarbageTruck();
+            // Iterate over all actions
+            foreach (Status action in day)
+            {
+                if (action.ordnr == 0)
+                {
+                    newstart += DTS.timeMatrix[previousLoc.companyIndex, action.company.companyIndex] + DTS.emptyingTime;
+                    truck.EmptyTruck();
+                    previousLoc = DTS.maarheeze;
+                }
+                else
+                {
+                    Order ord = DTS.orders[action.ordnr];
+                    newstart += DTS.timeMatrix[previousLoc.companyIndex, action.company.companyIndex] + (int)ord.emptyingTime;
+                    truck.FillTruck(ord);
+                    // Check if there's a moment when the truck is full. deduct a lot of score for that
+                    if (truck.CheckIfOverloaded()) score -= 1000;
+                }
+                // See if an order is placed on the wrong day (according to a pattern), punish that
+                // TODO: implement this
+            }
+            //deducing score acoringly for not doing an order.
+            foreach (int x in DTS.availableOrders)
+            {
+                score -= 3 * (int)(DTS.orders[x].emptyingTime) / 5;
+            }
+            // Punish overtime pretty heavily en rest time normally
+            if (newstart >= DTS.dayEnd)
+            {
+                score += DTS.dayEnd - newstart * 10;
+            }
+            else
+            {
+                score -= newstart - DTS.dayEnd;
+            }
+            return score;
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted
