@@ -58,7 +58,7 @@ namespace OptimaliserenPracticum
                 processtime = (int)ord.emptyingTime;
                 timeToMaarheze = DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
                 // If there is no time to complete the order and return to the depot, try again
-                if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd)
+                if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd - 1800)
                 {
                     iterations++;
                     continue;
