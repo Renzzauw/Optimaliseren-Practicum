@@ -2,6 +2,7 @@
 {
 	public class Order
 	{
+        // Variables
         // These variables are the same as the ones that are in the .txt file
         public int orderNumber, frequency, containerCount, volumePerContainer, matrixID, xCoordinate, yCoordinate; 
 		public string placeName;

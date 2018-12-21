@@ -1,31 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OptimaliserenPracticum
 {
 	
 	// State object
-    public class State : SimulatedAnnealing
+    public class State
     {	
 		// Variables
-        public List<Status>[][] status; // The week for each truck: It contains 5 dictionaries, one for each day. Each truck gets their own status
-        //private Datastructures data;
-        private Random random;
+        public List<Status>[][] status; // The status is a jagged array of status lists. What this means is that the first index stands for the truck (0 or 1), the second index for the day (0 .. 4), and that contains a list of statuses for each day.
+        private Random random;          // A random number generator that will be used in the creation of the initial state
 
-        // Make a (random) initial state
+        // The constructor makes a new random initial state
         public State()
         {
+            // Initialize the variables
             random = new Random();
             status = new List<Status>[2][];
-            status[0] = MakeRandomState();
-            status[1] = MakeRandomState();
+            // Create the schedule of both trucks seperately
+            status[0] = MakeRandomWeek();
+            status[1] = MakeRandomWeek();
         }
 
-		public List<Status>[] MakeRandomState()
+        // Function that generater a random week
+		public List<Status>[] MakeRandomWeek()
         {
+            // Create each of the 5 days seperately
             List<Status>[] statusList = new List<Status>[5];
             for (int i = 0; i < 5; i++)
             {
@@ -37,6 +38,7 @@ namespace OptimaliserenPracticum
 
         public List<Status> MakeRandomDay(int dayIndex)
         {
+            // Initialize all the variables needed for iterating
             List<Status> day = new List<Status>();
             int timestart = DTS.dayStart;
             Company comp = DTS.maarheeze;
@@ -44,7 +46,7 @@ namespace OptimaliserenPracticum
             Status previous = new Status(0, comp, 0);
 			int iterations = 0;
             Order ord;
-            // Allow up to 30 iterations to see whether it is possible to go to another address. If that is no longer possible, end the day
+            // Add a random action on top of the already existing day. Allow up to 30 iterations to see whether it is possible to go to another address. If that is no longer possible, end the day
             while (iterations < 30)
             {
                 comp = DTS.companyList.ElementAt(random.Next(DTS.companyList.Length));
@@ -57,7 +59,7 @@ namespace OptimaliserenPracticum
                 int processtime = (int)ord.emptyingTime;
                 int timeToMaarheze = DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
                 // If there is no time to complete the order and return to the depot, try again
-                if (timestart + traveltime + processtime + timeToMaarheze > 63000)
+                if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd)
                 {
                     iterations++;
                     continue;
@@ -71,7 +73,7 @@ namespace OptimaliserenPracticum
 				ord.ordersDone = true;
                 iterations = 0;
                 // If the truck is full, and there is time to empty, do it
-                if (truck.CheckIfFull() && timestart + timeToMaarheze < 63000)
+                if (truck.CheckIfFull() && timestart + timeToMaarheze < DTS.dayEnd)
                 {
 					// Drive to Maarheze and empty the truck
 					day.Add (new Status(dayIndex, DTS.maarheeze, 0));
@@ -80,15 +82,12 @@ namespace OptimaliserenPracticum
                     day.Add(previous);
                 }
             }
-			// Drive to Maarheze and empty the truck. TODO: check if the truck is aleady empty if its not already there and emptied
+			// Drive to Maarheze and empty the truck.
             if (!truck.CheckIfEmpty())
             {
                 day.Add(new Status(dayIndex, DTS.maarheeze, 0));
             }
-           
            return day;
-
-
         }
 
 	}
