@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace OptimaliserenPracticum
 {
@@ -35,7 +33,7 @@ namespace OptimaliserenPracticum
                 int freq = (int)Char.GetNumericValue(words[2][0]);     // TODO: Dit wordt nog aangepast (met enum van Renzo :^|)
                 int ContCount = int.Parse(words[3]);		           // Container count
                 int volumCont = int.Parse(words[4]);		           // Volume container
-                float emptTime = (float.Parse(words[5]) * 60f);		   // Empty time, DIT IS CONVERTED NAAR SECONDEN
+                float emptTime = float.Parse(words[5], new CultureInfo("us-US").NumberFormat) * 60f;		   // Empty time, DIT IS CONVERTED NAAR SECONDEN
                 int matrixID = int.Parse(words[6]);			           // Matrix ID
                 int xCoord = int.Parse(words[7]);			           // X coordinate order
                 int yCoord = int.Parse(words[8]);                      // Y coordinate order

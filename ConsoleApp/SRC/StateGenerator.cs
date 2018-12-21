@@ -22,6 +22,7 @@ namespace OptimaliserenPracticum
             {
                 // Try one of the successorfunctions, and keep on trying untill one of them returns a successor
                 int i = r.Next(4);
+                DTS.hasOvertime = false;
                 switch (i)
                 {
                     case 0: newwState = RemoveRandomAction(0); break;
@@ -45,7 +46,7 @@ namespace OptimaliserenPracticum
             int x = (int)i;
             List<Status>[] oldStatus, newStatus;
             List<Status> oldDay, newDay;
-            int orda, findDay, removedIndex;
+            int ordnr, findDay, removedIndex;
             double rating1, rating2;
             oldStatus = oldState.status[x];
             // Pick a random day of the week
@@ -55,8 +56,8 @@ namespace OptimaliserenPracticum
             newDay = new List<Status>(oldDay);
             removedIndex = r.Next(oldDay.Count - 2);
             // Remove a random action
-            orda = newDay[removedIndex].ordnr;
-            if (orda == 0) return null; // Return if you try to delete an emptying moment
+            ordnr = newDay[removedIndex].ordnr;
+            if (ordnr == 0) return null; // Return if you try to delete an emptying moment
             newDay.RemoveAt(removedIndex);
             //change the day in the week for a new week
             newStatus = new List<Status>[5];
@@ -68,19 +69,47 @@ namespace OptimaliserenPracticum
             // Already make the the new state, so that it can be properly evaluated
             newState = new State(oldState.status);
             newState.status[x][findDay] = newDay;
-            DTS.availableOrders.Add(orda);
+            DTS.availableOrders.Add(ordnr);
+            // Check for frequency, and add it properly
+            if (DTS.orders[ordnr].frequency > 1)
+            {
+                newState = RemoveAllOrd(newState, DTS.orders[ordnr], findDay);
+            }
+            if (newState == null)
+            {
+                DTS.availableOrders.Add(ordnr);
+                return null;
+            }
             // Give ratings to the old and new day, and evaluate them
             rating1 = Eval(oldState);
             rating2 = Eval(newState);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
-                DTS.NewBest(newState, rating2);
+                if (!DTS.hasOvertime) DTS.NewBest(newState, rating2);
                 return newState;
             }
-            DTS.availableOrders.Remove(orda);
+            DTS.availableOrders.Remove(ordnr);
             return null;
         }
+
+        #region removeMultiple
+        public State RemoveAllOrd(State state, Order ord, int day)
+        {
+            int z = 0;
+            for (int x = 0; x < 2; x++)
+            {
+                for (int y = 0; y < 5; y++)
+                {
+                    while (z < state.status[x][y].Count) {
+                        if (state.status[x][y][z].ordnr == ord.orderNumber) state.status[x][y].Remove(state.status[x][y][z]);
+                        z++;
+                    }
+                }
+            }
+            return state;
+        }
+        #endregion
 
         // Add a random action at a random time
         public State AddRandomAction(object i)
@@ -106,17 +135,118 @@ namespace OptimaliserenPracticum
             newState = new State(oldState.status);
             newState.status[x][findDay] = newDay;
             DTS.availableOrders.Remove(ord.orderNumber);
+            // Check for frequency, and add it properly
+            if (ord.frequency > 1)
+            {
+                newState = AddAllOrd(newState, ord, findDay, r);
+            }
+            if (newState == null)
+            {
+                DTS.availableOrders.Add(ord.orderNumber);
+                return null;
+            }
             // Give ratings to the old and new day, and evaluate them
             rating1 = Eval(oldState);
             rating2 = Eval(newState);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
-                DTS.NewBest(newState, rating2);
+                if(!DTS.hasOvertime) DTS.NewBest(newState, rating2);
                 return newState;
             }
             DTS.availableOrders.Add(ord.orderNumber);
             return null;
+        }
+
+        public State AddAllOrd(State state, Order ord, int day, Random r)
+        {
+            int randomTruck, randomTime, unluckyDay = day;
+            switch (ord.frequency)
+            {
+                case 2: 
+                        switch (day)
+                    {
+                        case 0:
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][3].Count); 
+                            newState.status[randomTruck][3].Insert(randomTime,new Status(3,ord.matrixID,ord.orderNumber));
+                            break;
+                        case 1:
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][4].Count);
+                            newState.status[randomTruck][4].Insert(randomTime, new Status(4, ord.matrixID, ord.orderNumber));
+                            break;
+                        case 2:
+                            return null;
+                        case 3:
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][0].Count);
+                            newState.status[randomTruck][0].Insert(randomTime, new Status(0, ord.matrixID, ord.orderNumber));
+                            break;
+                        case 4:
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][1].Count);
+                            newState.status[randomTruck][1].Insert(randomTime, new Status(1, ord.matrixID, ord.orderNumber));
+                            break;
+                        default: break;
+                    }
+                    break;
+                case 3:
+                    switch (day)
+                    {
+                        case 0:
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][2].Count);
+                            newState.status[randomTruck][2].Insert(randomTime, new Status(2, ord.matrixID, ord.orderNumber));
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][4].Count);
+                            newState.status[randomTruck][4].Insert(randomTime, new Status(4, ord.matrixID, ord.orderNumber));
+                            break;
+                        case 1:
+                            return null;
+                        case 2:
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][0].Count);
+                            newState.status[randomTruck][0].Insert(randomTime, new Status(0, ord.matrixID, ord.orderNumber));
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][4].Count);
+                            newState.status[randomTruck][4].Insert(randomTime, new Status(4, ord.matrixID, ord.orderNumber));
+                            break;
+                        case 3:
+                            return null;
+                        case 4:
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][0].Count);
+                            newState.status[randomTruck][0].Insert(randomTime, new Status(0, ord.matrixID, ord.orderNumber));
+                            randomTruck = r.Next(2);
+                            randomTime = r.Next(state.status[randomTruck][2].Count);
+                            newState.status[randomTruck][2].Insert(randomTime, new Status(2, ord.matrixID, ord.orderNumber));
+                            break;
+                        default: break;
+                    }
+                    break;
+                case 4:
+                    while (unluckyDay != day) unluckyDay = r.Next(5);
+                    for(int i = 0; i < 5; i++)
+                    {
+                        if (i == unluckyDay || i == day) continue;
+                        randomTruck = r.Next(2);
+                        randomTime = r.Next(state.status[randomTruck][i].Count);
+                        newState.status[randomTruck][i].Insert(randomTime, new Status(i, ord.matrixID, ord.orderNumber));
+                    }
+                    break;
+                case 5:
+                    for (int i = 0; i < 5; i++)
+                    {
+                        if (i == day) continue;
+                        randomTruck = r.Next(2);
+                        randomTime = r.Next(state.status[randomTruck][i].Count);
+                        newState.status[randomTruck][i].Insert(randomTime, new Status(i, ord.matrixID, ord.orderNumber));
+                    }
+                break;
+                default: break;
+            }
+            return state;
         }
 
         // Swap two random actions within a truck
@@ -161,7 +291,7 @@ namespace OptimaliserenPracticum
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, return the new state
-                DTS.NewBest(newState, rating2);
+                if (!DTS.hasOvertime) DTS.NewBest(newState, rating2);
                 return newState;
             }
             return null;
@@ -204,7 +334,7 @@ namespace OptimaliserenPracticum
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, return the new state
-                DTS.NewBest(newState, rating2);
+                if (!DTS.hasOvertime) DTS.NewBest(newState, rating2);
                 return newState;
             }
             return null;
@@ -249,7 +379,7 @@ namespace OptimaliserenPracticum
 
                         truck1.FillTruck(ord);
                         // Check if there's a moment when the truck is full. deduct a lot of score for that
-                        if (truck1.CheckIfOverloaded()) score -= 1000;
+                        if (truck1.CheckIfOverloaded()) score -= 10000;
                     }
            
 
@@ -257,7 +387,8 @@ namespace OptimaliserenPracticum
                 //Punish overtime pretty heavily en rest time normally
                 if (newstart >= DTS.dayEnd)
                 {
-                    truck1totaaltijd += (newstart - DTS.dayEnd) * 10;
+                    DTS.hasOvertime = true;
+                    truck1totaaltijd += (newstart - DTS.dayEnd) * 1000;
                 }
                 truck1totaaltijd += newstart;
             }
@@ -286,15 +417,17 @@ namespace OptimaliserenPracticum
                         previousId = action.ordid;
                         truck2.FillTruck(ord);
                         // Check if there's a moment when the truck is full. deduct a lot of score for that
-                        if (truck2.CheckIfOverloaded()) score -= 1000;
+                        if (truck2.CheckIfOverloaded()) score -= 10000;
                     }
 
 
                 }
                 //Punish overtime pretty heavily en rest time normally
-                if (newstart >= DTS.dayEnd)
+                if (newstart > DTS.dayEnd)
                 {
-                    truck2totaaltijd += (newstart - DTS.dayEnd) * 10;
+                    DTS.hasOvertime = true;
+                    truck2totaaltijd += (newstart - DTS.dayEnd) * 1000;
+
                 }
                 truck2totaaltijd += newstart;
             }
@@ -303,14 +436,15 @@ namespace OptimaliserenPracticum
 
 
 
-            //deducing score acoringly for not doing an order.
+            //deducing score acoringly for not doing an order. GAAT HARDSTIKKE FOUT voor een reden.
             foreach (int x in DTS.availableOrders)
             {
+                //keer frequenty er even uit gehaald.
                 score -= 3 * (DTS.orders[x].emptyingTime * DTS.orders[x].frequency);
             }
 
-            
-            return score / 60;
+            score = score / 60;
+            return score;
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted

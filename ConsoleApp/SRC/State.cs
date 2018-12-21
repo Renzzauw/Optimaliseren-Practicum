@@ -70,6 +70,12 @@ namespace OptimaliserenPracticum
                 // Pick a random available order, 
                 randomOrder = random.Next(DTS.availableOrders.Count);
                 ord = DTS.orders[DTS.availableOrders[randomOrder]];
+                if (ord.frequency > 1)
+                {
+                    iterations++;
+                    continue;
+                }
+
                 // Calculate the time needed to process and order when having to return immediately
                 traveltime = DTS.timeMatrix[status.ordid, ord.matrixID];
                 processtime = (int)ord.emptyingTime;
