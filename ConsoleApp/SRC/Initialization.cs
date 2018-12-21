@@ -30,7 +30,7 @@ namespace OptimaliserenPracticum
                 string[] words = line.Split(';');			           // The splitted input line
                 int ordernumb = int.Parse(words[0]);		           // Order number
                 string place = words[1].Trim();				           // Placename
-                int freq = (int)Char.GetNumericValue(words[2][0]);     // TODO: Dit wordt nog aangepast (met enum van Renzo :^|)
+                int freq = (int)Char.GetNumericValue(words[2][0]);     // The frequency
                 int ContCount = int.Parse(words[3]);		           // Container count
                 int volumCont = int.Parse(words[4]);		           // Volume container
                 float emptTime = float.Parse(words[5], new CultureInfo("us-US").NumberFormat) * 60f;		   // Empty time, DIT IS CONVERTED NAAR SECONDEN

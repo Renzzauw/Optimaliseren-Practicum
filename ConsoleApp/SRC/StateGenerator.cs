@@ -42,7 +42,7 @@ namespace OptimaliserenPracticum
         // Remove a random action on a random day of the schedule of a truck
         public State RemoveRandomAction(object i)
         {
-            // Declare all of the necissary variables
+            // Declare all of the necessary variables
             int x = (int)i;
             List<Status>[] oldStatus, newStatus;
             List<Status> oldDay, newDay;
@@ -69,31 +69,28 @@ namespace OptimaliserenPracticum
             // Already make the the new state, so that it can be properly evaluated
             newState = new State(oldState.status);
             newState.status[x][findDay] = newDay;
-            DTS.availableOrders.Add(ordnr);
             // Check for frequency, and add it properly
             if (DTS.orders[ordnr].frequency > 1)
             {
                 newState = RemoveAllOrd(newState, DTS.orders[ordnr], findDay);
-            }
-            if (newState == null)
-            {
-                DTS.availableOrders.Add(ordnr);
-                return null;
+                if (newState == null)
+                {
+                    return null;
+                }
             }
             // Give ratings to the old and new day, and evaluate them
             rating1 = Eval(oldState);
-            rating2 = Eval(newState);
+            rating2 = Eval(newState) - 3 * (DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
+                DTS.availableOrders.Add(ordnr);
                 if (!DTS.hasOvertime) DTS.NewBest(newState, rating2);
                 return newState;
             }
-            DTS.availableOrders.Remove(ordnr);
             return null;
         }
 
-        #region removeMultiple
         public State RemoveAllOrd(State state, Order ord, int day)
         {
             int z = 0;
@@ -109,12 +106,11 @@ namespace OptimaliserenPracticum
             }
             return state;
         }
-        #endregion
-
+        
         // Add a random action at a random time
         public State AddRandomAction(object i)
         {
-            // Declare all of the necissary variables
+            // Declare all of the necessary variables
             int x = (int)i;
             List<Status>[] oldStatus;
             List<Status> oldDay, newDay;
@@ -134,27 +130,25 @@ namespace OptimaliserenPracticum
             // Already make the the new state, so that it can be properly evaluated
             newState = new State(oldState.status);
             newState.status[x][findDay] = newDay;
-            DTS.availableOrders.Remove(ord.orderNumber);
             // Check for frequency, and add it properly
             if (ord.frequency > 1)
             {
                 newState = AddAllOrd(newState, ord, findDay, r);
-            }
-            if (newState == null)
-            {
-                DTS.availableOrders.Add(ord.orderNumber);
-                return null;
+                if (newState == null)
+                {
+                    return null;
+                }
             }
             // Give ratings to the old and new day, and evaluate them
             rating1 = Eval(oldState);
-            rating2 = Eval(newState);
+            rating2 = Eval(newState) + 3 * (ord.emptyingTime * ord.frequency);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
-                if(!DTS.hasOvertime) DTS.NewBest(newState, rating2);
+                DTS.availableOrders.Remove(ord.orderNumber);
+                if (!DTS.hasOvertime) DTS.NewBest(newState, rating2);
                 return newState;
             }
-            DTS.availableOrders.Add(ord.orderNumber);
             return null;
         }
 
@@ -252,7 +246,7 @@ namespace OptimaliserenPracticum
         // Swap two random actions within a truck
         public State SwapRandomActionsWithin(object i)
         {
-            // Declare all of the necissary variables
+            // Declare all of the necessary variables
             int x = (int) i;
             List<Status>[] oldStatus;
             List<Status> oldDay1, oldDay2, newDay1, newDay2;
@@ -274,6 +268,7 @@ namespace OptimaliserenPracticum
             actionIndex2 = r.Next(oldDay2.Count - 2);
             stat1 = oldDay1[actionIndex1];
             stat2 = oldDay2[actionIndex2];
+            if (DTS.orders[stat1.ordnr].frequency > 1 || DTS.orders[stat2.ordnr].frequency > 1) return null;
             // Swap these actions around
             tempstat2 = new Status(day1, stat2.ordid, stat2.ordnr);
             tempstat1 = new Status(day2, stat1.ordid, stat1.ordnr);
@@ -299,7 +294,7 @@ namespace OptimaliserenPracticum
 
         public State SwapRandomActionsBetween()
         {
-            // Declare all of the necissary variables
+            // Declare all of the necessary variables
             List<Status> oldDay1, oldDay2, newDay1, newDay2;
             int day1, day2, actionIndex1, actionIndex2;
             double rating1, rating2;
@@ -317,6 +312,7 @@ namespace OptimaliserenPracticum
             actionIndex2 = r.Next(oldDay2.Count - 2);
             stat1 = oldDay1[actionIndex1];
             stat2 = oldDay2[actionIndex2];
+            if (DTS.orders[stat1.ordnr].frequency > 1 || DTS.orders[stat2.ordnr].frequency > 1) return null;
             // Swap the actions
             tempstat2 = new Status(day1, stat2.ordid, stat2.ordnr);
             tempstat1 = new Status(day2, stat1.ordid, stat1.ordnr);
@@ -351,15 +347,15 @@ namespace OptimaliserenPracticum
             actionstruck2 = statuses[1];
             GarbageTruck truck1 = new GarbageTruck();
             GarbageTruck truck2 = new GarbageTruck();
-            int truck1totaaltijd = 0;
-            int truck2totaaltijd = 0;
+            double truck1totaaltijd = 0;
+            double truck2totaaltijd = 0;
 
             int previousId = DTS.maarheeze;
 
             foreach (List<Status> day in actionstruck1)
             {
                 //reset the day how its supposed to.
-                int newstart = DTS.dayStart;
+                double newstart = DTS.dayStart;
 
                 //iterate over all actions
                 foreach (Status action in day)
@@ -367,14 +363,14 @@ namespace OptimaliserenPracticum
 
                     if (action.ordnr == 0)
                     {
-                        newstart += DTS.timeMatrix[previousId, action.ordid] + DTS.emptyingTime;
+                        newstart += DTS.timeMatrix[previousId, DTS.maarheeze] + DTS.emptyingTime;
                         truck1.EmptyTruck();
                         previousId = DTS.maarheeze;
                     }
                     else
                     {
                         Order ord = DTS.orders[action.ordnr];
-                        newstart += DTS.timeMatrix[previousId, action.ordid] + (int)ord.emptyingTime;
+                        newstart += DTS.timeMatrix[previousId, action.ordid] + ord.emptyingTime;
                         previousId = action.ordid;
 
                         truck1.FillTruck(ord);
@@ -385,7 +381,7 @@ namespace OptimaliserenPracticum
 
                 }
                 //Punish overtime pretty heavily en rest time normally
-                if (newstart >= DTS.dayEnd)
+                if (newstart > DTS.dayEnd)
                 {
                     DTS.hasOvertime = true;
                     truck1totaaltijd += (newstart - DTS.dayEnd) * 1000;
@@ -398,7 +394,7 @@ namespace OptimaliserenPracticum
             foreach (List<Status> day in actionstruck2)
             {
                 //reset the day how its supposed to.
-                int newstart = DTS.dayStart;
+                double newstart = DTS.dayStart;
 
                 //iterate over all actions
                 foreach (Status action in day)
@@ -413,7 +409,7 @@ namespace OptimaliserenPracticum
                     else
                     {
                         Order ord = DTS.orders[action.ordnr];
-                        newstart += DTS.timeMatrix[previousId, action.ordid] + (int)ord.emptyingTime;
+                        newstart += DTS.timeMatrix[previousId, action.ordid] + ord.emptyingTime;
                         previousId = action.ordid;
                         truck2.FillTruck(ord);
                         // Check if there's a moment when the truck is full. deduct a lot of score for that
@@ -427,7 +423,6 @@ namespace OptimaliserenPracticum
                 {
                     DTS.hasOvertime = true;
                     truck2totaaltijd += (newstart - DTS.dayEnd) * 1000;
-
                 }
                 truck2totaaltijd += newstart;
             }
@@ -436,7 +431,7 @@ namespace OptimaliserenPracticum
 
 
 
-            //deducing score acoringly for not doing an order. GAAT HARDSTIKKE FOUT voor een reden.
+            //deducting score acordingly for not doing an order. GAAT HARDSTIKKE FOUT voor een reden.
             foreach (int x in DTS.availableOrders)
             {
                 //keer frequenty er even uit gehaald.

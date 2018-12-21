@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace OptimaliserenPracticum
 {
@@ -16,7 +17,7 @@ namespace OptimaliserenPracticum
         public static State bestState;                // The best state ever found during SA, at a given moment
         public static double bestRating;              // The rating belonging to that state
         public static int timeSinceNewBest;           // The amount of iterations since the best state was changed last
-        public static bool hasOvertime;               // Checks whether a given state has overtime. If so, it cannot be accepted as a best state
+        public static bool hasOvertime;               // Boolean that checks whether or not a state has overtime
 
         // Function that changes the best state found, if the new rating is better than the old one
         public static void NewBest(State state, double rating)

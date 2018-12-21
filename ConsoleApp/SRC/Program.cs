@@ -45,6 +45,7 @@ namespace OptimaliserenPracticum
             DTS.timeSinceNewBest = 0;
             DTS.temperature = 100;
             DTS.maarheeze = 287;
+            DTS.bestRating = float.MinValue;
             // initialize orders
             init.MakeOrders();
 			// Initialize all other variables
@@ -70,7 +71,7 @@ namespace OptimaliserenPracticum
             Diagnostics.runtimeWatch.Start();
 			State current = initialState;
             // Keep iterating untill the best state ever found, has not been improved (or matched) in a while
-			while (DTS.timeSinceNewBest < DTS.temperature * 20000)
+			while (DTS.timeSinceNewBest < DTS.temperature * 100)
 			{
                 // Keep track of how many iterations happen each second, and print that amount each second
                 Diagnostics.IterationsPerSecond++;
@@ -93,9 +94,10 @@ namespace OptimaliserenPracticum
             // Write the best state ever found to a file, and print it to the console
             FileHandler.SaveState(DTS.bestState);
             FileHandler.Print(DTS.bestState);
+            Console.WriteLine(DTS.bestRating);
             // Print the amount of time that was spent iterating
             Diagnostics.runtimeWatch.Stop();
-            Console.WriteLine("Runtime: " + Diagnostics.runtimeWatch.ElapsedMilliseconds + " ms");
+            Console.WriteLine("Runtime: " + Diagnostics.runtimeWatch.ElapsedMilliseconds + " ms" + "     Best solution =" + DTS.bestRating);
             // Do a readkey at the end so that the console does not close after printing a solution
             Console.ReadKey();
 		}
