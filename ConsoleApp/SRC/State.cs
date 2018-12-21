@@ -41,6 +41,7 @@ namespace OptimaliserenPracticum
             List<Status> day = new List<Status>();
             int timestart = DTS.dayStart;
             int prevId    = DTS.maarheeze;
+            int traveltime, processtime, timeToMaarheze;
             GarbageTruck truck = new GarbageTruck();
             Status status  = new Status(0, DTS.maarheeze, 0);
 			int iterations = 0;
@@ -53,9 +54,9 @@ namespace OptimaliserenPracticum
                 randomOrder = random.Next(DTS.availableOrders.Count);
                 ord = DTS.orders[DTS.availableOrders[randomOrder]];
                 // Calculate the time needed to process and order when having to return immediately
-                int traveltime = DTS.timeMatrix[status.ordid, ord.matrixID];
-                int processtime = (int)ord.emptyingTime;
-                int timeToMaarheze = DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
+                traveltime = DTS.timeMatrix[status.ordid, ord.matrixID];
+                processtime = (int)ord.emptyingTime;
+                timeToMaarheze = DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
                 // If there is no time to complete the order and return to the depot, try again
                 if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd)
                 {
@@ -82,25 +83,23 @@ namespace OptimaliserenPracticum
                 }
             }
 			// Drive to Maarheze and empty the truck.
-            if (!truck.CheckIfEmpty())
-            {
-                day.Add(new Status(dayIndex, DTS.maarheeze, 0));
-            }
+           day.Add(new Status(dayIndex, DTS.maarheeze, 0));
            return day;
         }
 
 	}
     public class Status
     {
-        public int day;
-        public int ordnr;
-        public int ordid;
+        public int day;         // The day of the status
+        public int ordid;       // The matrixID of the order that is currently executed
+        public int ordnr;       // The number of the order that is currently executed. In the case of emptying the truck, this is 0
 
-        public Status(int d, int nr, int id)
+        // Constructor
+        public Status(int d, int id, int nr)
         {
             day = d;
-            ordnr = nr;
             ordid = id;
+            ordnr = nr;
         }
     }
 

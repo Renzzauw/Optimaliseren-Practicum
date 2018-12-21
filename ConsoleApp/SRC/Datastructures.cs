@@ -29,7 +29,6 @@ namespace OptimaliserenPracticum
                 timeSinceNewBest = 0;
             }
             timeSinceNewBest++;
-
         }
 	}
 }

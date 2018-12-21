@@ -1,13 +1,13 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace OptimaliserenPracticum
 {
     static class Diagnostics
     {
-        public static Stopwatch initWatch;                    // Stopwatches to keep track of time
-        public static Stopwatch runtimeWatch;
-        public static int IterationsPerSecond;
-        public static int second;
+        // Variables
+        public static Stopwatch initWatch;                    // A stopwatch that keeps track of the initializationtime
+        public static Stopwatch runtimeWatch;                 // A stopwatch that keeps track of the runtime
+        public static int IterationsPerSecond;                // The number of iterations per second, on a given moment
+        public static int second;                             // The second that the SE is currently in
     }
 }

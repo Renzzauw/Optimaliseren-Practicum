@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OptimaliserenPracticum
 {
@@ -29,7 +26,7 @@ namespace OptimaliserenPracticum
             for (int i = 0; i < 5; i++)
             {
                 List<Status> day2 = state.status[1][i];
-                daycounter = 1;
+                // Print the routes in the format of the autochecker
                 foreach (Status status in day2)
                 {
                     Console.WriteLine(2 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
@@ -37,42 +34,38 @@ namespace OptimaliserenPracticum
                 }
                 daycounter = 1;
             }
-
         }
 
         // Save a state to a textfile with the current datetime
         public static void SaveState(State state)
-		{
-			// Create a filename for saving the state with the current time
-			string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + DateTime.UtcNow.ToFileTime();
-			if (!File.Exists(path))
-			{
-				StreamWriter sw = File.CreateText(path);
-				int daycounter = 1;
-				// Write the path of both trucks
-				for (int i = 0; i < 5; i++)
-				{
-					daycounter = 1;
-                    List<Status> day1 = state.status[0][i];
-                    List<Status> day2 = state.status[1][i];
-                    foreach (Status status in day1)
-					{
-						// day, starttime, endtime, company, truck number, truck capacity, ordernummer
-						sw.WriteLine("{0}; {1}; {2}; {3}",1, status.day, status.company.placeName, status.ordnr);
-						daycounter++;
-					}
-                    foreach (Status status in day2)
-                    {
-                        // day, starttime, endtime, company, truck number, truck capacity, ordernummer
-                        sw.WriteLine("{0}; {1}; {2}; {3}",2, status.day, status.company.placeName, status.ordnr);
-                        daycounter++;
-                        
-                    }
-				}
-                // Close the streamwriter
-                sw.Close();
+        {
+            // Create a filename for saving the state with the current time
+            string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + DateTime.UtcNow.ToFileTime();
+            StreamWriter sw = File.CreateText(path);
+            int daycounter = 1;
+            // Write the path of both trucks
+            for (int i = 0; i < 5; i++)
+            {
+                daycounter = 1;
+                List<Status> day1 = state.status[0][i];
+                List<Status> day2 = state.status[1][i];
+                foreach (Status status in day1)
+                {
+                    // day, starttime, endtime, company, truck number, truck capacity, ordernummer
+                    sw.WriteLine("{0}; {1}; {2}; {3}", 1, status.day, status.ordid, status.ordnr);
+                    daycounter++;
+                }
+                foreach (Status status in day2)
+                {
+                    // day, starttime, endtime, company, truck number, truck capacity, ordernummer
+                    sw.WriteLine("{0}; {1}; {2}; {3}", 2, status.day, status.ordid, status.ordnr);
+                    daycounter++;
+
+                }
             }
-		}
+            // Close the streamwriter
+            sw.Close();
+        }
 
 		// Load a state from a given filepath
 		public static State LoadStates(string path)
@@ -90,10 +83,10 @@ namespace OptimaliserenPracticum
 				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);
                 int trucknr = int.Parse(parts[0]);
                 int day = int.Parse(parts[1]);
-				Company comp = CompanyFromName(parts[2]);
+				int ordid = int.Parse(parts[2]);
 				int ordnr = int.Parse(parts[3]);
 				// Create a status from the input
-				Status status = new Status(day, comp, ordnr);
+				Status status = new Status(day, ordid, ordnr);
 				// Add the status to the right day and list 
 				if (trucknr == 1) status1[day].Add(status);
 				else status2[day].Add(status);				
@@ -104,18 +97,6 @@ namespace OptimaliserenPracticum
 			state.status[0] = status1;
 			state.status[1] = status2;
 			return state;
-		}
-
-		// Return a company given its name
-		public static Company CompanyFromName(string companyName)
-		{
-			// Check if any company has the name, if so return it
-			foreach (Company c in DTS.companyList)
-			{
-				if (c.placeName == companyName) return c;
-			}
-			// Otherwise return null
-			return null;
 		}
 	}
 }
