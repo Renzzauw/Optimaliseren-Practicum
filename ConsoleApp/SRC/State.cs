@@ -32,7 +32,6 @@ namespace OptimaliserenPracticum
             {
                 statusList[i] = MakeRandomDay(i);
             }
-
             return statusList;
         }
 
@@ -41,33 +40,32 @@ namespace OptimaliserenPracticum
             // Initialize all the variables needed for iterating
             List<Status> day = new List<Status>();
             int timestart = DTS.dayStart;
-            Company comp = DTS.maarheeze;
+            int prevId    = DTS.maarheeze;
             GarbageTruck truck = new GarbageTruck();
-            Status previous = new Status(0, comp, 0);
+            Status status  = new Status(0, DTS.maarheeze, 0);
 			int iterations = 0;
+            int randomOrder;
             Order ord;
             // Add a random action on top of the already existing day. Allow up to 30 iterations to see whether it is possible to go to another address. If that is no longer possible, end the day
             while (iterations < 30)
             {
-                comp = DTS.companyList.ElementAt(random.Next(DTS.companyList.Length));
-                // Check if that company has outstanding orders, or whether it has aready been visited
-                if (!comp.HasOrders() || comp.IsDayVisited(dayIndex)) continue; // DIT kan gwn want hij mag verschillende orders doen van een bepaalde company op de zelfde dag FOUT. Niet dezelfde order nog een keer met frequenty hoger dan 1.
-                // Select one of the outstanding orders of that company
-                ord = comp.RandomOrder();
+                // Pick a random available order, 
+                randomOrder = random.Next(DTS.availableOrders.Count);
+                ord = DTS.orders[DTS.availableOrders[randomOrder]];
                 // Calculate the time needed to process and order when having to return immediately
-                int traveltime = DTS.timeMatrix[previous.company.companyIndex, comp.companyIndex];
+                int traveltime = DTS.timeMatrix[status.ordid, ord.matrixID];
                 int processtime = (int)ord.emptyingTime;
-                int timeToMaarheze = DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
+                int timeToMaarheze = DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
                 // If there is no time to complete the order and return to the depot, try again
                 if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd)
                 {
                     iterations++;
                     continue;
                 }
-                // Process the order          
-                day.Add(new Status(dayIndex, comp, ord.orderNumber));
+                // Process the order       
+                status = new Status(dayIndex, ord.matrixID, ord.orderNumber);
+                day.Add(status);
                 truck.FillTruck(ord);
-                previous = new Status(dayIndex, comp, ord.orderNumber);
 				timestart += traveltime + processtime;
                 DTS.availableOrders.Remove(ord.orderNumber);
 				ord.ordersDone = true;
@@ -75,11 +73,12 @@ namespace OptimaliserenPracticum
                 // If the truck is full, and there is time to empty, do it
                 if (truck.CheckIfFull() && timestart + timeToMaarheze < DTS.dayEnd)
                 {
-					// Drive to Maarheze and empty the truck
-					day.Add (new Status(dayIndex, DTS.maarheeze, 0));
-                    timestart += DTS.emptyingTime + DTS.timeMatrix[comp.companyIndex, DTS.maarheeze.companyIndex];
+                    // Drive to Maarheze and empty the truck
+                    status = new Status(dayIndex, DTS.maarheeze, 0);
+                    day.Add(status);
+                    timestart += DTS.emptyingTime + DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
                     truck.EmptyTruck();
-                    day.Add(previous);
+                    day.Add(status);
                 }
             }
 			// Drive to Maarheze and empty the truck.
@@ -94,14 +93,14 @@ namespace OptimaliserenPracticum
     public class Status
     {
         public int day;
-        public Company company;
         public int ordnr;
+        public int ordid;
 
-        public Status(int d, Company c, int ord)
+        public Status(int d, int nr, int id)
         {
             day = d;
-            company = c;
-            ordnr = ord;
+            ordnr = nr;
+            ordid = id;
         }
     }
 

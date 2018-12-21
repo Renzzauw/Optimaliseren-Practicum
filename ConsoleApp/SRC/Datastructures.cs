@@ -10,7 +10,7 @@ namespace OptimaliserenPracticum
 		public static int[,] timeMatrix;              // Time matrix
         public static int dayStart, dayEnd;           // The time when the day starts and end, in seconds
         public static int emptyingTime;               // The time that it takes to empty the truck in Maarheze, in seconds
-        public static Company maarheeze;              // The Company where the dumping spot is located. TODO: delet this
+        public static int maarheeze;                  // The matrixid where the dumping spot is located.
 		public static Dictionary<int, Order> orders;  // A dictionary that contains all orders, with their ID as key
         public static List<int> availableOrders;      // A list containing all ID's of available orders
         public static float temperature;              // The temperature used in SA 

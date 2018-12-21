@@ -44,9 +44,9 @@ namespace OptimaliserenPracticum
             DTS.emptyingTime = 1800;
             DTS.timeSinceNewBest = 0;
             DTS.temperature = 100;
+            DTS.maarheeze = 287;
             // initialize orders
             DTS.companyList = init.MakeCompanies();
-			DTS.maarheeze = DTS.companyList[287];
 			// Initialize all other variables
 			i = 0;
 			alpha = 0.99F;

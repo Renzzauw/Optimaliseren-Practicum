@@ -1,6 +1,5 @@
 ﻿namespace OptimaliserenPracticum
 {
-	// Garbage truck object
 	public class GarbageTruck
 	{
 		// Variables
