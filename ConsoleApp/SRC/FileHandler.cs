@@ -39,8 +39,11 @@ namespace OptimaliserenPracticum
         // Save a state to a textfile with the current datetime
         public static void SaveState(State state)
         {
-            // Create a filename for saving the state with the current time
-            string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + DateTime.UtcNow.ToFileTime();
+			// Create a filename for saving the state with the current time
+			//DateTime time = DateTime.UtcNow.ToLocalTime();
+			DateTime time = DateTime.UtcNow.ToLocalTime();
+			string filetime = time.Day + "-" + time.Month + "-" + time.Hour + "-" + time.Minute + "-" + time.Second;
+			string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + filetime;
             StreamWriter sw = File.CreateText(path);
             int daycounter = 1;
             // Write the path of both trucks
