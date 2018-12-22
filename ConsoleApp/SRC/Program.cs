@@ -28,16 +28,16 @@ namespace OptimaliserenPracticum
             // Start the diagnostics
             Diagnostics.initWatch = new Stopwatch();
             Diagnostics.runtimeWatch = new Stopwatch();
-			Diagnostics.initWatch.Start();
+            Diagnostics.initWatch.Start();
             Diagnostics.second = 1;
-			// Load the order lists from the input file
-			DTS.orders = new Dictionary<int, Order>();
-			DTS.availableOrders = new List<int>();
+            // Load the order lists from the input file
+            DTS.orders = new Dictionary<int, Order>();
+            DTS.availableOrders = new List<int>();
             // Construct the distance and time matrix
-			Initialization init = new Initialization();
-			var distTime = init.GetDistTimeMatrix();
-			DTS.distanceMatrix = distTime.Item1;
-			DTS.timeMatrix = distTime.Item2;
+            Initialization init = new Initialization();
+            var distTime = init.GetDistTimeMatrix();
+            DTS.distanceMatrix = distTime.Item1;
+            DTS.timeMatrix = distTime.Item2;
             // Initialize all other DTS variables
             DTS.dayStart = 0;
             DTS.dayEnd = 43200;
@@ -48,12 +48,25 @@ namespace OptimaliserenPracticum
             DTS.bestRating = float.MinValue;
             // initialize orders
             init.MakeOrders();
-			// Initialize all other variables
-			i = 0;
-			alpha = 0.99F;
-			q = 1000; // q is hardcoded for now, we did not have the time to make it dependent on the amount of neighbourstates
+            // Initialize all other variables
+            i = 0;
+            alpha = 0.99F;
+            q = 1000; // q is hardcoded for now, we did not have the time to make it dependent on the amount of neighbourstates
             // Make an initial state, and set the best state ever to this state
-			State initial = new State();
+            Console.WriteLine("Type 1 if you want to load a state, or anthing else if you want to create a new random state");
+            string inputstring = Console.ReadLine();
+            int value = int.Parse(inputstring);
+            State initial = null;
+            if (value == 1)
+            {
+                Console.WriteLine("Type the name of your file!");
+                string filename = Console.ReadLine();
+                initial = init.LoadState(filename);
+            }
+            else
+            {
+                initial = new State();
+            }
             DTS.bestState = initial;
             // Initialize the StateGenerator class, that is used to make successor states
             generator = new StateGenerator(initial);

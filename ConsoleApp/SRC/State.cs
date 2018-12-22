@@ -22,8 +22,6 @@ namespace OptimaliserenPracticum
             status[0] = MakeRandomWeek();
             status[1] = MakeRandomWeek();
         }
-        public State(int a) { }
-
 
         // The constructor copies from an old state
         public State(List<Status>[][] stat)
