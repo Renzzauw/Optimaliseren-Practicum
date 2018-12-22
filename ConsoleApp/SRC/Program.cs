@@ -77,7 +77,7 @@ namespace OptimaliserenPracticum
                 Diagnostics.IterationsPerSecond++;
                 if (Diagnostics.runtimeWatch.ElapsedMilliseconds > 1000 * Diagnostics.second)
                 {
-                    Console.WriteLine("Number of iterations in second: " + Diagnostics.second + " equals: " + Diagnostics.IterationsPerSecond);
+                    Console.WriteLine("Number of iterations in second: " + Diagnostics.second + " equals: " + Diagnostics.IterationsPerSecond + "     Best solution =" + DTS.bestRating * -1);
                     Diagnostics.IterationsPerSecond = 0;
                     Diagnostics.second++;
                 }
@@ -97,7 +97,7 @@ namespace OptimaliserenPracticum
             Console.WriteLine(DTS.bestRating);
             // Print the amount of time that was spent iterating
             Diagnostics.runtimeWatch.Stop();
-            Console.WriteLine("Runtime: " + Diagnostics.runtimeWatch.ElapsedMilliseconds + " ms" + "     Best solution =" + DTS.bestRating);
+            Console.WriteLine("Runtime: " + Diagnostics.runtimeWatch.ElapsedMilliseconds + " ms");
             // Do a readkey at the end so that the console does not close after printing a solution
             Console.ReadKey();
 		}

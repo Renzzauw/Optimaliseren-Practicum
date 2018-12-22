@@ -29,9 +29,9 @@ namespace OptimaliserenPracticum
                     case 1: newwState = RemoveRandomAction(1); break;
                     case 2: newwState = AddRandomAction(0); break;
                     case 3: newwState = AddRandomAction(1); break;
-                    case 4: newwState = SwapRandomActionsWithin(0); break;
+                    /*case 4: newwState = SwapRandomActionsWithin(0); break;
                     case 5: newwState = SwapRandomActionsWithin(1); break;
-                    case 6: newwState = SwapRandomActionsBetween(); break;
+                    case 6: newwState = SwapRandomActionsBetween(); break;*/
                     default: break;
                 }
             }
@@ -93,20 +93,25 @@ namespace OptimaliserenPracticum
 
         public State RemoveAllOrd(State state, Order ord, int day)
         {
-            int z = 0;
+            int z;
             for (int x = 0; x < 2; x++)
             {
                 for (int y = 0; y < 5; y++)
                 {
-                    while (z < state.status[x][y].Count) {
-                        if (state.status[x][y][z].ordnr == ord.orderNumber) state.status[x][y].Remove(state.status[x][y][z]);
+                    z = 0;
+                    while (z < state.status[x][y].Count)
+                    {
+                        if (state.status[x][y][z].ordnr == ord.orderNumber)
+                        {
+                            state.status[x][y].Remove(state.status[x][y][z]);
+                        }
                         z++;
                     }
                 }
             }
             return state;
         }
-        
+
         // Add a random action at a random time
         public State AddRandomAction(object i)
         {
@@ -242,7 +247,7 @@ namespace OptimaliserenPracticum
             }
             return state;
         }
-
+/*
         // Swap two random actions within a truck
         public State SwapRandomActionsWithin(object i)
         {
@@ -335,7 +340,7 @@ namespace OptimaliserenPracticum
             }
             return null;
         }
-
+        */
 
         // TODO: Compleet herschrijven
         public double Eval(State state)
@@ -363,7 +368,7 @@ namespace OptimaliserenPracticum
 
                     if (action.ordnr == 0)
                     {
-                        newstart += DTS.timeMatrix[previousId, DTS.maarheeze] + DTS.emptyingTime;
+                        newstart += DTS.timeMatrix[previousId, action.ordid] + DTS.emptyingTime;
                         truck1.EmptyTruck();
                         previousId = DTS.maarheeze;
                     }
@@ -372,7 +377,6 @@ namespace OptimaliserenPracticum
                         Order ord = DTS.orders[action.ordnr];
                         newstart += DTS.timeMatrix[previousId, action.ordid] + ord.emptyingTime;
                         previousId = action.ordid;
-
                         truck1.FillTruck(ord);
                         // Check if there's a moment when the truck is full. deduct a lot of score for that
                         if (truck1.CheckIfOverloaded()) score -= 10000;
@@ -435,11 +439,9 @@ namespace OptimaliserenPracticum
             foreach (int x in DTS.availableOrders)
             {
                 //keer frequenty er even uit gehaald.
-                score -= 3 * (DTS.orders[x].emptyingTime * DTS.orders[x].frequency);
+                score -= 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency;
             }
-
-            score = score / 60;
-            return score;
+            return score / 60;
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted
