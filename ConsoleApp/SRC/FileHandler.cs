@@ -52,13 +52,13 @@ namespace OptimaliserenPracticum
                 foreach (Status status in day1)
                 {
                     // day, starttime, endtime, company, truck number, truck capacity, ordernummer
-                    sw.WriteLine("{0}; {1}; {2}; {3}", 1, status.day, status.ordid, status.ordnr);
+                    sw.WriteLine("{0}; {1}; {2}; {3}", 1, status.day, daycounter, status.ordnr);
                     daycounter++;
                 }
                 foreach (Status status in day2)
                 {
                     // day, starttime, endtime, company, truck number, truck capacity, ordernummer
-                    sw.WriteLine("{0}; {1}; {2}; {3}", 2, status.day, status.ordid, status.ordnr);
+                    sw.WriteLine("{0}; {1}; {2}; {3}", 2, status.day, daycounter, status.ordnr);
                     daycounter++;
 
                 }

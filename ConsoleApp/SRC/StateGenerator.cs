@@ -80,7 +80,7 @@ namespace OptimaliserenPracticum
             }
             // Give ratings to the old and new day, and evaluate them
             rating1 = Eval(oldState);
-            rating2 = Eval(newState) - 3 * (DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency);
+            rating2 = Eval(newState) - 3 * (DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency) / 60;
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -146,7 +146,7 @@ namespace OptimaliserenPracticum
             }
             // Give ratings to the old and new day, and evaluate them
             rating1 = Eval(oldState);
-            rating2 = Eval(newState) + 3 * (ord.emptyingTime * ord.frequency);
+            rating2 = Eval(newState) + (3 * (ord.emptyingTime * ord.frequency)) / 60;
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, adjust the available orders, and return the new state
