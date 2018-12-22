@@ -247,7 +247,6 @@ namespace OptimaliserenPracticum
             }
             return state;
         }
-/*
         // Swap two random actions within a truck
         public State SwapRandomActionsWithin(object i)
         {
@@ -255,7 +254,7 @@ namespace OptimaliserenPracticum
             int x = (int) i;
             List<Status>[] oldStatus;
             List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2, actionIndex1, actionIndex2;
+            int day1, day2, actionIndex1, actionIndex2, nr1, nr2, id1, id2;
             double rating1, rating2;
             Status stat1, stat2, tempstat1, tempstat2;
             oldStatus = oldState.status[x];
@@ -273,10 +272,37 @@ namespace OptimaliserenPracticum
             actionIndex2 = r.Next(oldDay2.Count - 2);
             stat1 = oldDay1[actionIndex1];
             stat2 = oldDay2[actionIndex2];
-            if (DTS.orders[stat1.ordnr].frequency > 1 || DTS.orders[stat2.ordnr].frequency > 1) return null;
+            if (stat1.ordnr == 0)
+            {
+                nr1 = 0;
+                id1 = DTS.maarheeze;
+            }
+            else
+            {
+                nr1 = stat1.ordnr;
+                id1 = stat1.ordid;
+            }
+            if (stat2.ordnr == 0)
+            {
+                nr2 = 0;
+                id2 = DTS.maarheeze;
+            }
+            else
+            {
+                nr2 = stat1.ordnr;
+                id2 = stat1.ordid;
+            }
+            if(nr1 != 0)
+            {
+                if (DTS.orders[nr1].frequency > 1) return null;
+            }
+            if (nr2 != 0)
+            {
+                if (DTS.orders[nr2].frequency > 1) return null;
+            }
             // Swap these actions around
-            tempstat2 = new Status(day1, stat2.ordid, stat2.ordnr);
-            tempstat1 = new Status(day2, stat1.ordid, stat1.ordnr);
+            tempstat2 = new Status(day1, id2, nr2);
+            tempstat1 = new Status(day2, id1, nr1);
             newDay1.Remove(stat1);
             newDay2.Remove(stat2);
             newDay1.Insert(actionIndex1, tempstat2);
@@ -301,7 +327,7 @@ namespace OptimaliserenPracticum
         {
             // Declare all of the necessary variables
             List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2, actionIndex1, actionIndex2;
+            int day1, day2, actionIndex1, actionIndex2, nr1, nr2, id1, id2;
             double rating1, rating2;
             Status stat1, stat2, tempstat1, tempstat2;
             // Pick two random days, each for a different truck
@@ -319,8 +345,36 @@ namespace OptimaliserenPracticum
             stat2 = oldDay2[actionIndex2];
             if (DTS.orders[stat1.ordnr].frequency > 1 || DTS.orders[stat2.ordnr].frequency > 1) return null;
             // Swap the actions
-            tempstat2 = new Status(day1, stat2.ordid, stat2.ordnr);
-            tempstat1 = new Status(day2, stat1.ordid, stat1.ordnr);
+            if (stat1.ordnr == 0)
+            {
+                nr1 = 0;
+                id1 = DTS.maarheeze;
+            }
+            else
+            {
+                nr1 = stat1.ordnr;
+                id1 = stat1.ordid;
+            }
+            if (stat2.ordnr == 0)
+            {
+                nr2 = 0;
+                id2 = DTS.maarheeze;
+            }
+            else
+            {
+                nr2 = stat1.ordnr;
+                id2 = stat1.ordid;
+            }
+            if (nr1 != 0)
+            {
+                if (DTS.orders[nr1].frequency > 1) return null;
+            }
+            if (nr2 != 0)
+            {
+                if (DTS.orders[nr2].frequency > 1) return null;
+            }
+            tempstat2 = new Status(day1, id2, nr2);
+            tempstat1 = new Status(day2, id1, nr1);
             newDay1.Remove(stat1);
             newDay2.Remove(stat2);
             newDay1.Insert(actionIndex1, tempstat2);
@@ -340,7 +394,6 @@ namespace OptimaliserenPracticum
             }
             return null;
         }
-        */
 
         // TODO: Compleet herschrijven
         public double Eval(State state)
