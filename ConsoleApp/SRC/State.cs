@@ -80,7 +80,7 @@ namespace OptimaliserenPracticum
                 processtime = (int)ord.emptyingTime;
                 timeToMaarheze = DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
                 // If there is no time to complete the order and return to the depot, try again
-                if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd - DTS.emptyingTime)
+                if (timestart + traveltime + processtime + timeToMaarheze > 2 * (DTS.dayEnd - DTS.emptyingTime))
                 {
                     iterations++;
                     continue;
@@ -105,8 +105,10 @@ namespace OptimaliserenPracticum
                 }
             }
 			// Drive to Maarheze and empty the truck.
+            // Do an extra dumping moment per day, so that the truck always has enough space
+           day[day.Count / 2] = (new Status(dayIndex, DTS.maarheeze, 0));
            day.Add(new Status(dayIndex, DTS.maarheeze, 0));
-           return day;
+            return day;
         }
 
 	}
