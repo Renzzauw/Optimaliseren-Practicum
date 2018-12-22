@@ -87,15 +87,22 @@ namespace OptimaliserenPracticum
 			while (Diagnostics.runtimeWatch.ElapsedMilliseconds <= 1000 * 3600)
 			{
                 // Keep track of how many iterations happen each second, and print that amount each second
-                Diagnostics.IterationsPerSecond++;
+                Diagnostics.AcceptationsPerSecond++;
                 if (Diagnostics.runtimeWatch.ElapsedMilliseconds > 1000 * Diagnostics.second)
                 {
-                    Console.WriteLine("Number of iterations in second: " + Diagnostics.second + " equals: " + Diagnostics.IterationsPerSecond + "     Best solution =" + DTS.bestRating * -1);
-                    Diagnostics.IterationsPerSecond = 0;
+                    Console.WriteLine("Number of acceptations in second: " + Diagnostics.second + " equals: " + Diagnostics.AcceptationsPerSecond + "     Best solution =" + DTS.bestRating * -1);
+                    Diagnostics.AcceptationsPerSecond = 0;
                     Diagnostics.second++;
+                    Diagnostics.Printed = false;
+                }
+                if (Diagnostics.second % 60 == 0 && Diagnostics.Printed == false)
+                {
+                    Console.WriteLine("Number of itterations this minute equals: " + Diagnostics.IterationsPerMinute);
+                    Diagnostics.IterationsPerMinute = 0;
+                    Diagnostics.Printed = true;
                 }
                 // Every q iterations, lower the temperature by alpha
-				if (i % q == 0)
+                if (i % q == 0)
 				{
 					DTS.temperature *= alpha;
 				}

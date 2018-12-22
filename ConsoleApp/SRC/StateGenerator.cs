@@ -23,6 +23,7 @@ namespace OptimaliserenPracticum
                 // Try one of the successorfunctions, and keep on trying untill one of them returns a successor
                 int i = r.Next(4);
                 DTS.hasOvertime = false;
+                Diagnostics.IterationsPerMinute++;
                 switch (i)
                 {
                     case 0: newwState = RemoveRandomAction(0); break;
