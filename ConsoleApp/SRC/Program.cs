@@ -53,7 +53,7 @@ namespace OptimaliserenPracticum
             alpha = 0.99F;
             q = 10000; // q is hardcoded for now, we did not have the time to make it dependent on the amount of neighbourstates
             // Make an initial state, and set the best state ever to this state
-            Console.WriteLine("Type 1 if you want to load a state, or anthing else if you want to create a new random state");
+            Console.WriteLine("Type 1 if you want to load a state, or another number if you want to create a new random state");
             string inputstring = Console.ReadLine();
             int value = int.Parse(inputstring);
             State initial = null;
