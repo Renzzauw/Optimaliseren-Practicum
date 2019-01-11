@@ -17,39 +17,33 @@ namespace OptimaliserenPracticum
         public State GetNextState(State old)
         {
             oldState = old;
-            State newwState = null;
-            while (newwState == null)
+            State returnState = null;
+            // Try one of the successorfunctions, and keep on trying untill one of them returns a successor
+            double i = r.NextDouble();
+            DTS.hasOvertime = false;
+            Diagnostics.IterationsPerMinute++;
+            switch (i)
             {
-                // Try one of the successorfunctions, and keep on trying untill one of them returns a successor
-                int i = r.Next(4);
-                DTS.hasOvertime = false;
-                Diagnostics.IterationsPerMinute++;
-                switch (i)
-                {
-                    case 0: newwState = RemoveRandomAction(0); break;
-                    case 1: newwState = RemoveRandomAction(1); break;
-                    case 2: newwState = AddRandomAction(0); break;
-                    case 3: newwState = AddRandomAction(1); break;
-                    /*case 4: newwState = SwapRandomActionsWithin(0); break;
-                    case 5: newwState = SwapRandomActionsWithin(1); break;
-                    case 6: newwState = SwapRandomActionsBetween(); break;*/
-                    default: break;
-                }
+                case double n when n < 0.30: returnState = Remove(); break;
+                case double n when 0.30 <= n && n < 0.80: returnState = Add(); break;
+                default: returnState = null; break;
+                //default: returnState = Shift(); break;
             }
-            return newwState;
+            if (returnState == null) return oldState;
+            return returnState;
         }
 
 
         // Remove a random action on a random day of the schedule of a truck
-        public State RemoveRandomAction(object i)
+        public State Remove()
         {
             // Declare all of the necessary variables
-            int x = (int)i;
+            int truck = r.Next(2);
             List<Status>[] oldStatus, newStatus;
             List<Status> oldDay, newDay;
             int ordnr, findDay, removedIndex;
             double rating1, rating2;
-            oldStatus = oldState.status[x];
+            oldStatus = oldState.status[truck];
             // Pick a random day of the week
             findDay = r.Next(5);
             if (oldStatus[findDay].Count < 2) return null; // Return if there is only one order left, aka the emptying
@@ -69,7 +63,7 @@ namespace OptimaliserenPracticum
             newStatus[findDay] = newDay;
             // Already make the the new state, so that it can be properly evaluated
             newState = new State(oldState.status);
-            newState.status[x][findDay] = newDay;
+            newState.status[truck][findDay] = newDay;
             // Check for frequency, and add it properly
             if (DTS.orders[ordnr].frequency > 1)
             {
@@ -114,16 +108,16 @@ namespace OptimaliserenPracticum
         }
 
         // Add a random action at a random time
-        public State AddRandomAction(object i)
+        public State Add()
         {
             // Declare all of the necessary variables
-            int x = (int)i;
+            int truck = r.Next(2);
             List<Status>[] oldStatus;
             List<Status> oldDay, newDay;
             int findDay, addedIndex;
             double rating1, rating2;
             Order ord;
-            oldStatus = oldState.status[x];
+            oldStatus = oldState.status[truck];
             // pick a random day of the week
             findDay = r.Next(5);
             oldDay = oldStatus[findDay];
@@ -135,7 +129,7 @@ namespace OptimaliserenPracticum
             newDay.Insert(addedIndex, new Status(findDay, ord.matrixID, ord.orderNumber));
             // Already make the the new state, so that it can be properly evaluated
             newState = new State(oldState.status);
-            newState.status[x][findDay] = newDay;
+            newState.status[truck][findDay] = newDay;
             // Check for frequency, and add it properly
             if (ord.frequency > 1)
             {
@@ -163,13 +157,13 @@ namespace OptimaliserenPracticum
             int randomTruck, randomTime, unluckyDay = day;
             switch (ord.frequency)
             {
-                case 2: 
-                        switch (day)
+                case 2:
+                    switch (day)
                     {
                         case 0:
                             randomTruck = r.Next(2);
-                            randomTime = r.Next(state.status[randomTruck][3].Count); 
-                            newState.status[randomTruck][3].Insert(randomTime,new Status(3,ord.matrixID,ord.orderNumber));
+                            randomTime = r.Next(state.status[randomTruck][3].Count);
+                            newState.status[randomTruck][3].Insert(randomTime, new Status(3, ord.matrixID, ord.orderNumber));
                             break;
                         case 1:
                             randomTruck = r.Next(2);
@@ -227,7 +221,7 @@ namespace OptimaliserenPracticum
                     break;
                 case 4:
                     while (unluckyDay != day) unluckyDay = r.Next(5);
-                    for(int i = 0; i < 5; i++)
+                    for (int i = 0; i < 5; i++)
                     {
                         if (i == unluckyDay || i == day) continue;
                         randomTruck = r.Next(2);
@@ -243,150 +237,114 @@ namespace OptimaliserenPracticum
                         randomTime = r.Next(state.status[randomTruck][i].Count);
                         newState.status[randomTruck][i].Insert(randomTime, new Status(i, ord.matrixID, ord.orderNumber));
                     }
-                break;
+                    break;
                 default: break;
             }
             return state;
         }
-        // Swap two random actions within a truck
-        public State SwapRandomActionsWithin(object i)
-        {
-            // Declare all of the necessary variables
-            int x = (int) i;
-            List<Status>[] oldStatus;
-            List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2, actionIndex1, actionIndex2, nr1, nr2, id1, id2;
-            double rating1, rating2;
-            Status stat1, stat2, tempstat1, tempstat2;
-            oldStatus = oldState.status[x];
-            // Pick two random days in which to swap
-            day1 = r.Next(5);
-            day2 = r.Next(5);
-            if (day1 == day2) return null; // Return if both days are the same
-            oldDay1 = oldStatus[day1];
-            oldDay2 = oldStatus[day2];
-            newDay1 = new List<Status>(oldDay1);
-            newDay2 = new List<Status>(oldDay2);
-            if (newDay1.Count < 2 || newDay2.Count < 2) return null; // Return if either day has only one status, aka the emptying at the end
-            // pick two random actions			
-            actionIndex1 = r.Next(oldDay1.Count - 2);
-            actionIndex2 = r.Next(oldDay2.Count - 2);
-            stat1 = oldDay1[actionIndex1];
-            stat2 = oldDay2[actionIndex2];
-            if (stat1.ordnr == 0)
-            {
-                nr1 = 0;
-                id1 = DTS.maarheeze;
-            }
-            else
-            {
-                nr1 = stat1.ordnr;
-                id1 = stat1.ordid;
-            }
-            if (stat2.ordnr == 0)
-            {
-                nr2 = 0;
-                id2 = DTS.maarheeze;
-            }
-            else
-            {
-                nr2 = stat1.ordnr;
-                id2 = stat1.ordid;
-            }
-            if(nr1 != 0)
-            {
-                if (DTS.orders[nr1].frequency > 1) return null;
-            }
-            if (nr2 != 0)
-            {
-                if (DTS.orders[nr2].frequency > 1) return null;
-            }
-            // Swap these actions around
-            tempstat2 = new Status(day1, id2, nr2);
-            tempstat1 = new Status(day2, id1, nr1);
-            newDay1.Remove(stat1);
-            newDay2.Remove(stat2);
-            newDay1.Insert(actionIndex1, tempstat2);
-            newDay2.Insert(actionIndex2, tempstat1);
-            // Already make the the new state, so that it can be properly evaluated
-            newState = new State(oldState.status);
-            newState.status[x][day1] = newDay1;
-            newState.status[x][day2] = newDay2;
-            // Give ratings to the old and new day, and evaluate them
-            rating1 = Eval(oldState);
-            rating2 = Eval(newState);
-            if (AcceptNewDay(rating1, rating2, r))
-            {
-                // If accepted, return the new state
-                if (!DTS.hasOvertime) DTS.NewBest(newState, rating2);
-                return newState;
-            }
-            return null;
-        }
+        //// Swap two random actions within a truck
+        //public State SwapRandomActionsWithin(object i)
+        //{
+        //    // Declare all of the necessary variables
+        //    int x = (int) i;
+        //    List<Status>[] oldStatus;
+        //    List<Status> oldDay1, oldDay2, newDay1, newDay2;
+        //    int day1, day2, actionIndex1, actionIndex2, nr1, nr2, id1, id2;
+        //    double rating1, rating2;
+        //    Status stat1, stat2, tempstat1, tempstat2;
+        //    oldStatus = oldState.status[x];
+        //    // Pick two random days in which to swap
+        //    day1 = r.Next(5);
+        //    day2 = r.Next(5);
+        //    if (day1 == day2) return null; // Return if both days are the same
+        //    oldDay1 = oldStatus[day1];
+        //    oldDay2 = oldStatus[day2];
+        //    newDay1 = new List<Status>(oldDay1);
+        //    newDay2 = new List<Status>(oldDay2);
+        //    if (newDay1.Count < 2 || newDay2.Count < 2) return null; // Return if either day has only one status, aka the emptying at the end
+        //    // pick two random actions			
+        //    actionIndex1 = r.Next(oldDay1.Count - 2);
+        //    actionIndex2 = r.Next(oldDay2.Count - 2);
+        //    stat1 = oldDay1[actionIndex1];
+        //    stat2 = oldDay2[actionIndex2];
+        //    if (stat1.ordnr == 0)
+        //    {
+        //        nr1 = 0;
+        //        id1 = DTS.maarheeze;
+        //    }
+        //    else
+        //    {
+        //        nr1 = stat1.ordnr;
+        //        id1 = stat1.ordid;
+        //    }
+        //    if (stat2.ordnr == 0)
+        //    {
+        //        nr2 = 0;
+        //        id2 = DTS.maarheeze;
+        //    }
+        //    else
+        //    {
+        //        nr2 = stat1.ordnr;
+        //        id2 = stat1.ordid;
+        //    }
+        //    if(nr1 != 0)
+        //    {
+        //        if (DTS.orders[nr1].frequency > 1) return null;
+        //    }
+        //    if (nr2 != 0)
+        //    {
+        //        if (DTS.orders[nr2].frequency > 1) return null;
+        //    }
+        //    // Swap these actions around
+        //    tempstat2 = new Status(day1, id2, nr2);
+        //    tempstat1 = new Status(day2, id1, nr1);
+        //    newDay1.Remove(stat1);
+        //    newDay2.Remove(stat2);
+        //    newDay1.Insert(actionIndex1, tempstat2);
+        //    newDay2.Insert(actionIndex2, tempstat1);
+        //    // Already make the the new state, so that it can be properly evaluated
+        //    newState = new State(oldState.status);
+        //    newState.status[x][day1] = newDay1;
+        //    newState.status[x][day2] = newDay2;
+        //    // Give ratings to the old and new day, and evaluate them
+        //    rating1 = Eval(oldState);
+        //    rating2 = Eval(newState);
+        //    if (AcceptNewDay(rating1, rating2, r))
+        //    {
+        //        // If accepted, return the new state
+        //        if (!DTS.hasOvertime) DTS.NewBest(newState, rating2);
+        //        return newState;
+        //    }
+        //    return null;
+        //}\
 
-        public State SwapRandomActionsBetween()
+        public State Shift()
         {
-            // Declare all of the necessary variables
-            List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2, actionIndex1, actionIndex2, nr1, nr2, id1, id2;
-            double rating1, rating2;
-            Status stat1, stat2, tempstat1, tempstat2;
-            // Pick two random days, each for a different truck
-            day1 = r.Next(5);
-            day2 = r.Next(5);
-            oldDay1 = oldState.status[0][day1];
-            oldDay2 = oldState.status[1][day2];
-            newDay1 = new List<Status>(oldDay1);
-            newDay2 = new List<Status>(oldDay2);
-            if (newDay1.Count < 2 || newDay2.Count < 2) return null;  // Return if either day has only one status, aka the emptying at the end
-            // pick two random actions			
-            actionIndex1 = r.Next(oldDay1.Count - 2);
-            actionIndex2 = r.Next(oldDay2.Count - 2);
-            stat1 = oldDay1[actionIndex1];
-            stat2 = oldDay2[actionIndex2];
-            if (DTS.orders[stat1.ordnr].frequency > 1 || DTS.orders[stat2.ordnr].frequency > 1) return null;
-            // Swap the actions
-            if (stat1.ordnr == 0)
-            {
-                nr1 = 0;
-                id1 = DTS.maarheeze;
-            }
-            else
-            {
-                nr1 = stat1.ordnr;
-                id1 = stat1.ordid;
-            }
-            if (stat2.ordnr == 0)
-            {
-                nr2 = 0;
-                id2 = DTS.maarheeze;
-            }
-            else
-            {
-                nr2 = stat1.ordnr;
-                id2 = stat1.ordid;
-            }
-            if (nr1 != 0)
-            {
-                if (DTS.orders[nr1].frequency > 1) return null;
-            }
-            if (nr2 != 0)
-            {
-                if (DTS.orders[nr2].frequency > 1) return null;
-            }
-            tempstat2 = new Status(day1, id2, nr2);
-            tempstat1 = new Status(day2, id1, nr1);
-            newDay1.Remove(stat1);
-            newDay2.Remove(stat2);
-            newDay1.Insert(actionIndex1, tempstat2);
-            newDay2.Insert(actionIndex2, tempstat1);
+            // Pick a random truck and day twice
+            int truck1 = r.Next(2);
+            int truck2 = r.Next(2);
+            int day1Index = r.Next(5);
+            int day2Index = r.Next(5);
+            // Clone the random days of the random trucks
+            List<Status> day1 = new List<Status>(oldState.status[truck1][day1Index]);
+            List<Status> day2 = new List<Status>(oldState.status[truck2][day2Index]);
+            // order1 is the index of the order to be shifted, order2 is the index to insert the order1 at
+            int order1 = r.Next(day1.Count);
+            int order2 = r.Next(day2.Count);
+            // Do the list stuff
+            Status shiftOrd = day1[order1];
+            // TODO: verander
+            if (shiftOrd.ordnr == 0) return null;
+            if (DTS.orders[shiftOrd.ordnr].frequency > 1) return null;
+            day1.RemoveAt(order1);
+            day2.Insert(order2, shiftOrd);
             // Already make the the new state, so that it can be properly evaluated
             newState = new State(oldState.status);
-            newState.status[0][day1] = newDay1;
-            newState.status[1][day2] = newDay2;
+            newState.status[truck1][day1Index] = day1;
+            newState.status[truck2][day2Index] = day2;
             // Give ratings to the old and new day, and evaluate them
-            rating1 = Eval(oldState);
-            rating2 = Eval(newState);
+            double rating1 = Eval(oldState);
+            double rating2 = Eval(newState);
             if (AcceptNewDay(rating1, rating2, r))
             {
                 // If accepted, return the new state
@@ -394,6 +352,8 @@ namespace OptimaliserenPracticum
                 return newState;
             }
             return null;
+
+
         }
 
         // TODO: Compleet herschrijven
@@ -435,7 +395,7 @@ namespace OptimaliserenPracticum
                         // Check if there's a moment when the truck is full. deduct a lot of score for that
                         if (truck1.CheckIfOverloaded()) score -= 10000;
                     }
-           
+
 
                 }
                 //Punish overtime pretty heavily en rest time normally

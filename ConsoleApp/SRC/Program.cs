@@ -43,7 +43,7 @@ namespace OptimaliserenPracticum
             DTS.dayEnd = 43200;
             DTS.emptyingTime = 1800;
             DTS.timeSinceNewBest = 0;
-            DTS.temperature = 1000;
+            DTS.temperature = 300;
             DTS.maarheeze = 287;
             DTS.bestRating = float.MinValue;
             // initialize orders
@@ -51,7 +51,7 @@ namespace OptimaliserenPracticum
             // Initialize all other variables
             i = 0;
             alpha = 0.99F;
-            q = 10000; // q is hardcoded for now, we did not have the time to make it dependent on the amount of neighbourstates
+            q = 100000; // q is hardcoded for now, we did not have the time to make it dependent on the amount of neighbourstates
             // Make an initial state, and set the best state ever to this state
             Console.WriteLine("Type 1 if you want to load a state, or another number if you want to create a new random state");
             string inputstring = Console.ReadLine();
