@@ -43,9 +43,9 @@ namespace OptimaliserenPracticum
             DTS.dayEnd = 43200;
             DTS.emptyingTime = 1800;
             DTS.timeSinceNewBest = 0;
-            DTS.temperature = 300;
+            DTS.temperature = 3000;
             DTS.maarheeze = 287;
-            DTS.bestRating = float.MinValue;
+            DTS.bestRating = float.MaxValue;
             // initialize orders
             init.MakeOrders();
             // Initialize all other variables
@@ -90,7 +90,7 @@ namespace OptimaliserenPracticum
                 Diagnostics.AcceptationsPerSecond++;
                 if (Diagnostics.runtimeWatch.ElapsedMilliseconds > 1000 * Diagnostics.second)
                 {
-                    Console.WriteLine("Number of acceptations in second: " + Diagnostics.second + " equals: " + Diagnostics.AcceptationsPerSecond + "     Best solution =" + DTS.bestRating * -1);
+                    Console.WriteLine("Number of acceptations in second: " + Diagnostics.second + " equals: " + Diagnostics.AcceptationsPerSecond + "     Best solution =" + DTS.bestRating);
                     Diagnostics.AcceptationsPerSecond = 0;
                     Diagnostics.second++;
                     Diagnostics.Printed = false;

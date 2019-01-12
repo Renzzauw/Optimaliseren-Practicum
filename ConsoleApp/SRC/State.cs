@@ -10,6 +10,8 @@ namespace OptimaliserenPracticum
     {	
 		// Variables
         public List<Status>[][] status; // The status is a jagged array of status lists. What this means is that the first index stands for the truck (0 or 1), the second index for the day (0 .. 4), and that contains a list of statuses for each day.
+        public Eval[][] evals;          // Contains all of the evaluations for a given day and truck
+        public double totalValue;       // The total score of the state
         private Random random;          // A random number generator that will be used in the creation of the initial state
 
         // The constructor makes a new random initial state
@@ -18,9 +20,11 @@ namespace OptimaliserenPracticum
             // Initialize the variables
             random = new Random();
             status = new List<Status>[2][];
+            evals = new Eval[2][];
             // Create the schedule of both trucks seperately
-            status[0] = MakeRandomWeek();
-            status[1] = MakeRandomWeek();
+            status[0] = MakeRandomWeek(0);
+            status[1] = MakeRandomWeek(1);
+            totalValue = GetAllEval();
         }
 
         // The constructor copies from an old state
@@ -40,18 +44,19 @@ namespace OptimaliserenPracticum
         }
 
         // Function that generater a random week
-        public List<Status>[] MakeRandomWeek()
+        public List<Status>[] MakeRandomWeek(int truck)
         {
+            evals[truck] = new Eval[5];
             // Create each of the 5 days seperately
             List<Status>[] statusList = new List<Status>[5];
             for (int i = 0; i < 5; i++)
             {
-                statusList[i] = MakeRandomDay(i);
+                statusList[i] = MakeRandomDay(i, truck);
             }
             return statusList;
         }
 
-        public List<Status> MakeRandomDay(int dayIndex)
+        public List<Status> MakeRandomDay(int dayIndex, int t)
         {
             // Initialize all the variables needed for iterating
             List<Status> day = new List<Status>();
@@ -59,7 +64,7 @@ namespace OptimaliserenPracticum
             int prevId    = DTS.maarheeze;
             int traveltime, processtime, timeToMaarheze;
             GarbageTruck truck = new GarbageTruck();
-            Status status  = new Status(0, DTS.maarheeze, 0);
+            Status status = new Status(0, DTS.maarheeze, 0);
 			int iterations = 0;
             int randomOrder;
             Order ord;
@@ -104,11 +109,30 @@ namespace OptimaliserenPracticum
                     day.Add(status);
                 }
             }
-			// Drive to Maarheze and empty the truck.
-            // Do an extra dumping moment per day, so that the truck always has enough space
-           day[day.Count / 2] = (new Status(dayIndex, DTS.maarheeze, 0));
-           day.Add(new Status(dayIndex, DTS.maarheeze, 0));
+            // Determine the new evaluationvalue of the day
+            evals[t][dayIndex] = new Eval(DTS.CalcDayEval(timestart,truck), timestart, truck);
+            // Drive to Maarheze and empty the truck.
+            day.Add(new Status(dayIndex, DTS.maarheeze, 0));
             return day;
+        }
+
+        // Return the saved evaluation values of every day
+        public double GetAllEval()
+        {
+            double acc = 0;
+            for(ushort i = 0; i < 2; i++)
+            {
+                for (ushort j = 0; j < 5; j++)
+                {
+                    acc += evals[i][j].value;
+                }
+            }
+            // Add all of the available order to the total value
+            foreach (int x in DTS.availableOrders)
+            {
+                acc += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency;
+            }
+            return acc;
         }
 
 	}

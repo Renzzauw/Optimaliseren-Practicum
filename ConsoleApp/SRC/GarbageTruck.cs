@@ -37,6 +37,21 @@
             return currentCapacity > capacity;
         }
 
+        // Function that returns the amount that it is overloaded. At this point it has already been determined that the truck is overloaded
+        public int AmountOverloaded()
+        {
+            return currentCapacity - capacity;
+        }
+
+        // Function to remove the load from an order
+        public GarbageTruck RemoveLoad(Order ord)
+        {
+            // Empty the truck by the amount of garbage at a given order
+            int cap = ord.containerCount * ord.volumePerContainer;
+            currentCapacity -= cap;
+            return this;
+        }
+
         // Function that returns whether the truck is empty
         public bool CheckIfEmpty()
         {
