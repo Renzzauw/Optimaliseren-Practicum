@@ -37,10 +37,10 @@ namespace OptimaliserenPracticum
             // Check if there is any overtime, deduct for that
             if (time > dayEnd)
             {
-                eval += (time - dayEnd) * 10;
+                eval += (time - dayEnd) * 1000;
             }
-            // Check if the truck is overloaded, deduct score dependant of the amount that is overloaded
-            if (truck.CheckIfOverloaded()) eval += truck.AmountOverloaded() * 5;
+            // Check if the truck is overloaded, deduct score dependent of the amount that is overloaded
+            if (truck.CheckIfOverloaded()) eval += truck.AmountOverloaded() * 500;
             return eval / 60;
         }
     }

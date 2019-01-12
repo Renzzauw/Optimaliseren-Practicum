@@ -65,7 +65,7 @@ namespace OptimaliserenPracticum
             //    }
             //}*/
             // Give ratings to the old and new day, and evaluate them
-            double dayEval = oldDayEval.value + Deletion(oldDayEval.time, oldDayEval.truck, prev, ord, next);
+            double dayEval = Deletion(oldDayEval.time, oldDayEval.truck, prev, ord, next);
             double newRating = oldRating + RemoveRating(truck, findDay, dayEval, ord);
             if (AcceptNewDay(oldRating, newRating, r))
             {
@@ -132,8 +132,8 @@ namespace OptimaliserenPracticum
             //    }
             //}
             // Give ratings to the old and new day, and evaluate them
-            double dayEval = oldDayEval.value + Insertion(oldDayEval.time, oldDayEval.truck, prev, ord, next);
-            double newRating = oldRating + RemoveRating(truck, findDay, dayEval, ord);
+            double dayEval = Insertion(oldDayEval.time, oldDayEval.truck, prev, ord, next);
+            double newRating = oldRating + AddRating(truck, findDay, dayEval, ord);
             if (AcceptNewDay(oldRating, newRating, r))
             {
                 // If accepted, adjust the available orders, and return the new state

@@ -43,7 +43,7 @@ namespace OptimaliserenPracticum
             DTS.dayEnd = 43200;
             DTS.emptyingTime = 1800;
             DTS.timeSinceNewBest = 0;
-            DTS.temperature = 3000;
+            DTS.temperature = 25;
             DTS.maarheeze = 287;
             DTS.bestRating = float.MaxValue;
             // initialize orders
@@ -84,7 +84,7 @@ namespace OptimaliserenPracticum
             Diagnostics.runtimeWatch.Start();
 			State current = initialState;
             // Keep iterating untill the best state ever found, has not been improved (or matched) in a while
-			while (Diagnostics.runtimeWatch.ElapsedMilliseconds <= 1000 * 3600)
+			while (Diagnostics.runtimeWatch.ElapsedMilliseconds < 1000 * 300)
 			{
                 // Keep track of how many iterations happen each second, and print that amount each second
                 Diagnostics.AcceptationsPerSecond++;

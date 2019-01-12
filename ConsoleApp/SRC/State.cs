@@ -11,7 +11,6 @@ namespace OptimaliserenPracticum
 		// Variables
         public List<Status>[][] status; // The status is a jagged array of status lists. What this means is that the first index stands for the truck (0 or 1), the second index for the day (0 .. 4), and that contains a list of statuses for each day.
         public Eval[][] evals;          // Contains all of the evaluations for a given day and truck
-        public double totalValue;       // The total score of the state
         private Random random;          // A random number generator that will be used in the creation of the initial state
 
         // The constructor makes a new random initial state
@@ -24,7 +23,6 @@ namespace OptimaliserenPracticum
             // Create the schedule of both trucks seperately
             status[0] = MakeRandomWeek(0);
             status[1] = MakeRandomWeek(1);
-            totalValue = GetAllEval();
         }
 
         // The constructor copies from an old state
@@ -79,13 +77,12 @@ namespace OptimaliserenPracticum
                     iterations++;
                     continue;
                 }
-
                 // Calculate the time needed to process and order when having to return immediately
                 traveltime = DTS.timeMatrix[status.ordid, ord.matrixID];
                 processtime = (int)ord.emptyingTime;
                 timeToMaarheze = DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
                 // If there is no time to complete the order and return to the depot, try again
-                if (timestart + traveltime + processtime + timeToMaarheze > 2 * (DTS.dayEnd - DTS.emptyingTime))
+                if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd - DTS.emptyingTime)
                 {
                     iterations++;
                     continue;
@@ -130,7 +127,7 @@ namespace OptimaliserenPracticum
             // Add all of the available order to the total value
             foreach (int x in DTS.availableOrders)
             {
-                acc += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency;
+                acc += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency / 60;
             }
             return acc;
         }
