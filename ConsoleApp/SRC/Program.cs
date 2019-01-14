@@ -90,14 +90,14 @@ namespace OptimaliserenPracticum
                 Diagnostics.AcceptationsPerSecond++;
                 if (Diagnostics.runtimeWatch.ElapsedMilliseconds > 1000 * Diagnostics.second)
                 {
-                    Console.WriteLine("Number of acceptations in second: " + Diagnostics.second + " equals: " + Diagnostics.AcceptationsPerSecond + "     Best solution =" + DTS.bestRating);
+					Console.WriteLine("Number of acceptations in second {0}: {1}\t\tBest solution: {2}\t\tTemp: {3}", Diagnostics.second, Diagnostics.AcceptationsPerSecond, DTS.bestRating, DTS.temperature); 
                     Diagnostics.AcceptationsPerSecond = 0;
                     Diagnostics.second++;
                     Diagnostics.Printed = false;
                 }
                 if (Diagnostics.second % 60 == 0 && Diagnostics.Printed == false)
                 {
-                    Console.WriteLine("Number of itterations this minute equals: " + Diagnostics.IterationsPerMinute);
+                    Console.WriteLine("Number of iterations per minute equals: " + Diagnostics.IterationsPerMinute);
                     Diagnostics.IterationsPerMinute = 0;
                     Diagnostics.Printed = true;
                 }
