@@ -43,7 +43,7 @@ namespace OptimaliserenPracticum
             DTS.dayEnd = 43200;
             DTS.emptyingTime = 1800;
             DTS.timeSinceNewBest = 0;
-            DTS.temperature = 25;
+            DTS.temperature = 300;
             DTS.maarheeze = 287;
             DTS.bestRating = float.MaxValue;
             DTS.truckCapacity = 100000;
@@ -115,6 +115,8 @@ namespace OptimaliserenPracticum
             // Write the best state ever found to a file, and print it to the console
             FileHandler.SaveState(DTS.bestState);
             FileHandler.Print(DTS.bestState);
+            Console.WriteLine("time : " + DTS.bestState.GetAllEval());
+            Console.WriteLine("orders : " + DTS.bestState.orderScore);
             Console.WriteLine(DTS.bestRating);
             // Print the amount of time that was spent iterating
             Diagnostics.runtimeWatch.Stop();
