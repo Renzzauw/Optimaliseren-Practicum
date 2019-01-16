@@ -12,6 +12,7 @@ namespace OptimaliserenPracticum
         public List<Status>[][] status; // The status is a jagged array of status lists. What this means is that the first index stands for the truck (0 or 1), the second index for the day (0 .. 4), and that contains a list of statuses for each day.
         public Eval[][] evals;          // Contains all of the evaluations for a given day and truck
         private Random random;          // A random number generator that will be used in the creation of the initial state
+        public double orderScore;       // The penalty given by how many orders are still available
 
         // The constructor makes a new random initial state
         public State()
@@ -23,6 +24,12 @@ namespace OptimaliserenPracticum
             // Create the schedule of both trucks seperately
             status[0] = MakeRandomWeek(0);
             status[1] = MakeRandomWeek(1);
+            orderScore = 0;
+            // Add all of the available order to the total value
+            foreach (int x in DTS.availableOrders)
+            {
+                orderScore += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency / 60;
+            }
         }
 
         // The constructor copies from an old state
@@ -58,10 +65,10 @@ namespace OptimaliserenPracticum
         {
             // Initialize all the variables needed for iterating
             List<Status> day = new List<Status>();
-            int timestart = DTS.dayStart;
+            double timestart = DTS.dayStart;
             int prevId    = DTS.maarheeze;
-            int traveltime, processtime, timeToMaarheze;
-            GarbageTruck truck = new GarbageTruck();
+            double traveltime, processtime, timeToMaarheze;
+            int truckload = 0;
             Status status = new Status(0, DTS.maarheeze, 0);
 			int iterations = 0;
             int randomOrder;
@@ -79,7 +86,7 @@ namespace OptimaliserenPracticum
                 }
                 // Calculate the time needed to process and order when having to return immediately
                 traveltime = DTS.timeMatrix[status.ordid, ord.matrixID];
-                processtime = (int)ord.emptyingTime;
+                processtime = ord.emptyingTime;
                 timeToMaarheze = DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
                 // If there is no time to complete the order and return to the depot, try again
                 if (timestart + traveltime + processtime + timeToMaarheze > DTS.dayEnd - DTS.emptyingTime)
@@ -90,26 +97,29 @@ namespace OptimaliserenPracticum
                 // Process the order       
                 status = new Status(dayIndex, ord.matrixID, ord.orderNumber);
                 day.Add(status);
-                truck.FillTruck(ord);
+                truckload += ord.containerCount * ord.volumePerContainer;
 				timestart += traveltime + processtime;
                 DTS.availableOrders.Remove(ord.orderNumber);
 				ord.ordersDone = true;
                 iterations = 0;
+                // gebeurt toch niet
+                /*
                 // If the truck is full, and there is time to empty, do it
-                if (truck.CheckIfFull() && timestart + timeToMaarheze < DTS.dayEnd)
+                if (truckload > DTS.truckCapacity * 0.9 && timestart + timeToMaarheze < DTS.dayEnd)
                 {
                     // Drive to Maarheze and empty the truck
                     status = new Status(dayIndex, DTS.maarheeze, 0);
                     day.Add(status);
                     timestart += DTS.emptyingTime + DTS.timeMatrix[ord.matrixID, DTS.maarheeze];
-                    truck.EmptyTruck();
+                    truckload = 0;
                     day.Add(status);
                 }
+                */
             }
             // Determine the new evaluationvalue of the day
-            evals[t][dayIndex] = new Eval(DTS.CalcDayEval(timestart,truck), timestart, truck);
-            // Drive to Maarheze and empty the truck.
+            timestart += DTS.emptyingTime + DTS.timeMatrix[status.ordid, DTS.maarheeze];
             day.Add(new Status(dayIndex, DTS.maarheeze, 0));
+            evals[t][dayIndex] = new Eval(DTS.CalcDayEval(timestart,truckload), timestart, truckload);
             return day;
         }
 
@@ -123,11 +133,6 @@ namespace OptimaliserenPracticum
                 {
                     acc += evals[i][j].value;
                 }
-            }
-            // Add all of the available order to the total value
-            foreach (int x in DTS.availableOrders)
-            {
-                acc += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency / 60;
             }
             return acc;
         }

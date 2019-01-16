@@ -18,7 +18,7 @@ namespace OptimaliserenPracticum
         public State GetNextState(State old)
         {
             oldState = old;
-            oldRating = oldState.GetAllEval();
+            oldRating = oldState.GetAllEval() + oldState.orderScore;
             State returnState = null;
             // Try one of the successorfunctions, and keep on trying untill one of them returns a successor
             double i = r.NextDouble();
@@ -27,7 +27,7 @@ namespace OptimaliserenPracticum
             {
                 case double n when n < 0.30: returnState = Remove(); break;
                 case double n when 0.30 <= n && n < 0.80: returnState = Add(); break;
-                default: returnState = null; break;
+                default: return oldState;
                 //default: returnState = Shift(); break;
             }
             if (returnState == null) return oldState;
@@ -65,18 +65,22 @@ namespace OptimaliserenPracticum
             //    }
             //}*/
             // Give ratings to the old and new day, and evaluate them
-            double dayEval = Deletion(oldDayEval.time, oldDayEval.truck, prev, ord, next);
+            double dayEval = Deletion(oldDayEval.time, oldDayEval.truckload, prev, ord, next);
             double newRating = oldRating + RemoveRating(truck, findDay, dayEval, ord);
             if (AcceptNewDay(oldRating, newRating, r))
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(ord.orderNumber);
-
+                oldState.orderScore += 3 * DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency / 60;
                 oldState.status[truck][findDay].RemoveAt(removedIndex);
                 // Adjust the evaluation so that it is correct again
                 oldState.evals[truck][findDay].value = dayEval;
-                oldState.evals[truck][findDay].time += DTS.timeMatrix[prev, next] - DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next];
-                oldState.evals[truck][findDay].truck = oldState.evals[truck][findDay].truck.RemoveLoad(ord);
+                oldState.evals[truck][findDay].time += DTS.timeMatrix[prev, next] - DTS.timeMatrix[prev, ord.matrixID] - ord.emptyingTime - DTS.timeMatrix[ord.matrixID, next];
+                oldState.evals[truck][findDay].truckload = oldDayEval.truckload - ord.containerCount * ord.volumePerContainer;
+                if (oldState.evals[truck][findDay].time > DTS.dayEnd)
+                {
+                    Console.WriteLine("oeps");
+                }
                 DTS.NewBest(oldState, newRating);
                 return oldState;
             }
@@ -119,9 +123,9 @@ namespace OptimaliserenPracticum
             // Add a random available order in between two other actions
             Order ord = DTS.orders[DTS.availableOrders[r.Next(DTS.availableOrders.Count)]];
             int prev = DTS.maarheeze;
-            if (addedIndex > 0) prev = oldDay[addedIndex].ordid;
+            if (addedIndex > 0) prev = oldDay[addedIndex - 1].ordid;
             int next = DTS.maarheeze;
-            if (addedIndex < oldDay.Count - 1) next = oldDay[addedIndex + 1].ordid;
+            if (addedIndex < oldDay.Count - 1) next = oldDay[addedIndex].ordid;
             // Check for frequency, and add it properly
             if (ord.frequency > 1)
             //{
@@ -132,17 +136,22 @@ namespace OptimaliserenPracticum
             //    }
             //}
             // Give ratings to the old and new day, and evaluate them
-            double dayEval = Insertion(oldDayEval.time, oldDayEval.truck, prev, ord, next);
+            double dayEval = Insertion(oldDayEval.time, oldDayEval.truckload, prev, ord, next);
             double newRating = oldRating + AddRating(truck, findDay, dayEval, ord);
             if (AcceptNewDay(oldRating, newRating, r))
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
+                oldState.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
                 oldState.status[truck][findDay].Insert(addedIndex, new Status(findDay, ord.matrixID, ord.orderNumber));
                 // Adjust the evaluation so that it is correct again
                 oldState.evals[truck][findDay].value = dayEval;
                 oldState.evals[truck][findDay].time += DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next] - DTS.timeMatrix[prev, next];
-                oldState.evals[truck][findDay].truck = oldState.evals[truck][findDay].truck.FillTruck(ord);
+                oldState.evals[truck][findDay].truckload = oldDayEval.truckload + ord.containerCount * ord.volumePerContainer;
+                if (oldState.evals[truck][findDay].time > DTS.dayEnd)
+                {
+                    Console.WriteLine("oeps");
+                }
                 DTS.NewBest(oldState, newRating);
                 return oldState;
             }
@@ -374,21 +383,17 @@ namespace OptimaliserenPracticum
 
 
         // Adjust parameters for when an order gets inserted, and return the new value
-        public double Insertion(double time, GarbageTruck truck,int prev, Order curr, int next)
+        public double Insertion(double time, int truckload,int prev, Order curr, int next)
         {
-            time -= DTS.timeMatrix[prev, next];
-            time += DTS.timeMatrix[prev, curr.matrixID] + curr.emptyingTime + DTS.timeMatrix[curr.matrixID, next];
-            truck = truck.FillTruck(curr);
-            return DTS.CalcDayEval(time, truck);
+            double newTime = time + DTS.timeMatrix[prev, curr.matrixID] + curr.emptyingTime + DTS.timeMatrix[curr.matrixID, next] - DTS.timeMatrix[prev, next];
+            return DTS.CalcDayEval(newTime, truckload + curr.containerCount * curr.volumePerContainer);
         }
 
         // Adjust parameters for when an order gets removed, where curr is the order that was deleted, and return the new value
-        public double Deletion(double time, GarbageTruck truck, int prev, Order curr, int next)
+        public double Deletion(double time, int truckload, int prev, Order curr, int next)
         {
-            time -= DTS.timeMatrix[prev, curr.matrixID] + curr.emptyingTime + DTS.timeMatrix[curr.matrixID, next];
-            time += DTS.timeMatrix[prev, next];
-            truck = truck.RemoveLoad(curr);
-            return DTS.CalcDayEval(time, truck);
+            double newTime = time - DTS.timeMatrix[prev, curr.matrixID] - curr.emptyingTime - DTS.timeMatrix[curr.matrixID, next] + DTS.timeMatrix[prev, next];
+            return DTS.CalcDayEval(newTime, truckload - curr.containerCount * curr.volumePerContainer);
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted

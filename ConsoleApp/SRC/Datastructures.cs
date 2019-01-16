@@ -17,6 +17,7 @@ namespace OptimaliserenPracticum
         public static State bestState;                // The best state ever found during SA, at a given moment
         public static double bestRating;              // The rating belonging to that state
         public static int timeSinceNewBest;           // The amount of iterations since the best state was changed last
+        public static int truckCapacity;              // The capacity of a garbage truck
 
         // Function that changes the best state found, if the new rating is better than the old one
         public static void NewBest(State state, double rating)
@@ -30,17 +31,17 @@ namespace OptimaliserenPracticum
             timeSinceNewBest++;
         }
         // Calcuate the evaluation value of a day, and return the new value
-        public static double CalcDayEval(double time, GarbageTruck truck)
+        public static double CalcDayEval(double time, int load)
         {
             double eval = 0;
             eval += time;
             // Check if there is any overtime, deduct for that
             if (time > dayEnd)
             {
-                eval += (time - dayEnd) * 1000;
+                eval += (time - dayEnd) * 5;
             }
             // Check if the truck is overloaded, deduct score dependent of the amount that is overloaded
-            if (truck.CheckIfOverloaded()) eval += truck.AmountOverloaded() * 500;
+            if (load > DTS.truckCapacity) eval += load - truckCapacity;
             return eval / 60;
         }
     }
@@ -49,13 +50,13 @@ namespace OptimaliserenPracticum
     {
         public double value;
         public double time;
-        public GarbageTruck truck;
+        public int truckload;
 
-        public Eval(double v, double t, GarbageTruck l)
+        public Eval(double v, double t, int l)
         {
             value = v;
             time = t;
-            truck = l;
+            truckload = l;
         }
     }
 }
