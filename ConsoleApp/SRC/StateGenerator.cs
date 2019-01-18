@@ -19,7 +19,7 @@ namespace OptimaliserenPracticum
         public State GetNextState(State old)
         {
             oldState = old;
-            oldRating = oldState.GetAllEval() + oldState.orderScore;
+            oldRating = old.GetAllEval() + old.orderScore;
             State returnState = null;
             ord = null;
             // Try one of the successorfunctions, and keep on trying untill one of them returns a successor
@@ -27,8 +27,8 @@ namespace OptimaliserenPracticum
             Diagnostics.IterationsPerMinute++;
             switch (i)
             {
-                case double n when n < 0.30: returnState = Remove(); break;
-                case double n when 0.30 <= n && n < 0.80: returnState = Add(); break;
+                case double n when n < 0.30: return oldState; //returnState = Remove(); break;
+                case double n when 0.30 <= n && n < 0.80: return oldState; //returnState = Add(); break;
                 default: returnState = Shift();  break;
             }
             if (returnState == null) return oldState;
@@ -74,19 +74,10 @@ namespace OptimaliserenPracticum
                 DTS.availableOrders.Add(ord.orderNumber);
                 oldState.orderScore += 3 * DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency / 60;
                 RemoveSomething(truck, day, index, dayEval, prev, next);
-                DTS.NewBest(oldState, newRating);
+                DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
-        }
-
-        public void RemoveSomething(int truck, int day, int index, double dayEval, int prev, int next)
-        {
-            oldState.status[truck][day].RemoveAt(index);
-            // Adjust the evaluation so that it is correct again
-            oldState.evals[truck][day].value = dayEval;
-            oldState.evals[truck][day].time += DTS.timeMatrix[prev, next] - DTS.timeMatrix[prev, ord.matrixID] - ord.emptyingTime - DTS.timeMatrix[ord.matrixID, next];
-            oldState.evals[truck][day].truckload = oldState.evals[truck][day].truckload - ord.containerCount * ord.volumePerContainer;
         }
 
         public State Remove2(int day1, int truck1)
@@ -135,7 +126,7 @@ namespace OptimaliserenPracticum
                 oldState.orderScore += 3 * DTS.orders[ord.orderNumber].emptyingTime * 2 / 60; // Frequency is always 2 here
                 RemoveSomething(truck1, day1, index1, dayEval1, prev1, next1);
                 RemoveSomething(truck2, day2, index2, dayEval2, prev2, next2);
-                DTS.NewBest(oldState, newRating);
+                DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
@@ -248,7 +239,7 @@ namespace OptimaliserenPracticum
                 if (index3 != -1) RemoveSomething(truck3, 2, index3, dayEval3, prev3, next3);
                 if (index4 != -1) RemoveSomething(truck4, 3, index4, dayEval4, prev4, next4);
                 if (index5 != -1) RemoveSomething(truck5, 4, index5, dayEval5, prev5, next5);
-                DTS.NewBest(oldState, newRating);
+                DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
@@ -292,18 +283,10 @@ namespace OptimaliserenPracticum
                 DTS.availableOrders.Remove(ord.orderNumber);
                 oldState.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
                 AddSomething(truck, day, index, dayEval,prev, next);
-                DTS.NewBest(oldState, newRating);
+                DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
-        }
-        public void AddSomething(int truck, int day, int index, double dayEval, int prev, int next)
-        {
-            oldState.status[truck][day].Insert(index, new Status(day, ord.matrixID, ord.orderNumber));
-            // Adjust the evaluation so that it is correct again
-            oldState.evals[truck][day].value = dayEval;
-            oldState.evals[truck][day].time += DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next] - DTS.timeMatrix[prev, next];
-            oldState.evals[truck][day].truckload = oldState.evals[truck][day].truckload + ord.containerCount * ord.volumePerContainer;
         }
 
         public State Add2(int day1)
@@ -345,10 +328,10 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
-                oldState.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * 2 / 60; // Frequency is always 2 here
+                oldState.orderScore -= 3 * ord.emptyingTime * 2 / 60; // Frequency is always 2 here
                 AddSomething(truck1, day1, time1, dayEval1, prev1, next1);
                 AddSomething(truck2, day2, time2, dayEval2, prev2, next2);
-                DTS.NewBest(oldState, newRating);
+                DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
@@ -392,7 +375,7 @@ namespace OptimaliserenPracticum
                 AddSomething(truck1, 0, time1, dayEval1, prev1, next1);
                 AddSomething(truck2, 2, time2, dayEval2, prev2, next2);
                 AddSomething(truck3, 4, time3, dayEval3, prev3, next3);
-                DTS.NewBest(oldState, newRating);
+                DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
@@ -468,7 +451,7 @@ namespace OptimaliserenPracticum
                 if (skipday != 2) AddSomething(truck3, 2, time3, dayEval3, prev3, next3);
                 if (skipday != 3) AddSomething(truck4, 3, time4, dayEval4, prev4, next4);
                 if (skipday != 4) AddSomething(truck5, 4, time5, dayEval5, prev5, next5);
-                DTS.NewBest(oldState, newRating);
+                DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
@@ -586,31 +569,49 @@ namespace OptimaliserenPracticum
                 // If accepted, return the new state
                 RemoveSomething(truck1, day1, pos1, eval1, prev1, next1);
                 AddSomething(truck2, day2, pos2, eval2, prev2, next2);
-                DTS.NewBest(oldState, newRating);
+                DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
-
-
         }
+
+        public void RemoveSomething(int truck, int day, int index, double dayEval, int prev, int next)
+        {
+            oldState.status[truck][day].RemoveAt(index);
+            // Adjust the evaluation so that it is correct again
+            oldState.evals[truck][day].value = dayEval;
+            oldState.evals[truck][day].time += DTS.timeMatrix[prev, next] - (DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next]);
+            oldState.evals[truck][day].truckload -= ord.containerCount * ord.volumePerContainer;
+        }
+
+        public void AddSomething(int truck, int day, int index, double dayEval, int prev, int next)
+        {
+            oldState.status[truck][day].Insert(index, new Status(day, ord.matrixID, ord.orderNumber));
+            // Adjust the evaluation so that it is correct again
+            oldState.evals[truck][day].value = dayEval;
+            oldState.evals[truck][day].time += DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next] - DTS.timeMatrix[prev, next];
+            oldState.evals[truck][day].truckload += ord.containerCount * ord.volumePerContainer;
+        }
+
 
         // A function to calculate the new rating of a day, when something was added
         public double AddRating(int truck, int day, double newEval)
         {
+            if (newEval == 0) return 0;
             double score = -oldState.evals[truck][day].value;
             score += newEval;
-            score -= 3 * ord.emptyingTime * ord.frequency / 60;
             return score;
         }
 
         // A function to calculate the new rating of a day, when something was removed
         public double RemoveRating(int truck, int day, double newEval)
         {
+            if (newEval == 0) return 0;
             double score = -oldState.evals[truck][day].value;
             score += newEval;
-            score += 3 * ord.emptyingTime * ord.frequency / 60;
             return score;
         }
+
 
 
 

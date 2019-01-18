@@ -30,22 +30,17 @@ namespace OptimaliserenPracticum
             {
                 orderScore += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency / 60;
             }
+            DTS.bestState = this;
+            DTS.bestRating = GetAllEval() + orderScore;
         }
 
         // The constructor copies from an old state
-        public State(List<Status>[][] stat)
+        public State(State old)
         {
-            status = new List<Status>[2][];
-            status[0] = new List<Status>[5];
-            for (int i = 0; i < 5; i++)
-            {
-                status[0][i] = new List<Status>(stat[0][i]);
-            }
-            status[1] = new List<Status>[5];
-            for (int i = 0; i < 5; i++)
-            {
-                status[1][i] = new List<Status>(stat[1][i]);
-            }
+            status = old.status;
+            evals = old.evals;
+            random = new Random();
+            orderScore = old.orderScore;
         }
 
         // Function that generater a random week
@@ -127,7 +122,7 @@ namespace OptimaliserenPracticum
         public double GetAllEval()
         {
             double acc = 0;
-            for(ushort i = 0; i < 2; i++)
+            for (ushort i = 0; i < 2; i++)
             {
                 for (ushort j = 0; j < 5; j++)
                 {
@@ -137,7 +132,7 @@ namespace OptimaliserenPracticum
             return acc;
         }
 
-	}
+    }
     public class Status
     {
         public int day;         // The day of the status

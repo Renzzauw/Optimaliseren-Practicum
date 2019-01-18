@@ -98,7 +98,7 @@ namespace OptimaliserenPracticum
                     DTS.availableOrders.Remove(ordnr);
                 }
             }
-            return new State(status);
+            return null;// new State(status);
         }
     }
 }

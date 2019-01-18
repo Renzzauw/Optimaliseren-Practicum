@@ -20,12 +20,16 @@ namespace OptimaliserenPracticum
         public static int truckCapacity;              // The capacity of a garbage truck
 
         // Function that changes the best state found, if the new rating is better than the old one
-        public static void NewBest(State state, double rating)
+        public static void NewBest(State state)
         {
-            if (rating < bestRating)
+            double rating = state.GetAllEval() + state.orderScore;
+            if (rating < bestState.GetAllEval() + bestState.orderScore)
             {
-                bestState = state;
+                bestState = new State(state);
                 bestRating = rating;
+                Console.WriteLine("time " + state.GetAllEval());
+                Console.WriteLine("order " + state.orderScore);
+                Console.WriteLine("total " + rating);
                 timeSinceNewBest = 0;
             }
             timeSinceNewBest++;
@@ -41,7 +45,7 @@ namespace OptimaliserenPracticum
                 eval += (time - dayEnd) * 50;
             }
             // Check if the truck is overloaded, deduct score dependent of the amount that is overloaded
-            if (load > DTS.truckCapacity) eval += (load - truckCapacity) * 5;
+            if (load > truckCapacity) eval += (load - truckCapacity) * 5;
             return eval / 60;
         }
     }
