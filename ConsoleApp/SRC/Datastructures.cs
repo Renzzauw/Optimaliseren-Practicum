@@ -46,7 +46,7 @@ namespace OptimaliserenPracticum
             bestStatus = new List<Status>[2][];
             for(int i = 0; i < bestStatus.Length; i++)
             {
-                bestStatus[i] = new List<Status>[5];
+                bestStatus[i] = new List<Status>[10];
                 for(int j = 0; j < bestStatus[i].Length; j++)
                 {
                     bestStatus[i][j] = new List<Status>();

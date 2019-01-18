@@ -11,28 +11,34 @@ namespace OptimaliserenPracticum
         public static void Print(List<Status>[][] state)
         {
             int daycounter = 1;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
                 List<Status> day1 = state[0][i];
+                if (i % 2 == 0)
+                {
+                    daycounter = 1;
+                }
                 // Print the routes in the format of the autochecker
                 foreach (Status status in day1)
                 {
-                    Console.WriteLine(1 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+                    Console.WriteLine(1 + "; " + (i / 2 + 1) + "; " + daycounter + "; " + status.ordnr);
                     daycounter++;
                 }
-                daycounter = 1;
             }
             // print the path of the second truck
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
                 List<Status> day2 = state[1][i];
+                if (i % 2 == 0)
+                {
+                    daycounter = 1;
+                }
                 // Print the routes in the format of the autochecker
                 foreach (Status status in day2)
                 {
-                    Console.WriteLine(2 + "; " + (i + 1) + "; " + daycounter + "; " + status.ordnr);
+                    Console.WriteLine(2 + "; " + (i / 2 + 1) + "; " + daycounter + "; " + status.ordnr);
                     daycounter++;
                 }
-                daycounter = 1;
             }
         }
 
@@ -47,9 +53,12 @@ namespace OptimaliserenPracticum
             StreamWriter sw = File.CreateText(path);
             int daycounter = 1;
             // Write the path of both trucks
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
-                daycounter = 1;
+                if (i % 2 == 0)
+                {
+                    daycounter = 1;
+                }
                 List<Status> day1 = state[0][i];
                 List<Status> day2 = state[1][i];
                 foreach (Status status in day1)

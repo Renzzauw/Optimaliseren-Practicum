@@ -39,7 +39,7 @@ namespace OptimaliserenPracticum
         // Function that generater a random week
         public List<Status>[] MakeRandomWeek(int truck)
         {
-            truckloads[truck] = new int[5];
+            truckloads[truck] = new int[10];
             evals[truck] = new Eval[5];
             // Create each of the 5 days seperately
             List<Status>[] statusList = new List<Status>[10];
@@ -100,7 +100,7 @@ namespace OptimaliserenPracticum
                 // Determine the new evaluationvalue of the day
                 timestart += DTS.emptyingTime + DTS.timeMatrix[status.ordid, DTS.maarheeze];
                 day.Add(new Status(routeIndex, DTS.maarheeze, 0));
-                evals[t][routeIndex / 2] = new Eval(DTS.CalcDayEval(timestart + DTS.emptyingTime, truckload), timestart);
+                evals[t][routeIndex / 2] = new Eval(DTS.CalcDayEval(timestart, truckload, 0), timestart);
                 truckloads[t][routeIndex] = truckload;
                 return day;
             }

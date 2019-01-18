@@ -41,7 +41,7 @@ namespace OptimaliserenPracticum
             // Initialize all other DTS variables
             DTS.dayStart = 0;
             DTS.dayEnd = 43200;
-            DTS.emptyingTime = 1800;
+            DTS.emptyingTime = 3600;
             DTS.timeSinceNewBest = 0;
             DTS.temperature = 600;
             DTS.maarheeze = 287;
