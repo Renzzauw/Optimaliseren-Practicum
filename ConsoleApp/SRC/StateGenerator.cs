@@ -158,7 +158,7 @@ namespace OptimaliserenPracticum
         // This function will look at every day for an index, and remove if one is there
         public State Remove345()
         {
-            // Set the variables needed
+            // Set the variables neededs
             int prev1 = 0, next1 = 0, prev2 = 0, next2 = 0, prev3 = 0, next3 = 0, prev4 = 0, next4 = 0, prev5 = 0, next5 = 0;
             int truck1 = 0, truck2 = 0, truck3 = 0, truck4 = 0, truck5 = 0;
             double dayEval1 = 0, dayEval2 = 0, dayEval3 = 0, dayEval4 = 0, dayEval5 = 0;
