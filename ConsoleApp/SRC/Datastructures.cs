@@ -66,12 +66,12 @@ namespace OptimaliserenPracticum
                 bestEvals[i] = new Eval[5];
                 for (int j = 0; j < bestEvals[i].Length; j++)
                 {
-                    bestEvals[i][j] = new Eval(old[i][j].value, old[i][j].time, old[i][j].truckload);
+                    bestEvals[i][j] = new Eval(old[i][j].value, old[i][j].time);
                 }
             }
         }
         // Calcuate the evaluation value of a day, and return the new value
-        public static double CalcDayEval(double time, int load)
+        public static double CalcDayEval(double time, int load1, int load2)
         {
             double eval = 0;
             eval += time;
@@ -80,10 +80,12 @@ namespace OptimaliserenPracticum
             {
                 eval += (time - dayEnd) * 50;
             }
-            // Check if the truck is overloaded, deduct score dependent of the amount that is overloaded
-            if (load > truckCapacity) eval += (load - truckCapacity) * 5;
+            // Check if the truck is overloaded on either route, deduct score dependent of the amount that is overloaded
+            if (load1 > truckCapacity) eval += (load1 - truckCapacity) * 5;
+            if (load2 > truckCapacity) eval += (load2 - truckCapacity) * 5;
             return eval / 60;
         }
+
         // Return the saved evaluation values of every day
         public static double GetAllEval(Eval[][] evals)
         {
@@ -105,13 +107,11 @@ namespace OptimaliserenPracticum
     {
         public double value;
         public double time;
-        public int truckload;
 
-        public Eval(double v, double t, int l)
+        public Eval(double v, double t)
         {
             value = v;
             time = t;
-            truckload = l;
         }
     }
 }

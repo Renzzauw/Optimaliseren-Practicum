@@ -41,61 +41,67 @@ namespace OptimaliserenPracticum
         {
             // Pick a random truck and day
             int truck = r.Next(2);
-            int day = r.Next(5);
+            int route = r.Next(10);
+            int day = route / 2;
             List<Status>[] oldStatus = oldState.status[truck];
-            // Pick a random day of the week
-            if (oldStatus[day].Count < 2) return null; // Return if there is only one order left, aka the emptying
-            List<Status> oldDay = oldStatus[day];
-            int index = r.Next(oldDay.Count - 1);
+            // Pick a random route
+            if (oldStatus[route].Count < 2) return null; // Return if there is only one order left, aka the emptying
+            List<Status> oldRoute = oldStatus[route];
+            int index = r.Next(oldRoute.Count - 1);
             // Remove a random action
-            int ordnr = oldDay[index].ordnr;
+            int ordnr = oldRoute[index].ordnr;
             if (ordnr == 0) return null; // Return if you try to delete an emptying moment
             ord = DTS.orders[ordnr];
-            int prev = DTS.maarheeze;
-            if (index > 0) prev = oldDay[index - 1].ordid;
-            int next = oldDay[index + 1].ordid;
             // Check for frequency, and add it properly
             if (DTS.orders[ordnr].frequency > 1)
             {
                 switch (ord.frequency)
                 {
-                    case 2: return Remove2(day, truck);
+                    case 2: return Remove2(day, truck, route);
                     case 3: return Remove345();
                     case 4: return Remove345();
                     case 5: return Remove345(); // A frequency of 5 does not happen
                 }
             }
+            int prev = DTS.maarheeze;
+            if (index > 0) prev = oldRoute[index - 1].ordid;
+            int next = oldRoute[index + 1].ordid;
+            //calculate the otherroute int to get the pairing route of the day
+            int otherRoute = route - 1;
+            if (route % 2 == 0) otherRoute = route + 1;
             // Give ratings to the old and new day, and evaluate them
-            double dayEval = Deletion(oldState.evals[truck][day].time, oldState.evals[truck][day].truckload, prev, next);
+            double dayEval = Deletion(oldState.evals[truck][day].time, oldState.truckloads[truck][route], oldState.truckloads[truck][otherRoute], prev, next);          
             double newRating = oldRating + RemoveRating(truck, day, dayEval);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(ord.orderNumber);
                 DTS.orderScore += 3 * DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency / 60;
-                RemoveSomething(truck, day, index, dayEval, prev, next);
+                RemoveSomething(truck, day, route, index, dayEval, prev, next);
                 DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
         }
 
-        public State Remove2(int day1, int truck1)
+        public State Remove2(int day1, int truck1, int route1)
         {
             // Set the variables needed
             int prev1, next1, prev2, next2;
             int day2 = -1;
             int truck2 = 0;
             double dayEval1, dayEval2;
-            List<Status> oldDay1, oldDay2;
+            List<Status> oldRoute1, oldRoute2;
             int index1, index2;
+            int otherRoute1 = route1 - 1;
+            if (route1 % 2 == 0) otherRoute1 = route1 + 1;
             // Locate and process the first item
-            oldDay1 = oldState.status[truck1][day1];
-            index1 = oldDay1.FindIndex(i => i.ordnr == ord.orderNumber);
+            oldRoute1 = oldState.status[truck1][route1];
+            index1 = oldRoute1.FindIndex(i => i.ordnr == ord.orderNumber);
             prev1 = DTS.maarheeze;
-            if (index1 > 0) prev1 = oldDay1[index1 - 1].ordid;
-            next1 = oldDay1[index1 + 1].ordid;
-            dayEval1 = Deletion(oldState.evals[truck1][day1].time, oldState.evals[truck1][day1].truckload, prev1, next1);
+            if (index1 > 0) prev1 = oldRoute1[index1 - 1].ordid;
+            next1 = oldRoute1[index1 + 1].ordid;
+            dayEval1 = Deletion(oldState.evals[truck1][day1].time, oldState.truckloads[truck1][route1], oldState.truckloads[truck1][otherRoute1], prev1, next1);
             switch (day1)
             {
                 case 0: day2 = 3; break;
@@ -105,27 +111,45 @@ namespace OptimaliserenPracticum
                 default: return null;
             }
             // Locate the order on the second day
-            oldDay2 = oldState.status[truck2][day2];
-            index2 = oldDay2.FindIndex(i => i.ordnr == ord.orderNumber);
+            int route2 = day2 * 2;
+            int otherRoute2 = route2 + 1;
+            oldRoute2 = oldState.status[truck2][route2];
+            index2 = oldRoute2.FindIndex(i => i.ordnr == ord.orderNumber);
             if (index2 == -1)
             {
+                route2 += 1;
+                otherRoute2 -= 1;
+                oldRoute2 = oldState.status[truck2][route2];
+                index2 = oldRoute2.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index2 == -1)
+            {
+                route2 -= 1;
+                otherRoute2 += 1;
                 truck2 = 1;
-                oldDay2 = oldState.status[truck2][day2];
-                index2 = oldDay2.FindIndex(i => i.ordnr == ord.orderNumber);
+                oldRoute2 = oldState.status[truck2][route2];
+                index2 = oldRoute2.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index2 == -1)
+            {
+                route2 += 1;
+                otherRoute2 -= 1;
+                oldRoute2 = oldState.status[truck2][route2];
+                index2 = oldRoute2.FindIndex(i => i.ordnr == ord.orderNumber);
             }
             // Process the second order
             prev2 = DTS.maarheeze;
-            if (index2 > 0) prev2 = oldDay2[index2 - 1].ordid;
-            next2 = oldDay2[index2 + 1].ordid;
-            dayEval2 = Deletion(oldState.evals[truck2][day2].time, oldState.evals[truck2][day2].truckload, prev2, next2);
+            if (index2 > 0) prev2 = oldRoute2[index2 - 1].ordid;
+            next2 = oldRoute2[index2 + 1].ordid;
+            dayEval2 = Deletion(oldState.evals[truck2][day2].time, oldState.truckloads[truck2][route2], oldState.truckloads[truck2][otherRoute2],  prev2, next2);
             double newRating = oldRating + RemoveRating(truck1, day1, dayEval1) + RemoveRating(truck2, day2, dayEval2);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(ord.orderNumber);
                 DTS.orderScore += 3 * DTS.orders[ord.orderNumber].emptyingTime * 2 / 60; // Frequency is always 2 here
-                RemoveSomething(truck1, day1, index1, dayEval1, prev1, next1);
-                RemoveSomething(truck2, day2, index2, dayEval2, prev2, next2);
+                RemoveSomething(truck1, day1, route2, index1, dayEval1, prev1, next1);
+                RemoveSomething(truck2, day2, route2, index2, dayEval2, prev2, next2);
                 DTS.NewBest(oldState);
                 return oldState;
             }
@@ -139,94 +163,174 @@ namespace OptimaliserenPracticum
             int prev1 = 0, next1 = 0, prev2 = 0, next2 = 0, prev3 = 0, next3 = 0, prev4 = 0, next4 = 0, prev5 = 0, next5 = 0;
             int truck1 = 0, truck2 = 0, truck3 = 0, truck4 = 0, truck5 = 0;
             double dayEval1 = 0, dayEval2 = 0, dayEval3 = 0, dayEval4 = 0, dayEval5 = 0;
-            List<Status> oldDay1, oldDay2, oldDay3, oldDay4, oldDay5;
+            List<Status> oldRoute1, oldRoute2, oldRoute3, oldRoute4, oldRoute5;
+            int route1 = 0, route2 = 2, route3 = 4, route4 = 6, route5 = 8;
+            int otherRoute1 = 1, otherRoute2 = 3, otherRoute3 = 5, otherRoute4 = 7, otherRoute5 = 9;
             int index1, index2, index3, index4, index5;
             // Locate the order on the first day
-            oldDay1 = oldState.status[truck1][0];
-            index1 = oldDay1.FindIndex(i => i.ordnr == ord.orderNumber);
+            oldRoute1 = oldState.status[truck1][route1];
+            index1 = oldRoute1.FindIndex(i => i.ordnr == ord.orderNumber);
             if (index1 == -1)
             {
+                route1 += 1;
+                otherRoute1 -= 1;
+                oldRoute1 = oldState.status[truck1][route1];
+                index1 = oldRoute1.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index1 == -1)
+            {
+                route1 -= 1;
+                otherRoute1 += 1;
                 truck1 = 1;
-                oldDay1 = oldState.status[truck1][0];
-                index1 = oldDay1.FindIndex(i => i.ordnr == ord.orderNumber);
+                oldRoute1 = oldState.status[truck1][route1];
+                index1 = oldRoute1.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index1 == -1)
+            {
+                route1 += 1;
+                otherRoute1 -= 1;
+                oldRoute1 = oldState.status[truck1][route1];
+                index1 = oldRoute1.FindIndex(i => i.ordnr == ord.orderNumber);
             }
             // process the first item
             if (index1 != -1)
             {
-                oldDay1 = oldState.status[truck1][0];
-                index1 = oldDay1.FindIndex(i => i.ordnr == ord.orderNumber);
                 prev1 = DTS.maarheeze;
-                if (index1 > 0) prev1 = oldDay1[index1 - 1].ordid;
-                next1 = oldDay1[index1 + 1].ordid;
-                dayEval1 = Deletion(oldState.evals[truck1][0].time, oldState.evals[truck1][0].truckload, prev1, next1);
+                if (index1 > 0) prev1 = oldRoute1[index1 - 1].ordid;
+                next1 = oldRoute1[index1 + 1].ordid;
+                dayEval1 = Deletion(oldState.evals[truck1][0].time, oldState.truckloads[truck1][route1],oldState.truckloads[truck1][otherRoute1], prev1, next1);
             }
             // Locate the order on the second day
-            oldDay2 = oldState.status[truck2][1];
-            index2 = oldDay2.FindIndex(i => i.ordnr == ord.orderNumber);
+            oldRoute2 = oldState.status[truck2][route2];
+            index2 = oldRoute2.FindIndex(i => i.ordnr == ord.orderNumber);
             if (index2 == -1)
             {
+                route2 += 1;
+                otherRoute2 -= 1;
+                oldRoute2 = oldState.status[truck2][route2];
+                index2 = oldRoute2.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index2 == -1)
+            {
+                route2 -= 1;
+                otherRoute2 += 1;
                 truck2 = 1;
-                oldDay2 = oldState.status[truck2][1];
-                index2 = oldDay2.FindIndex(i => i.ordnr == ord.orderNumber);
+                oldRoute2 = oldState.status[truck2][route2];
+                index2 = oldRoute2.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index2 == -1)
+            {
+                route2 += 1;
+                otherRoute2 -= 1;
+                oldRoute2 = oldState.status[truck2][route2];
+                index2 = oldRoute2.FindIndex(i => i.ordnr == ord.orderNumber);
             }
             // Process the second order
             if (index2 != -1)
             {
                 prev2 = DTS.maarheeze;
-                if (index2 > 0) prev2 = oldDay2[index2 - 1].ordid;
-                next2 = oldDay2[index2 + 1].ordid;
-                dayEval2 = Deletion(oldState.evals[truck2][1].time, oldState.evals[truck2][1].truckload, prev2, next2);
+                if (index2 > 0) prev2 = oldRoute2[index2 - 1].ordid;
+                next2 = oldRoute2[index2 + 1].ordid;
+                dayEval2 = Deletion(oldState.evals[truck2][1].time, oldState.truckloads[truck2][route2], oldState.truckloads[truck2][otherRoute2], prev2, next2);
             }
             // Locate the order on the third day
-            oldDay3 = oldState.status[truck3][2];
-            index3 = oldDay3.FindIndex(i => i.ordnr == ord.orderNumber);
+            oldRoute3 = oldState.status[truck3][route3];
+            index3 = oldRoute3.FindIndex(i => i.ordnr == ord.orderNumber);
             if (index3 == -1)
             {
+                route3 += 1;
+                otherRoute3 -= 1;
+                oldRoute3 = oldState.status[truck3][route3];
+                index3 = oldRoute3.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index3 == -1)
+            {
+                route3 -= 1;
+                otherRoute3 += 1;
                 truck3 = 1;
-                oldDay3 = oldState.status[truck3][2];
-                index3 = oldDay3.FindIndex(i => i.ordnr == ord.orderNumber);
+                oldRoute3 = oldState.status[truck3][route3];
+                index3 = oldRoute3.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index3 == -1)
+            {
+                route3 += 1;
+                otherRoute3 -= 1;
+                oldRoute3 = oldState.status[truck3][route3];
+                index3 = oldRoute3.FindIndex(i => i.ordnr == ord.orderNumber);
             }
             // Process the third order
             if (index3 != -1)
             {
                 prev3 = DTS.maarheeze;
-                if (index3 > 0) prev3 = oldDay3[index3 - 1].ordid;
-                next3 = oldDay3[index3 + 1].ordid;
-                dayEval3 = Deletion(oldState.evals[truck3][2].time, oldState.evals[truck3][2].truckload, prev3, next3);
+                if (index3 > 0) prev3 = oldRoute3[index3 - 1].ordid;
+                next3 = oldRoute3[index3 + 1].ordid;
+                dayEval3 = Deletion(oldState.evals[truck3][2].time, oldState.truckloads[truck3][route3], oldState.truckloads[truck3][otherRoute3], prev3, next3);
             }
             // Locate the order on the fourth day
-            oldDay4 = oldState.status[truck4][3];
-            index4 = oldDay4.FindIndex(i => i.ordnr == ord.orderNumber);
+            oldRoute4 = oldState.status[truck4][route4];
+            index4 = oldRoute4.FindIndex(i => i.ordnr == ord.orderNumber);
             if (index4 == -1)
             {
+                route4 += 1;
+                otherRoute4 -= 1;
+                oldRoute4 = oldState.status[truck4][route4];
+                index4 = oldRoute4.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index4 == -1)
+            {
+                route4 -= 1;
+                otherRoute4 += 1;
                 truck4 = 1;
-                oldDay4 = oldState.status[truck4][3];
-                index4 = oldDay4.FindIndex(i => i.ordnr == ord.orderNumber);
+                oldRoute4 = oldState.status[truck4][route4];
+                index4 = oldRoute4.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index4 == -1)
+            {
+                route4 += 1;
+                otherRoute4 -= 1;
+                oldRoute4 = oldState.status[truck4][route4];
+                index4 = oldRoute4.FindIndex(i => i.ordnr == ord.orderNumber);
             }
             // Process the fourth order
             if (index4 != -1)
             {
                 prev4 = DTS.maarheeze;
-                if (index4 > 0) prev4 = oldDay4[index4 - 1].ordid;
-                next4 = oldDay4[index4 + 1].ordid;
-                dayEval4 = Deletion(oldState.evals[truck4][3].time, oldState.evals[truck4][3].truckload, prev4, next4);
+                if (index4 > 0) prev4 = oldRoute4[index4 - 1].ordid;
+                next4 = oldRoute4[index4 + 1].ordid;
+                dayEval4 = Deletion(oldState.evals[truck4][3].time, oldState.truckloads[truck4][route4], oldState.truckloads[truck4][otherRoute4], prev4, next4);
             }
             // Locate the order on the fifth day
-            oldDay5 = oldState.status[truck5][4];
-            index5 = oldDay5.FindIndex(i => i.ordnr == ord.orderNumber);
+            oldRoute5 = oldState.status[truck5][route5];
+            index5 = oldRoute5.FindIndex(i => i.ordnr == ord.orderNumber);
             if (index5 == -1)
             {
+                route5 += 1;
+                otherRoute5 -= 1;
+                oldRoute5 = oldState.status[truck5][route5];
+                index5 = oldRoute5.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index5 == -1)
+            {
+                route5 -= 1;
+                otherRoute5 += 1;
                 truck5 = 1;
-                oldDay5 = oldState.status[truck5][4];
-                index5 = oldDay5.FindIndex(i => i.ordnr == ord.orderNumber);
+                oldRoute5 = oldState.status[truck5][route5];
+                index5 = oldRoute5.FindIndex(i => i.ordnr == ord.orderNumber);
+            }
+            if (index5 == -1)
+            {
+                route5 += 1;
+                otherRoute5 -= 1;
+                oldRoute5 = oldState.status[truck5][route5];
+                index5 = oldRoute5.FindIndex(i => i.ordnr == ord.orderNumber);
             }
             // Process the fifth order
             if (index5 != -1)
             {
                 prev5 = DTS.maarheeze;
-                if (index5 > 0) prev5 = oldDay5[index5 - 1].ordid;
-                next5 = oldDay5[index5 + 1].ordid;
-                dayEval5 = Deletion(oldState.evals[truck5][4].time, oldState.evals[truck5][4].truckload, prev5, next5);
+                if (index5 > 0) prev5 = oldRoute5[index5 - 1].ordid;
+                next5 = oldRoute5[index5 + 1].ordid;
+                dayEval5 = Deletion(oldState.evals[truck5][4].time, oldState.truckloads[truck5][route5], oldState.truckloads[truck5][otherRoute5], prev5, next5);
             }
             double newRating = oldRating + RemoveRating(truck1, 0, dayEval1) + RemoveRating(truck2, 1, dayEval2) + RemoveRating(truck3, 2, dayEval3) + RemoveRating(truck4, 3, dayEval4) + RemoveRating(truck5, 4, dayEval5);
             if (AcceptNewDay(oldRating, newRating))
@@ -234,11 +338,11 @@ namespace OptimaliserenPracticum
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(ord.orderNumber);
                 DTS.orderScore += 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
-                if (index1 != -1) RemoveSomething(truck1, 0, index1, dayEval1, prev1, next1);
-                if (index2 != -1) RemoveSomething(truck2, 1, index2, dayEval2, prev2, next2);
-                if (index3 != -1) RemoveSomething(truck3, 2, index3, dayEval3, prev3, next3);
-                if (index4 != -1) RemoveSomething(truck4, 3, index4, dayEval4, prev4, next4);
-                if (index5 != -1) RemoveSomething(truck5, 4, index5, dayEval5, prev5, next5);
+                if (index1 != -1) RemoveSomething(truck1, 0, route1, index1, dayEval1, prev1, next1);
+                if (index2 != -1) RemoveSomething(truck2, 1, route2, index2, dayEval2, prev2, next2);
+                if (index3 != -1) RemoveSomething(truck3, 2, route3, index3, dayEval3, prev3, next3);
+                if (index4 != -1) RemoveSomething(truck4, 3, route4, index4, dayEval4, prev4, next4);
+                if (index5 != -1) RemoveSomething(truck5, 4, route5, index5, dayEval5, prev5, next5);
                 DTS.NewBest(oldState);
                 return oldState;
             }
@@ -255,41 +359,45 @@ namespace OptimaliserenPracticum
             ord = DTS.orders[DTS.availableOrders[r.Next(DTS.availableOrders.Count)]];
             // Pick a random truck and day
             int truck = r.Next(2);
-            int day = r.Next(5);
+            int route = r.Next(10);
+            int day = route / 2;
             // Check for frequency, handle frequencies higher than 1 seperately
             if (ord.frequency > 1)
             {
                 switch (ord.frequency)
                 {
-                    case 2:  return Add2(day);
+                    case 2:  return Add2(day, route);
                     case 3:  return Add3();
                     case 4:  return Add45(r.Next(5));
                     case 5:  return Add45(-1); // A frequency of 5 does not happen
                 }
             }
             List<Status>[] oldStatus = oldState.status[truck];
-            // pick a random day of the week          
-            List<Status> oldDay = oldStatus[day];
-            int index = r.Next(oldDay.Count - 1);
+            //calculate the otherroute int to get the pairing route of the day
+            int otherRoute = route - 1;
+            if (route % 2 == 0) otherRoute = route + 1;
+            // pick a random route of the week          
+            List<Status> oldRoute = oldStatus[route];
+            int index = r.Next(oldRoute.Count - 1);
             int prev = DTS.maarheeze;
-            if (index > 0) prev = oldDay[index - 1].ordid;
-            int next = oldDay[index].ordid;
+            if (index > 0) prev = oldRoute[index - 1].ordid;
+            int next = oldRoute[index].ordid;
             // Give ratings to the old and new day, and evaluate them
-            double dayEval = Insertion(oldState.evals[truck][day].time, oldState.evals[truck][day].truckload, prev, next);
+            double dayEval = Insertion(oldState.evals[truck][day].time, oldState.truckloads[truck][route], oldState.truckloads[truck][otherRoute], prev, next);
             double newRating = oldRating + AddRating(truck, day, dayEval);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
                 DTS.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
-                AddSomething(truck, day, index, dayEval,prev, next);
+                AddSomething(truck, day, route, index, dayEval,prev, next);
                 DTS.NewBest(oldState);
                 return oldState;
             }
             return null;
         }
 
-        public State Add2(int day1)
+        public State Add2(int day1, int route1)
         {
             // Return if it wants to add on a wednesday (which is not allowed)
             if (day1 == 2) return null;
@@ -298,15 +406,18 @@ namespace OptimaliserenPracticum
             int day2 = -1;
             double dayEval1, dayEval2;
             int truck1 = r.Next(2); int truck2 = r.Next(2);
-            List<Status> oldDay1, oldDay2;
+            List<Status> oldRoute1, oldRoute2;
             int time1, time2;
-            oldDay1 = oldState.status[truck1][day1];
-            time1 = r.Next(oldDay1.Count - 1);
+            oldRoute1 = oldState.status[truck1][route1];
+            time1 = r.Next(oldRoute1.Count - 1);
+            //calculate the otherroute int to get the pairing route of the day
+            int otherRoute1 = route1 - 1;
+            if (route1 % 2 == 0) otherRoute1 = route1 + 1;
             // Calculate the values needed for the first day
             prev1 = DTS.maarheeze;
-            if (time1 > 0) prev1 = oldDay1[time1 - 1].ordid;
-            next1 = oldDay1[time1].ordid;
-            dayEval1 = Insertion(oldState.evals[truck1][day1].time, oldState.evals[truck1][day1].truckload, prev1, next1);
+            if (time1 > 0) prev1 = oldRoute1[time1 - 1].ordid;
+            next1 = oldRoute1[time1].ordid;
+            dayEval1 = Insertion(oldState.evals[truck1][day1].time, oldState.truckloads[truck1][route1], oldState.truckloads[truck1][otherRoute1], prev1, next1);
             // Depending on the first day, determine which second day to pick
             switch (day1)
             {
@@ -316,21 +427,24 @@ namespace OptimaliserenPracticum
                 case 4: day2 = 1; break;
                 default: return null;
             }
-            // Calculate the values needed for the first day
-            time2 = r.Next(oldState.status[truck2][day2].Count);
-            oldDay2 = oldState.status[truck2][day2];
+            // Calculate the values needed for the second day
+            int x = r.Next(2);
+            int route2 = day2 * 2 + x;
+            int otherRoute2 = day2 * 2 - x;
+            oldRoute2 = oldState.status[truck2][route2];
+            time2 = r.Next(oldRoute2.Count);
             prev2 = DTS.maarheeze;
-            if (time2 > 0) prev2 = oldDay2[time2 - 1].ordid;
-            next2 = oldDay2[time2].ordid;
-            dayEval2 = Insertion(oldState.evals[truck2][day2].time, oldState.evals[truck2][day2].truckload, prev2, next2);
+            if (time2 > 0) prev2 = oldRoute2[time2 - 1].ordid;
+            next2 = oldRoute2[time2].ordid;
+            dayEval2 = Insertion(oldState.evals[truck2][day2].time, oldState.truckloads[truck2][route2], oldState.truckloads[truck2][otherRoute2], prev2, next2);
             double newRating = oldRating + AddRating(truck1, day1, dayEval1) + AddRating(truck2, day2, dayEval2);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
                 DTS.orderScore -= 3 * ord.emptyingTime * 2 / 60; // Frequency is always 2 here
-                AddSomething(truck1, day1, time1, dayEval1, prev1, next1);
-                AddSomething(truck2, day2, time2, dayEval2, prev2, next2);
+                AddSomething(truck1, day1, route1, time1, dayEval1, prev1, next1);
+                AddSomething(truck2, day2, route2, time2, dayEval2, prev2, next2);
                 DTS.NewBest(oldState);
                 return oldState;
             }
@@ -457,83 +571,7 @@ namespace OptimaliserenPracticum
             return null;
         }
         #endregion
-        /*
-        // Swap two random actions within a truck
-        public State SwapRandomActionsWithin(object i)
-        {
-            // Declare all of the necessary variables
-            int x = (int)i;
-            List<Status>[] oldStatus;
-            List<Status> oldDay1, oldDay2, newDay1, newDay2;
-            int day1, day2, actionIndex1, actionIndex2, nr1, nr2, id1, id2;
-            double rating1, rating2;
-            Status stat1, stat2, tempstat1, tempstat2;
-            oldStatus = oldState.status[x];
-            // Pick two random days in which to swap
-            day1 = r.Next(5);
-            day2 = r.Next(5);
-            if (day1 == day2) return null; // Return if both days are the same
-            oldDay1 = oldStatus[day1];
-            oldDay2 = oldStatus[day2];
-            newDay1 = new List<Status>(oldDay1);
-            newDay2 = new List<Status>(oldDay2);
-            if (newDay1.Count < 2 || newDay2.Count < 2) return null; // Return if either day has only one status, aka the emptying at the end
-            // pick two random actions			
-            actionIndex1 = r.Next(oldDay1.Count - 2);
-            actionIndex2 = r.Next(oldDay2.Count - 2);
-            stat1 = oldDay1[actionIndex1];
-            stat2 = oldDay2[actionIndex2];
-            if (stat1.ordnr == 0)
-            {
-                nr1 = 0;
-                id1 = DTS.maarheeze;
-            }
-            else
-            {
-                nr1 = stat1.ordnr;
-                id1 = stat1.ordid;
-            }
-            if (stat2.ordnr == 0)
-            {
-                nr2 = 0;
-                id2 = DTS.maarheeze;
-            }
-            else
-            {
-                nr2 = stat1.ordnr;
-                id2 = stat1.ordid;
-            }
-            if (nr1 != 0)
-            {
-                if (DTS.orders[nr1].frequency > 1) return null;
-            }
-            if (nr2 != 0)
-            {
-                if (DTS.orders[nr2].frequency > 1) return null;
-            }
-            // Swap these actions around
-            tempstat2 = new Status(day1, id2, nr2);
-            tempstat1 = new Status(day2, id1, nr1);
-            newDay1.Remove(stat1);
-            newDay2.Remove(stat2);
-            newDay1.Insert(actionIndex1, tempstat2);
-            newDay2.Insert(actionIndex2, tempstat1);
-            // Already make the the new state, so that it can be properly evaluated
-            newState = new State(oldState.status);
-            newState.status[x][day1] = newDay1;
-            newState.status[x][day2] = newDay2;
-            // Give ratings to the old and new day, and evaluate them
-            rating1 = Eval(oldState);
-            rating2 = Eval(newState);
-            if (AcceptNewDay(rating1, rating2, r))
-            {
-                // If accepted, return the new state
-                if (!DTS.hasOvertime) DTS.NewBest(newState, rating2);
-                return newState;
-            }
-            return null;
-        }
-        */
+       
         public State Shift()
         {
             int prev1, next1, prev2, next2;
@@ -575,23 +613,24 @@ namespace OptimaliserenPracticum
             return null;
         }
 
-        public void RemoveSomething(int truck, int day, int index, double dayEval, int prev, int next)
+        public void RemoveSomething(int truck, int day, int route, int index, double dayEval, int prev, int next)
         {
             oldState.status[truck][day].RemoveAt(index);
             // Adjust the evaluation so that it is correct again
             oldState.evals[truck][day].value = dayEval;
             oldState.evals[truck][day].time += DTS.timeMatrix[prev, next] - (DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next]);
-            oldState.evals[truck][day].truckload -= ord.containerCount * ord.volumePerContainer;
+            oldState.truckloads[truck][route] -= ord.containerCount * ord.volumePerContainer;
         }
 
-        public void AddSomething(int truck, int day, int index, double dayEval, int prev, int next)
+        public void AddSomething(int truck, int day, int route, int index, double dayEval, int prev, int next)
         {
             oldState.status[truck][day].Insert(index, new Status(day, ord.matrixID, ord.orderNumber));
             // Adjust the evaluation so that it is correct again
             oldState.evals[truck][day].value = dayEval;
             oldState.evals[truck][day].time -= DTS.timeMatrix[prev, next] - (DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next]);
-            oldState.evals[truck][day].truckload += ord.containerCount * ord.volumePerContainer;
+            oldState.truckloads[truck][route] += ord.containerCount * ord.volumePerContainer;
         }
+
 
 
         // A function to calculate the new rating of a day, when something was added
@@ -612,21 +651,18 @@ namespace OptimaliserenPracticum
             return score;
         }
 
-
-
-
         // Adjust parameters for when an order gets inserted, and return the new value
-        public double Insertion(double time, int truckload,int prev, int next)
+        public double Insertion(double time, int truckload1, int truckload2,int prev, int next)
         {
             double newTime = time + DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next] - DTS.timeMatrix[prev, next];
-            return DTS.CalcDayEval(newTime, truckload + ord.containerCount * ord.volumePerContainer);
+            return DTS.CalcDayEval(newTime, truckload1 + ord.containerCount * ord.volumePerContainer, truckload2);
         }
 
         // Adjust parameters for when an order gets removed, where curr is the order that was deleted, and return the new value
-        public double Deletion(double time, int truckload, int prev, int next)
+        public double Deletion(double time, int truckload1, int truckload2, int prev, int next)
         {
             double newTime = time - DTS.timeMatrix[prev, ord.matrixID] - ord.emptyingTime - DTS.timeMatrix[ord.matrixID, next] + DTS.timeMatrix[prev, next];
-            return DTS.CalcDayEval(newTime, truckload - ord.containerCount * ord.volumePerContainer);
+            return DTS.CalcDayEval(newTime, truckload1 - ord.containerCount * ord.volumePerContainer, truckload2);
         }
 
         // Function that returns whether a new Day, and so, the new state would be accepted
