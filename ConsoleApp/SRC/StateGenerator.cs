@@ -578,35 +578,46 @@ namespace OptimaliserenPracticum
             // Pick a random truck and day twice
             int truck1 = r.Next(2);
             int truck2 = r.Next(2);
-            int day1 = r.Next(5);
-            int day2 = r.Next(5);
-            if (truck1 == truck2 && day1 == day2) return null; // TODO: Dit werkt nu nog een beetje buggy, maar goed om later te fiksen
-            List<Status> oldDay1 = oldState.status[truck1][day1];
-            List<Status> oldDay2 = oldState.status[truck2][day2];
+            int route1 = r.Next(10);
+            int route2 = r.Next(10);
+            int day1 = route1 / 2;
+            int day2 = route2 / 2;
+
+            if (truck1 == truck2 && route1 == route2) return null; // TODO: Dit werkt nu nog een beetje buggy, maar goed om later te fiksen
+            List<Status> oldRoute1 = oldState.status[truck1][route1];
+            List<Status> oldRoute2 = oldState.status[truck2][route2];
             // Return if there is nothing to swap in day 1
-            if (oldDay1.Count < 2) return null;
+            if (oldRoute1.Count < 2) return null;
             // pos1 is the index of the order to be swapped, pos2 is the position where to insert the shifted order
-            int pos1 = r.Next(oldDay1.Count - 1);
-            ord = DTS.orders[oldDay1[pos1].ordnr];
-            int pos2 = r.Next(oldDay2.Count - 1);
+            int pos1 = r.Next(oldRoute1.Count - 1);
+            ord = DTS.orders[oldRoute1[pos1].ordnr];
+            int pos2 = r.Next(oldRoute2.Count - 1);
             // Only allow shifting of an order with a higher frequency when it happens on the same day
-            if (ord.frequency > 1 && day1 != day2) return null;
+            if (ord.frequency > 1 && route1 != route2) return null;
             // Find the previous and next places of both positions
             prev1 = DTS.maarheeze;
-            if (pos1 > 0) prev1 = oldDay1[pos1 - 1].ordid;
-            next1 = oldDay1[pos1 + 1].ordid;
+            if (pos1 > 0) prev1 = oldRoute1[pos1 - 1].ordid;
+            next1 = oldRoute1[pos1 + 1].ordid;
             prev2 = DTS.maarheeze;
-            if (pos2 > 0) prev2 = oldDay2[pos2 - 1].ordid;
-            next2 = oldDay2[pos2].ordid;
+            if (pos2 > 0) prev2 = oldRoute2[pos2 - 1].ordid;
+            next2 = oldRoute2[pos2].ordid;
             // Give ratings to the old and new day, and evaluate them
-            double eval1 = Deletion(oldState.evals[truck1][day1].time, oldState.evals[truck1][day1].truckload, prev1, next1);
-            double eval2 = Insertion(oldState.evals[truck2][day2].time, oldState.evals[truck2][day2].truckload, prev2, next2);
-            double newRating = oldRating + RemoveRating(truck1, day1, eval1) + AddRating(truck2, day2, eval2);
+
+            int otherRoute1 = route1 - 1;
+            if (route1 % 2 == 0) otherRoute1 = route1 + 1;
+            // Give ratings to the old and new day, and evaluate them
+            double eval1 = Deletion(oldState.evals[truck1][route1].time, oldState.truckloads[truck1][route1], oldState.truckloads[truck1][otherRoute1], prev1, next1);
+
+            int otherRoute2 = route2 - 1;
+            if (route2 % 2 == 0) otherRoute2 = route2 + 1;
+
+            double eval2 = Insertion(oldState.evals[truck2][route2].time, oldState.truckloads[truck2][route2], oldState.truckloads[truck2][otherRoute2], prev2, next2);
+            double newRating = oldRating + RemoveRating(truck1, route1, eval1) + AddRating(truck2, route2, eval2);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, return the new state
-                RemoveSomething(truck1, day1, pos1, eval1, prev1, next1);
-                AddSomething(truck2, day2, pos2, eval2, prev2, next2);
+                RemoveSomething(truck1, day1, route1, pos1, eval1, prev1, next1);
+                AddSomething(truck2, day2, route2, pos2, eval2, prev2, next2);
                 DTS.NewBest(oldState);
                 return oldState;
             }
