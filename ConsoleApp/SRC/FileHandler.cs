@@ -8,12 +8,12 @@ namespace OptimaliserenPracticum
     public static class FileHandler
     {
         // Print all the actions to the console
-        public static void Print(State state)
+        public static void Print(List<Status>[][] state)
         {
             int daycounter = 1;
             for (int i = 0; i < 5; i++)
             {
-                List<Status> day1 = state.status[0][i];
+                List<Status> day1 = state[0][i];
                 // Print the routes in the format of the autochecker
                 foreach (Status status in day1)
                 {
@@ -25,7 +25,7 @@ namespace OptimaliserenPracticum
             // print the path of the second truck
             for (int i = 0; i < 5; i++)
             {
-                List<Status> day2 = state.status[1][i];
+                List<Status> day2 = state[1][i];
                 // Print the routes in the format of the autochecker
                 foreach (Status status in day2)
                 {
@@ -37,7 +37,7 @@ namespace OptimaliserenPracticum
         }
 
         // Save a state to a textfile with the current datetime
-        public static void SaveState(State state)
+        public static void SaveState(List<Status>[][] state)
         {
 			// Create a filename for saving the state with the current time
 			//DateTime time = DateTime.UtcNow.ToLocalTime();
@@ -50,8 +50,8 @@ namespace OptimaliserenPracticum
             for (int i = 0; i < 5; i++)
             {
                 daycounter = 1;
-                List<Status> day1 = state.status[0][i];
-                List<Status> day2 = state.status[1][i];
+                List<Status> day1 = state[0][i];
+                List<Status> day2 = state[1][i];
                 foreach (Status status in day1)
                 {
                     // day, starttime, endtime, company, truck number, truck capacity, ordernummer

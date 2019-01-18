@@ -12,7 +12,6 @@ namespace OptimaliserenPracticum
         public List<Status>[][] status; // The status is a jagged array of status lists. What this means is that the first index stands for the truck (0 or 1), the second index for the day (0 .. 4), and that contains a list of statuses for each day.
         public Eval[][] evals;          // Contains all of the evaluations for a given day and truck
         private Random random;          // A random number generator that will be used in the creation of the initial state
-        public double orderScore;       // The penalty given by how many orders are still available
 
         // The constructor makes a new random initial state
         public State()
@@ -24,23 +23,15 @@ namespace OptimaliserenPracticum
             // Create the schedule of both trucks seperately
             status[0] = MakeRandomWeek(0);
             status[1] = MakeRandomWeek(1);
-            orderScore = 0;
+            DTS.orderScore = 0;
             // Add all of the available order to the total value
             foreach (int x in DTS.availableOrders)
             {
-                orderScore += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency / 60;
+                DTS.orderScore += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency / 60;
             }
-            DTS.bestState = this;
-            DTS.bestRating = GetAllEval() + orderScore;
-        }
-
-        // The constructor copies from an old state
-        public State(State old)
-        {
-            status = old.status;
-            evals = old.evals;
-            random = new Random();
-            orderScore = old.orderScore;
+            DTS.CopyStatus(status);
+            DTS.CopyEval(evals);
+            DTS.bestRating = DTS.GetAllEval(evals) + DTS.orderScore;
         }
 
         // Function that generater a random week
@@ -116,20 +107,6 @@ namespace OptimaliserenPracticum
             day.Add(new Status(dayIndex, DTS.maarheeze, 0));
             evals[t][dayIndex] = new Eval(DTS.CalcDayEval(timestart,truckload), timestart, truckload);
             return day;
-        }
-
-        // Return the saved evaluation values of every day
-        public double GetAllEval()
-        {
-            double acc = 0;
-            for (ushort i = 0; i < 2; i++)
-            {
-                for (ushort j = 0; j < 5; j++)
-                {
-                    acc += evals[i][j].value;
-                }
-            }
-            return acc;
         }
 
     }

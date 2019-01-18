@@ -19,7 +19,7 @@ namespace OptimaliserenPracticum
         public State GetNextState(State old)
         {
             oldState = old;
-            oldRating = old.GetAllEval() + old.orderScore;
+            oldRating = DTS.GetAllEval(old.evals) + DTS.orderScore;
             State returnState = null;
             ord = null;
             // Try one of the successorfunctions, and keep on trying untill one of them returns a successor
@@ -27,8 +27,8 @@ namespace OptimaliserenPracticum
             Diagnostics.IterationsPerMinute++;
             switch (i)
             {
-                case double n when n < 0.30: return oldState; //returnState = Remove(); break;
-                case double n when 0.30 <= n && n < 0.80: return oldState; //returnState = Add(); break;
+                case double n when n < 0.30: returnState = Remove(); break;
+                case double n when 0.30 <= n && n < 0.80: returnState = Add(); break;
                 default: returnState = Shift();  break;
             }
             if (returnState == null) return oldState;
@@ -72,7 +72,7 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(ord.orderNumber);
-                oldState.orderScore += 3 * DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency / 60;
+                DTS.orderScore += 3 * DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency / 60;
                 RemoveSomething(truck, day, index, dayEval, prev, next);
                 DTS.NewBest(oldState);
                 return oldState;
@@ -123,7 +123,7 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(ord.orderNumber);
-                oldState.orderScore += 3 * DTS.orders[ord.orderNumber].emptyingTime * 2 / 60; // Frequency is always 2 here
+                DTS.orderScore += 3 * DTS.orders[ord.orderNumber].emptyingTime * 2 / 60; // Frequency is always 2 here
                 RemoveSomething(truck1, day1, index1, dayEval1, prev1, next1);
                 RemoveSomething(truck2, day2, index2, dayEval2, prev2, next2);
                 DTS.NewBest(oldState);
@@ -233,7 +233,7 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(ord.orderNumber);
-                oldState.orderScore += 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
+                DTS.orderScore += 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
                 if (index1 != -1) RemoveSomething(truck1, 0, index1, dayEval1, prev1, next1);
                 if (index2 != -1) RemoveSomething(truck2, 1, index2, dayEval2, prev2, next2);
                 if (index3 != -1) RemoveSomething(truck3, 2, index3, dayEval3, prev3, next3);
@@ -281,7 +281,7 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
-                oldState.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
+                DTS.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
                 AddSomething(truck, day, index, dayEval,prev, next);
                 DTS.NewBest(oldState);
                 return oldState;
@@ -328,7 +328,7 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
-                oldState.orderScore -= 3 * ord.emptyingTime * 2 / 60; // Frequency is always 2 here
+                DTS.orderScore -= 3 * ord.emptyingTime * 2 / 60; // Frequency is always 2 here
                 AddSomething(truck1, day1, time1, dayEval1, prev1, next1);
                 AddSomething(truck2, day2, time2, dayEval2, prev2, next2);
                 DTS.NewBest(oldState);
@@ -371,7 +371,7 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
-                oldState.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * 3 / 60; // Frequency is always 3 here
+                DTS.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * 3 / 60; // Frequency is always 3 here
                 AddSomething(truck1, 0, time1, dayEval1, prev1, next1);
                 AddSomething(truck2, 2, time2, dayEval2, prev2, next2);
                 AddSomething(truck3, 4, time3, dayEval3, prev3, next3);
@@ -445,7 +445,7 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Remove(ord.orderNumber);
-                oldState.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
+                DTS.orderScore -= 3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60;
                 if (skipday != 0) AddSomething(truck1, 0, time1, dayEval1, prev1, next1);
                 if (skipday != 1) AddSomething(truck2, 1, time2, dayEval2, prev2, next2);
                 if (skipday != 2) AddSomething(truck3, 2, time3, dayEval3, prev3, next3);
@@ -589,7 +589,7 @@ namespace OptimaliserenPracticum
             oldState.status[truck][day].Insert(index, new Status(day, ord.matrixID, ord.orderNumber));
             // Adjust the evaluation so that it is correct again
             oldState.evals[truck][day].value = dayEval;
-            oldState.evals[truck][day].time += DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next] - DTS.timeMatrix[prev, next];
+            oldState.evals[truck][day].time -= DTS.timeMatrix[prev, next] - (DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next]);
             oldState.evals[truck][day].truckload += ord.containerCount * ord.volumePerContainer;
         }
 
