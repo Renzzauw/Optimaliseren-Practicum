@@ -21,7 +21,7 @@ namespace OptimaliserenPracticum
             random = new Random();
             status = new List<Status>[2][];
             evals = new Eval[2][];
-            truckloads = new int[2][];g
+            truckloads = new int[2][];
             // Create the schedule of both trucks seperately
             status[0] = MakeRandomWeek(0);
             status[1] = MakeRandomWeek(1);
