@@ -33,9 +33,6 @@ namespace OptimaliserenPracticum
                 CopyEval(state.evals);
                 bestRating = evalRating + orderScore;
                 bestOrderScore = orderScore;
-                Console.WriteLine("time " + evalRating);
-                Console.WriteLine("order " + bestOrderScore);
-                Console.WriteLine("total " + bestRating);
                 timeSinceNewBest = 0;
             }
             timeSinceNewBest++;

@@ -43,16 +43,16 @@ namespace OptimaliserenPracticum
             DTS.dayEnd = 43200;
             DTS.emptyingTime = 3600;
             DTS.timeSinceNewBest = 0;
-            DTS.temperature = 600;
+            DTS.temperature = 1000;
             DTS.maarheeze = 287;
             DTS.bestRating = float.MaxValue;
-            DTS.truckCapacity = 100000;
+            DTS.truckCapacity = 1000000;
             // initialize orders
             init.MakeOrders();
             // Initialize all other variables
             i = 0;
             alpha = 0.99F;
-            q = 1000000; // q is hardcoded for now, we did not have the time to make it dependent on the amount of neighbourstates
+            q = 5000000; // q is hardcoded for now, we did not have the time to make it dependent on the amount of neighbourstates
             // Make an initial state, and set the best state ever to this state
             Console.WriteLine("Type 1 if you want to load a state, or another number if you want to create a new random state");
             string inputstring = Console.ReadLine();
@@ -94,12 +94,12 @@ namespace OptimaliserenPracticum
                     Diagnostics.AcceptationsPerSecond = 0;
                     Diagnostics.second++;
                     Diagnostics.Printed = false;
-                }
-                if (Diagnostics.second % 60 == 0 && Diagnostics.Printed == false)
-                {
-                    Console.WriteLine("Number of iterations per minute equals: " + Diagnostics.IterationsPerMinute);
-                    Diagnostics.IterationsPerMinute = 0;
-                    Diagnostics.Printed = true;
+                    if (Diagnostics.second % 60 == 0 && Diagnostics.Printed == false)
+                    {
+                        Console.WriteLine("Number of iterations per minute equals: " + Diagnostics.IterationsPerMinute);
+                        Diagnostics.IterationsPerMinute = 0;
+                        Diagnostics.Printed = true;
+                    }
                 }
                 // Every q iterations, lower the temperature by alpha
                 if (i % q == 0)

@@ -29,13 +29,14 @@ namespace OptimaliserenPracticum
             {
                 case double n when n < 0.30: returnState = Remove(); break;
                 case double n when 0.30 <= n && n < 0.80: returnState = Add(); break;
+                case double n when 0.80 <= n && n < 0.85: returnState = TwoOpt(); break;
                 default: returnState = Shift();  break;
             }
             if (returnState == null) return oldState;
             return returnState;
         }
 
-        #region Remove & Helpers
+        #region Remove
         // Remove a random action on a random day of the schedule of a truck
         public State Remove()
         {
@@ -70,7 +71,7 @@ namespace OptimaliserenPracticum
             if (route % 2 == 0) otherRoute = route + 1;
             // Give ratings to the old and new day, and evaluate them
             double dayEval = Deletion(oldState.evals[truck][day].time, oldState.truckloads[truck][route], oldState.truckloads[truck][otherRoute], prev, next);          
-            double newRating = oldRating + RemoveRating(truck, day, dayEval);
+            double newRating = oldRating + NewDayRating(truck, day, dayEval);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -141,7 +142,7 @@ namespace OptimaliserenPracticum
             if (index2 > 0) prev2 = oldRoute2[index2 - 1].ordid;
             next2 = oldRoute2[index2 + 1].ordid;
             dayEval2 = Deletion(oldState.evals[truck2][day2].time, oldState.truckloads[truck2][route2], oldState.truckloads[truck2][otherRoute2],  prev2, next2);
-            double newRating = oldRating + RemoveRating(truck1, day1, dayEval1) + RemoveRating(truck2, day2, dayEval2);
+            double newRating = oldRating + NewDayRating(truck1, day1, dayEval1) + NewDayRating(truck2, day2, dayEval2);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -331,7 +332,7 @@ namespace OptimaliserenPracticum
                 next5 = oldRoute5[index5 + 1].ordid;
                 dayEval5 = Deletion(oldState.evals[truck5][4].time, oldState.truckloads[truck5][route5], oldState.truckloads[truck5][otherRoute5], prev5, next5);
             }
-            double newRating = oldRating + RemoveRating(truck1, 0, dayEval1) + RemoveRating(truck2, 1, dayEval2) + RemoveRating(truck3, 2, dayEval3) + RemoveRating(truck4, 3, dayEval4) + RemoveRating(truck5, 4, dayEval5);
+            double newRating = oldRating + NewDayRating(truck1, 0, dayEval1) + NewDayRating(truck2, 1, dayEval2) + NewDayRating(truck3, 2, dayEval3) + NewDayRating(truck4, 3, dayEval4) + NewDayRating(truck5, 4, dayEval5);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -349,7 +350,7 @@ namespace OptimaliserenPracticum
         }
 
         #endregion
-        #region Add & Helpers
+        #region Add
         // Add a random action at a random time
         public State Add()
         {
@@ -383,7 +384,7 @@ namespace OptimaliserenPracticum
             int next = oldRoute[index].ordid;
             // Give ratings to the old and new day, and evaluate them
             double dayEval = Insertion(oldState.evals[truck][day].time, oldState.truckloads[truck][route], oldState.truckloads[truck][otherRoute], prev, next);
-            double newRating = oldRating + AddRating(truck, day, dayEval);
+            double newRating = oldRating + NewDayRating(truck, day, dayEval);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -436,7 +437,7 @@ namespace OptimaliserenPracticum
             if (time2 > 0) prev2 = oldRoute2[time2 - 1].ordid;
             next2 = oldRoute2[time2].ordid;
             dayEval2 = Insertion(oldState.evals[truck2][day2].time, oldState.truckloads[truck2][route2], oldState.truckloads[truck2][otherRoute2], prev2, next2);
-            double newRating = oldRating + AddRating(truck1, day1, dayEval1) + AddRating(truck2, day2, dayEval2);
+            double newRating = oldRating + NewDayRating(truck1, day1, dayEval1) + NewDayRating(truck2, day2, dayEval2);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -488,7 +489,7 @@ namespace OptimaliserenPracticum
             if (time3 > 0) prev3 = oldRoute3[time3 - 1].ordid;
             next3 = oldRoute3[time3].ordid;
             dayEval3 = Insertion(oldState.evals[truck3][4].time, oldState.truckloads[truck3][route3], oldState.truckloads[truck3][otherRoute3], prev3, next3);
-            double newRating = oldRating + AddRating(truck1, 0, dayEval1) + AddRating(truck2, 2, dayEval2) + AddRating(truck3, 4, dayEval3);
+            double newRating = oldRating + NewDayRating(truck1, 0, dayEval1) + NewDayRating(truck2, 2, dayEval2) + NewDayRating(truck3, 4, dayEval3);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -579,7 +580,7 @@ namespace OptimaliserenPracticum
                 next5 = oldRoute5[time5].ordid;
                 dayEval5 = Insertion(oldState.evals[truck5][4].time, oldState.truckloads[truck5][route5], oldState.truckloads[truck5][otherRoute5], prev5, next5);
             }
-            double newRating = oldRating + AddRating(truck1, 1, dayEval1) + AddRating(truck2, 1, dayEval2) + AddRating(truck3, 2, dayEval3) + AddRating(truck4, 3, dayEval4) + AddRating(truck5, 2, dayEval5);
+            double newRating = oldRating + NewDayRating(truck1, 1, dayEval1) + NewDayRating(truck2, 1, dayEval2) + NewDayRating(truck3, 2, dayEval3) + NewDayRating(truck4, 3, dayEval4) + NewDayRating(truck5, 2, dayEval5);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -596,7 +597,7 @@ namespace OptimaliserenPracticum
             return null;
         }
         #endregion
-       
+        #region Shift and Opt
         public State Shift()
         {
             int prev1, next1, prev2, next2;
@@ -607,12 +608,11 @@ namespace OptimaliserenPracticum
             int route2 = r.Next(10);
             int day1 = route1 / 2;
             int day2 = route2 / 2;
-
-            if (truck1 == truck2 && route1 == route2) return null; // TODO: Dit werkt nu nog een beetje buggy, maar goed om later te fiksen
             List<Status> oldRoute1 = oldState.status[truck1][route1];
+            if (oldRoute1.Count < 2) return null;
+            if (truck1 == truck2 && route1 == route2) return TwoAndAHalfOpt(truck1, route1); // TODO: Dit werkt nu nog een beetje buggy, maar goed om later te fiksen
             List<Status> oldRoute2 = oldState.status[truck2][route2];
             // Return if there is nothing to swap in day 1
-            if (oldRoute1.Count < 2) return null;
             // pos1 is the index of the order to be swapped, pos2 is the position where to insert the shifted order
             int pos1 = r.Next(oldRoute1.Count - 1);
             ord = DTS.orders[oldRoute1[pos1].ordnr];
@@ -637,7 +637,7 @@ namespace OptimaliserenPracticum
             if (route2 % 2 == 0) otherRoute2 = route2 + 1;
 
             double eval2 = Insertion(oldState.evals[truck2][day2].time, oldState.truckloads[truck2][route2], oldState.truckloads[truck2][otherRoute2], prev2, next2);
-            double newRating = oldRating + RemoveRating(truck1, day1, eval1) + AddRating(truck2, day2, eval2);
+            double newRating = oldRating + NewDayRating(truck1, day1, eval1) + NewDayRating(truck2, day2, eval2);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, return the new state
@@ -649,6 +649,98 @@ namespace OptimaliserenPracticum
             return null;
         }
 
+        public State TwoAndAHalfOpt(int truck, int route)
+        {
+            int prev1, next1, prev2, next2;
+            int day = route / 2;
+            List<Status> oldRoute = oldState.status[truck][route];
+            int otherRoute = route - 1;
+            if (route % 2 == 0) otherRoute = route + 1;
+            int pos1 = r.Next(oldRoute.Count - 1);
+            ord = DTS.orders[oldRoute[pos1].ordnr];
+            int pos2 = r.Next(oldRoute.Count - 1);
+            // Find the previous and next places of both positions
+            prev1 = DTS.maarheeze;
+            if (pos1 > 0) prev1 = oldRoute[pos1 - 1].ordid;
+            next1 = oldRoute[pos1 + 1].ordid;
+            prev2 = DTS.maarheeze;
+            if (pos2 > 0) prev2 = oldRoute[pos2 - 1].ordid;
+            next2 = oldRoute[pos2].ordid;
+            if (Math.Abs(pos1 - pos2) < 2) return null; // This doesn't really work properly for moving an order to an adjacent position, so skip that
+            double eval1 = Deletion(oldState.evals[truck][day].time, oldState.truckloads[truck][route], oldState.truckloads[truck][otherRoute], prev1, next1);
+            double eval2 = Insertion(oldState.evals[truck][day].time, oldState.truckloads[truck][route], oldState.truckloads[truck][otherRoute], prev2, next2);
+            double newRating = oldRating + NewDayRating(truck, day, eval1) + NewDayRating(truck, day, eval2);
+            if (AcceptNewDay(oldRating, newRating))
+            {
+                // If accepted, return the new state
+                RemoveSomething(truck, day, route, pos1, eval1, prev1, next1);
+                if (pos1 < pos2) pos2--; // If pos1 is smaller, all future indices get moved one spot to the left
+                AddSomething(truck, day, route, pos2, eval2, prev2, next2);
+                DTS.NewBest(oldState);
+                return oldState;
+            }
+            return null;
+        }
+
+        public State TwoOpt()
+        {
+            int truck = r.Next(2);
+            int route = r.Next(10);
+            int day = route / 2;
+            List<Status> oldRoute = oldState.status[truck][route];
+            if (oldRoute.Count < 6) return null; // 2Opt needs at least 4 orders (plus the emptying at the end) to work properly
+            // Pick two orders to change edges with. Order 1 creates an edge with the previous of Order 2, and vice versa
+            int pos1 = r.Next(1, oldRoute.Count - 2);
+            int pos2 = r.Next(1, oldRoute.Count - 2);
+            if (pos1 == pos2) return null; // 2Opt needs two different orders
+            if (pos2 < pos1) // Make it so that pos1 always has the smallest index
+            {
+                int temppos = pos1;
+                pos1 = pos2;
+                pos2 = temppos;
+            }
+            int otherRoute = route - 1;
+            if (route % 2 == 0) otherRoute = route + 1;
+            Order ord1 = DTS.orders[oldRoute[pos1].ordnr];
+            Order ord2 = DTS.orders[oldRoute[pos2].ordnr];
+            double newTime = DTS.timeMatrix[DTS.maarheeze,oldRoute[0].ordid] + DTS.orders[oldRoute[0].ordnr].emptyingTime;
+            for (int i = 1; i < pos1; i++)
+            {
+                newTime += DTS.timeMatrix[oldRoute[i - 1].ordid, oldRoute[i].ordid] + DTS.orders[oldRoute[i].ordnr].emptyingTime;
+            }
+            newTime += DTS.timeMatrix[oldRoute[pos1 - 1].ordid, ord2.matrixID] + ord2.emptyingTime;
+            for (int i = pos2 - 1; i >= pos1; i--)
+            {
+                newTime += DTS.timeMatrix[oldRoute[i + 1].ordid, oldRoute[i].ordid] + DTS.orders[oldRoute[i].ordnr].emptyingTime;
+            }
+            newTime += DTS.timeMatrix[ord1.matrixID, oldRoute[pos2 + 1].ordid] + DTS.orders[oldRoute[pos2 + 1].ordnr].emptyingTime;
+            for (int i = pos2 + 2; i < oldRoute.Count - 1; i++)
+            {
+                newTime += DTS.timeMatrix[oldRoute[i - 1].ordid, oldRoute[i].ordid] + DTS.orders[oldRoute[i].ordnr].emptyingTime;
+            }
+            newTime += DTS.emptyingTime;
+            newTime /= 60;
+            double eval = DTS.CalcDayEval(newTime, oldState.truckloads[truck][route], oldState.truckloads[truck][otherRoute]);
+            double newRating = oldRating + NewDayRating(truck, day, eval);
+            if (AcceptNewDay(oldRating, newRating))
+            {
+                // If accepted, return the new state
+                // Build the list from scratch, placing things in a different order
+                List<Status> oldList = oldState.status[truck][route];
+                List<Status> newList = new List<Status>();
+                for (int i = 0; i < pos1; i++) newList.Add(oldList[i]);
+                newList.Add(new Status(day, ord2.matrixID, ord2.orderNumber));
+                for (int i = pos2 - 1; i > pos1; i--) newList.Add(oldList[i]);
+                newList.Add(new Status(day, ord1.matrixID, ord1.orderNumber));
+                for (int i = pos2 + 1; i < oldList.Count; i++) newList.Add(oldList[i]);
+                oldList = newList;
+                DTS.NewBest(oldState);
+                return oldState;
+            }
+            return null;
+        }
+        #endregion
+        #region Helpers
         public void RemoveSomething(int truck, int day, int route, int index, double dayEval, int prev, int next)
         {
             oldState.status[truck][route].RemoveAt(index);
@@ -669,17 +761,8 @@ namespace OptimaliserenPracticum
 
 
 
-        // A function to calculate the new rating of a day, when something was added
-        public double AddRating(int truck, int day, double newEval)
-        {
-            if (newEval == 0) return 0;
-            double score = -oldState.evals[truck][day].value;
-            score += newEval;
-            return score;
-        }
-
-        // A function to calculate the new rating of a day, when something was removed
-        public double RemoveRating(int truck, int day, double newEval)
+        // A function to calculate the new rating of a day, when something has changed
+        public double NewDayRating(int truck, int day, double newEval)
         {
             if (newEval == 0) return 0;
             double score = -oldState.evals[truck][day].value;
@@ -700,6 +783,7 @@ namespace OptimaliserenPracticum
             double newTime = time - DTS.timeMatrix[prev, ord.matrixID] - ord.emptyingTime - DTS.timeMatrix[ord.matrixID, next] + DTS.timeMatrix[prev, next];
             return DTS.CalcDayEval(newTime, truckload1 - ord.containerCount * ord.volumePerContainer, truckload2);
         }
+        #endregion
 
         // Function that returns whether a new Day, and so, the new state would be accepted
         public bool AcceptNewDay(double oldrating, double newrating)
