@@ -21,6 +21,7 @@ namespace OptimaliserenPracticum
 		private float alpha;                            // The percentage to reduce T with, every q iterations
 		private int q;                                  // The number of iterations before q gets reduced
 		private StateGenerator generator;               // An instance of the stateGenerator class, which will calcuate successor states of a given state
+		private int maxRunTime;
 
 		// Initialize the program
 		public void Init()
@@ -43,7 +44,7 @@ namespace OptimaliserenPracticum
             DTS.dayEnd = 43200;
             DTS.emptyingTime = 3600;
             DTS.timeSinceNewBest = 0;
-            DTS.temperature = 1000;
+            DTS.temperature = 300;
             DTS.maarheeze = 287;
             DTS.bestRating = float.MaxValue;
             DTS.truckCapacity = 1000000;
@@ -68,6 +69,9 @@ namespace OptimaliserenPracticum
             {
                 initial = new State();
             }
+			Console.WriteLine("How many seconds do you want to run?");
+			inputstring = Console.ReadLine();
+			maxRunTime = int.Parse(inputstring) * 1000;
             // Initialize the StateGenerator class, that is used to make successor states
             generator = new StateGenerator(initial);
             // Stop the stopwatch and see how long the initialization took
@@ -84,7 +88,7 @@ namespace OptimaliserenPracticum
             Diagnostics.runtimeWatch.Start();
 			State current = initialState;
             // Keep iterating untill the best state ever found, has not been improved (or matched) in a while
-			while (Diagnostics.runtimeWatch.ElapsedMilliseconds < 1000 * 30)
+			while (Diagnostics.runtimeWatch.ElapsedMilliseconds < maxRunTime)
 			{
                 // Keep track of how many iterations happen each second, and print that amount each second
                 Diagnostics.AcceptationsPerSecond++;
