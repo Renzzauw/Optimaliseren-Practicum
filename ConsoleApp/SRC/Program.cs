@@ -44,7 +44,7 @@ namespace OptimaliserenPracticum
             DTS.dayEnd = 43200;
             DTS.emptyingTime = 3600;
             DTS.timeSinceNewBest = 0;
-            DTS.temperature = 300;
+            DTS.temperature = 100;
             DTS.maarheeze = 287;
             DTS.bestRating = float.MaxValue;
             DTS.truckCapacity = 1000000;
@@ -67,7 +67,7 @@ namespace OptimaliserenPracticum
             }
             else
             {
-                initial = new State();
+                initial = new State(false);
             }
 			Console.WriteLine("How many seconds do you want to run?");
 			inputstring = Console.ReadLine();

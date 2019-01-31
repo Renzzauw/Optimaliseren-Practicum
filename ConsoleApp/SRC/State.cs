@@ -15,7 +15,7 @@ namespace OptimaliserenPracticum
         private Random random;          // A random number generator that will be used in the creation of the initial state
 
         // The constructor makes a new random initial state
-        public State()
+        public State(bool randomS)
         {
             // Initialize the variables
             random = new Random();
@@ -23,8 +23,31 @@ namespace OptimaliserenPracticum
             evals = new Eval[2][];
             truckloads = new int[2][];
             // Create the schedule of both trucks seperately
-            status[0] = MakeRandomWeek(0);
-            status[1] = MakeRandomWeek(1);
+            if (randomS)
+            {
+                status[0] = MakeRandomWeek(0);
+                status[1] = MakeRandomWeek(1);
+            }
+            else
+            {
+
+                for (int j = 0; j < 2; j++)
+                {
+                    status[j] = new List<Status>[10];
+                    evals[j] = new Eval[5];
+                    truckloads[j] = new int[10];
+                    for (int i = 0; i < 10; i++)
+                    {
+                        status[j][i] = new List<Status>();
+                        status[j][i].Add(new Status(i / 2, DTS.maarheeze, 0));
+                        truckloads[j][i] = 0;
+                    }
+                    for (int i = 0; i < 5; i++)
+                    {
+                        evals[j][i] = new Eval(DTS.CalcDayEval(DTS.emptyingTime, 0, 0), DTS.emptyingTime);
+                    }
+                }
+            }
             DTS.orderScore = 0;
             // Add all of the available order to the total value
             foreach (int x in DTS.availableOrders)

@@ -82,7 +82,7 @@ namespace OptimaliserenPracticum
 		// Load a state from a given filepath
 		public static State LoadStates(string path)
 		{
-			State state = new State();
+			State state = new State(false);
 			List<Status>[] status1 = new List<Status>[5];
 			List<Status>[] status2 = new List<Status>[5];
 			

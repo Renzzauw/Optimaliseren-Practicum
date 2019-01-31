@@ -7,3 +7,10 @@ C:\Users\benni\Desktop\Optimali-Tering\Optimaliseren-Practicum\ConsoleApp\obj\De
 C:\Users\Bennie\Desktop\Optimaliseren\Big-oof\Optimaliseren-Practicum\ConsoleApp\bin\Debug\ConsoleApp.exe.config
 C:\Users\Bennie\Desktop\Optimaliseren\Big-oof\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.exe
 C:\Users\Bennie\Desktop\Optimaliseren\Big-oof\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.pdb
+D:\Studie\Jaar_3\Optimalisering & Complexiteit\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.csprojAssemblyReference.cache
+D:\Studie\Jaar_3\Optimalisering & Complexiteit\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.csproj.CoreCompileInputs.cache
+D:\Studie\Jaar_3\Optimalisering & Complexiteit\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.exe
+D:\Studie\Jaar_3\Optimalisering & Complexiteit\Optimaliseren-Practicum\ConsoleApp\obj\Debug\ConsoleApp.pdb
+D:\Studie\Jaar_3\Optimalisering & Complexiteit\Optimaliseren-Practicum\ConsoleApp\bin\Debug\ConsoleApp.exe.config
+D:\Studie\Jaar_3\Optimalisering & Complexiteit\Optimaliseren-Practicum\ConsoleApp\bin\Debug\ConsoleApp.exe
+D:\Studie\Jaar_3\Optimalisering & Complexiteit\Optimaliseren-Practicum\ConsoleApp\bin\Debug\ConsoleApp.pdb
