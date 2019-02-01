@@ -76,7 +76,7 @@ namespace OptimaliserenPracticum
             {
                 // If accepted, adjust the available orders, and return the new state
                 DTS.availableOrders.Add(ord.orderNumber);
-                DTS.orderScore += 3 * DTS.orders[ordnr].emptyingTime * DTS.orders[ordnr].frequency / 60;
+                DTS.orderScore += 3 * DTS.orders[ordnr].emptyingTime / 60;
                 RemoveSomething(truck, day, route, index, dayEval, prev, next);
                 DTS.NewBest(oldState);
                 return oldState;
@@ -332,7 +332,7 @@ namespace OptimaliserenPracticum
                 next5 = oldRoute5[index5 + 1].ordid;
                 dayEval5 = Deletion(oldState.evals[truck5][4].time, oldState.truckloads[truck5][route5], oldState.truckloads[truck5][otherRoute5], prev5, next5);
             }
-            double newRating = oldRating + NewDayRating(truck1, 0, dayEval1) + NewDayRating(truck2, 1, dayEval2) + NewDayRating(truck3, 2, dayEval3) + NewDayRating(truck4, 3, dayEval4) + NewDayRating(truck5, 4, dayEval5) + (3 * DTS.orders[ord.orderNumber].emptyingTime * DTS.orders[ord.orderNumber].frequency / 60);
+            double newRating = oldRating + NewDayRating(truck1, 0, dayEval1) + NewDayRating(truck2, 1, dayEval2) + NewDayRating(truck3, 2, dayEval3) + NewDayRating(truck4, 3, dayEval4) + NewDayRating(truck5, 4, dayEval5) + (3 * ord.emptyingTime * ord.frequency / 60);
             if (AcceptNewDay(oldRating, newRating))
             {
                 // If accepted, adjust the available orders, and return the new state
@@ -461,8 +461,8 @@ namespace OptimaliserenPracticum
             int time1, time2, time3;
             // Calculate the values needed for the first day
             x = r.Next(2);
-            int route1 = 0 * 2 + x;
-            int otherRoute1 = 0 * 2 + (1 - x);
+            int route1 = x;
+            int otherRoute1 = 1 - x;
             oldRoute1 = oldState.status[truck1][route1];
             time1 = r.Next(oldRoute1.Count);
             prev1 = DTS.maarheeze;
@@ -471,8 +471,8 @@ namespace OptimaliserenPracticum
             dayEval1 = Insertion(oldState.evals[truck1][0].time, oldState.truckloads[truck1][route1], oldState.truckloads[truck1][otherRoute1], prev1, next1);
             // Calculate the values needed for the second day
             x = r.Next(2);
-            int route2 = 2 * 2 + x;
-            int otherRoute2 = 2 * 2 + (1 - x);
+            int route2 = 4 + x;
+            int otherRoute2 = 4 + (1 - x);
             oldRoute2 = oldState.status[truck2][route2];
             time2 = r.Next(oldRoute2.Count);
             prev2 = DTS.maarheeze;
@@ -481,8 +481,8 @@ namespace OptimaliserenPracticum
             dayEval2 = Insertion(oldState.evals[truck2][2].time, oldState.truckloads[truck2][route2], oldState.truckloads[truck2][otherRoute2], prev2, next2);
             // Calculate the values needed for the third day
             x = r.Next(2);
-            int route3 = 4 * 2 + x;
-            int otherRoute3 = 4 * 2 + (1 - x);
+            int route3 = 8 + x;
+            int otherRoute3 = 8 + (1 - x);
             oldRoute3 = oldState.status[truck3][route3];
             time3 = r.Next(oldRoute3.Count);
             prev3 = DTS.maarheeze;
@@ -519,8 +519,8 @@ namespace OptimaliserenPracticum
             if (skipday != 0)
             {
                 x = r.Next(2);
-                route1 = 0 * 2 + x;
-                int otherRoute1 = 0 * 2 + (1 - x);
+                route1 = x;
+                int otherRoute1 = 1 - x;
                 oldRoute1 = oldState.status[truck1][route1];
                 time1 = r.Next(oldRoute1.Count);
                 prev1 = DTS.maarheeze;
@@ -532,8 +532,8 @@ namespace OptimaliserenPracticum
             if (skipday != 1)
             {
                 x = r.Next(2);
-                route2 = 1 * 2 + x;
-                int otherRoute2 = 1 * 2 + (1 - x);
+                route2 = 2 + x;
+                int otherRoute2 = 2 + (1 - x);
                 oldRoute2 = oldState.status[truck2][route2];
                 time2 = r.Next(oldRoute2.Count);
                 prev2 = DTS.maarheeze;
@@ -545,8 +545,8 @@ namespace OptimaliserenPracticum
             if (skipday != 2)
             {
                 x = r.Next(2);
-                route3 = 2 * 2 + x;
-                int otherRoute3 = 2 * 2 + (1 - x);
+                route3 = 4 + x;
+                int otherRoute3 = 4 + (1 - x);
                 oldRoute3 = oldState.status[truck3][route3];
                 time3 = r.Next(oldRoute3.Count);
                 prev3 = DTS.maarheeze;
@@ -558,8 +558,8 @@ namespace OptimaliserenPracticum
             if (skipday != 3)
             {
                 x = r.Next(2);
-                route4 = 3 * 2 + x;
-                int otherRoute4 = 3 * 2 + (1 - x);
+                route4 = 6 + x;
+                int otherRoute4 = 6 + (1 - x);
                 oldRoute4 = oldState.status[truck4][route4];
                 time4 = r.Next(oldRoute4.Count);
                 prev4 = DTS.maarheeze;
@@ -571,8 +571,8 @@ namespace OptimaliserenPracticum
             if (skipday != 4)
             {
                 x = r.Next(2);
-                route5 = 4 * 2 + x;
-                int otherRoute5 = 4 * 2 + (1 - x);
+                route5 = 8 + x;
+                int otherRoute5 = 8 + (1 - x);
                 oldRoute5 = oldState.status[truck5][route5];
                 time5 = r.Next(oldRoute5.Count);
                 prev5 = DTS.maarheeze;
@@ -610,9 +610,8 @@ namespace OptimaliserenPracticum
             int day2 = route2 / 2;
             List<Status> oldRoute1 = oldState.status[truck1][route1];
             if (oldRoute1.Count < 2) return null;
-            if (truck1 == truck2 && route1 == route2) return TwoAndAHalfOpt(truck1, route1); // TODO: Dit werkt nu nog een beetje buggy, maar goed om later te fiksen
+            if (truck1 == truck2 && route1 == route2) return oldState; // TwoAndAHalfOpt(truck1, route1); // TODO: Dit werkt nu nog een beetje buggy, maar goed om later te fiksen
             List<Status> oldRoute2 = oldState.status[truck2][route2];
-            // Return if there is nothing to swap in day 1
             // pos1 is the index of the order to be swapped, pos2 is the position where to insert the shifted order
             int pos1 = r.Next(oldRoute1.Count - 1);
             ord = DTS.orders[oldRoute1[pos1].ordnr];
@@ -774,14 +773,14 @@ namespace OptimaliserenPracticum
         public double Insertion(double time, int truckload1, int truckload2,int prev, int next)
         {
             double newTime = time + DTS.timeMatrix[prev, ord.matrixID] + ord.emptyingTime + DTS.timeMatrix[ord.matrixID, next] - DTS.timeMatrix[prev, next];
-            return DTS.CalcDayEval(newTime, truckload1 + ord.containerCount * ord.volumePerContainer, truckload2);
+            return DTS.CalcDayEval(newTime, truckload1 + (ord.containerCount * ord.volumePerContainer), truckload2);
         }
 
         // Adjust parameters for when an order gets removed, where curr is the order that was deleted, and return the new value
         public double Deletion(double time, int truckload1, int truckload2, int prev, int next)
         {
             double newTime = time - DTS.timeMatrix[prev, ord.matrixID] - ord.emptyingTime - DTS.timeMatrix[ord.matrixID, next] + DTS.timeMatrix[prev, next];
-            return DTS.CalcDayEval(newTime, truckload1 - ord.containerCount * ord.volumePerContainer, truckload2);
+            return DTS.CalcDayEval(newTime, truckload1 - (ord.containerCount * ord.volumePerContainer), truckload2);
         }
         #endregion
 

@@ -47,7 +47,7 @@ namespace OptimaliserenPracticum
             DTS.temperature = 100;
             DTS.maarheeze = 287;
             DTS.bestRating = float.MaxValue;
-            DTS.truckCapacity = 1000000;
+            DTS.truckCapacity = 100000;
             // initialize orders
             init.MakeOrders();
             // Initialize all other variables

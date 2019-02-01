@@ -78,8 +78,8 @@ namespace OptimaliserenPracticum
                 eval += (time - dayEnd) * 50;
             }
             // Check if the truck is overloaded on either route, deduct score dependent of the amount that is overloaded
-            if (load1 > truckCapacity) eval += (load1 - truckCapacity) * 5;
-            if (load2 > truckCapacity) eval += (load2 - truckCapacity) * 5;
+            if (load1 > truckCapacity) eval += (load1 - truckCapacity) * 10;
+            if (load2 > truckCapacity) eval += (load2 - truckCapacity) * 10;
             return eval / 60;
         }
 
