@@ -86,35 +86,76 @@ namespace OptimaliserenPracticum
         }
 
 		// Load a state from a given filepath
-		public static State LoadStates(string path)
+		public static State LoadState(string path)
 		{
-			State state = new State(false);
-			List<Status>[] status1 = new List<Status>[5];
-			List<Status>[] status2 = new List<Status>[5];
-			
+			State state = new State();
+            int route = 0;
 			// Read all lines from the text file
-			StreamReader sr = File.OpenText(path);			
-			string line;
+			StreamReader sr = File.OpenText("Solutions" + '\\' + path);
+            string line;
 			while ((line = sr.ReadLine()) != null)
 			{
 				// Split the input in: day, starttime, endtime, company, truck number, truck capacity, ordernummer
-				string[] parts = line.Split(new string[] { " ;" }, StringSplitOptions.None);
+				string[] parts = line.Split(new string[] { ";" }, StringSplitOptions.None);
                 int trucknr = int.Parse(parts[0]);
-                int day = int.Parse(parts[1]);
-				int ordid = int.Parse(parts[2]);
+                int day = int.Parse(parts[1]) - 1;
 				int ordnr = int.Parse(parts[3]);
-				// Create a status from the input
-				Status status = new Status(day, ordid, ordnr);
-				// Add the status to the right day and list 
-				if (trucknr == 1) status1[day].Add(status);
-				else status2[day].Add(status);				
+                // Create a status from the input
+                Status status;
+                if (ordnr != 0)
+                {
+                    status = new Status(day, DTS.orders[ordnr].matrixID, ordnr);
+                    DTS.availableOrders.Remove(ordnr);
+                }
+                else
+                {
+                    status = new Status(day, DTS.maarheeze, ordnr);
+                }
+                // Add the status to the right day and list 
+                if (trucknr == 1) state.status[0][day * 2 + route].Add(status);
+				else state.status[1][day * 2 + route].Add(status);
+                if (ordnr == 0) route = 1 - route; 
 			}
 			// Close the filestream
 			sr.Close();
-			// Fill the state
-			state.status[0] = status1;
-			state.status[1] = status2;
-			return state;
+            for(int i = 0; i < 5; i++)
+            {
+                state.evals[0][i] = new Eval(DTS.CalcDayEval(TimeSpent(state.status[0][i]) + TimeSpent(state.status[0][i + 1]), LoadLoaded(state.status[0][i]), LoadLoaded(state.status[0][i + 1])), TimeSpent(state.status[0][i]) + TimeSpent(state.status[0][i + 1]));
+                state.evals[1][i] = new Eval(DTS.CalcDayEval(TimeSpent(state.status[1][i]) + TimeSpent(state.status[1][i + 1]), LoadLoaded(state.status[1][i]), LoadLoaded(state.status[1][i + 1])), TimeSpent(state.status[1][i]) + TimeSpent(state.status[1][i + 1]));
+                state.truckloads[0][i] = LoadLoaded(state.status[0][i]);
+                state.truckloads[0][i + 1] = LoadLoaded(state.status[0][i + 1]);
+                state.truckloads[1][i] = LoadLoaded(state.status[1][i]);
+                state.truckloads[1][i + 1] = LoadLoaded(state.status[1][i + 1]);
+            }
+            DTS.orderScore = 0;
+            // Add all of the available order to the total value
+            foreach (int x in DTS.availableOrders)
+            {
+                DTS.orderScore += 3 * DTS.orders[x].emptyingTime * DTS.orders[x].frequency / 60;
+            }
+            DTS.CopyStatus(state.status);
+            DTS.CopyEval(state.evals);
+            DTS.bestRating = DTS.GetAllEval(state.evals) + DTS.orderScore;
+            return state;
 		}
+
+        public static double TimeSpent(List<Status> stats)
+        {
+            if (stats.Count == 1) return DTS.emptyingTime / 2;
+            double time = DTS.timeMatrix[DTS.maarheeze,stats[0].ordid] + DTS.orders[stats[0].ordnr].emptyingTime;
+            for(int i = 1; i < stats.Count - 1; i++)
+            {
+                time += DTS.timeMatrix[stats[i - 1].ordid, stats[i].ordid] + DTS.orders[stats[i].ordnr].emptyingTime;
+            }
+            time += DTS.timeMatrix[stats[stats.Count - 1].ordid, DTS.maarheeze] + DTS.emptyingTime;
+            return time;
+        }
+
+        public static int LoadLoaded(List<Status> stats)
+        {
+            int load = 0;
+            for (int i = 1; i < stats.Count - 1; i++) load += DTS.orders[stats[i].ordnr].containerCount * DTS.orders[stats[i].ordnr].volumePerContainer;
+            return load;
+        }
 	}
 }

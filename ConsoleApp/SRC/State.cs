@@ -58,6 +58,26 @@ namespace OptimaliserenPracticum
             DTS.CopyEval(evals);
             DTS.bestRating = DTS.GetAllEval(evals) + DTS.orderScore;
         }
+        // Constructor for when a file is loaded in
+        public State()
+        {
+            // Initialize the variables
+            random = new Random();
+            status = new List<Status>[2][];
+            evals = new Eval[2][];
+            truckloads = new int[2][];
+            for (int j = 0; j < 2; j++)
+            {
+                status[j] = new List<Status>[10];
+                evals[j] = new Eval[5];
+                truckloads[j] = new int[10];
+                for (int i = 0; i < 10; i++)
+                {
+                    status[j][i] = new List<Status>();
+                    truckloads[j][i] = 0;
+                }
+            }
+        }
 
         // Function that generater a random week
         public List<Status>[] MakeRandomWeek(int truck)

@@ -63,7 +63,7 @@ namespace OptimaliserenPracticum
             {
                 Console.WriteLine("Type the name of your file!");
                 string filename = Console.ReadLine();
-                initial = init.LoadState(filename);
+                initial = FileHandler.LoadState(filename);
             }
             else
             {

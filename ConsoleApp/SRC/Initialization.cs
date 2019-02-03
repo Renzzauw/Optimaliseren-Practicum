@@ -70,35 +70,5 @@ namespace OptimaliserenPracticum
 			// Combine them in one tuple
 			return new Tuple<int[,], int[,]>(distMatrix,timeMatrix);
         }
-        public State LoadState(string name)
-        {
-            int truck, day, daycounter, ordnr;
-            List<Status>[][] status = new List<Status>[2][];
-            status[0] = new List<Status>[5];
-            status[1] = new List<Status>[5];
-            for (int i = 0; i < 5; i++)
-            {
-                status[0][i] = new List<Status>();
-                status[1][i] = new List<Status>();
-            }
-            foreach (string line in File.ReadLines(Directory.GetCurrentDirectory() + "\\Solutions\\" + name, Encoding.UTF8))
-            {
-                string[] data = line.Split(';');
-                truck = int.Parse(data[0]);
-                day = int.Parse(data[1]);
-                daycounter = int.Parse(data[2]);
-                ordnr = int.Parse(data[3]);
-                if (ordnr == 0)
-                {
-                    status[truck - 1][day].Add(new Status(day, DTS.maarheeze, ordnr));
-                }
-                else
-                {
-                    status[truck - 1][day].Add(new Status(day, DTS.orders[ordnr].matrixID, ordnr));
-                    DTS.availableOrders.Remove(ordnr);
-                }
-            }
-            return null;// new State(status);
-        }
     }
 }
