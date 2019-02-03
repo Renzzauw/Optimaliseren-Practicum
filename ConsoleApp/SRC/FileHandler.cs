@@ -148,13 +148,13 @@ namespace OptimaliserenPracticum
                 time += DTS.timeMatrix[stats[i - 1].ordid, stats[i].ordid] + DTS.orders[stats[i].ordnr].emptyingTime;
             }
             time += DTS.timeMatrix[stats[stats.Count - 1].ordid, DTS.maarheeze] + DTS.emptyingTime;
-            return time / 60;
+            return time;
         }
 
         public static int LoadLoaded(List<Status> stats)
         {
             int load = 0;
-            for (int i = 1; i < stats.Count - 1; i++) load += DTS.orders[stats[i].ordnr].containerCount * DTS.orders[stats[i].ordnr].volumePerContainer;
+            for (int i = 0; i < stats.Count - 1; i++) load += DTS.orders[stats[i].ordnr].containerCount * DTS.orders[stats[i].ordnr].volumePerContainer;
             return load;
         }
 	}
