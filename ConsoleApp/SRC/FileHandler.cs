@@ -45,11 +45,11 @@ namespace OptimaliserenPracticum
         // Save a state to a textfile with the current datetime
         public static void SaveState(List<Status>[][] state)
         {
-			// Create a filename for saving the state with the current time
-			//DateTime time = DateTime.UtcNow.ToLocalTime();
-			DateTime time = DateTime.UtcNow.ToLocalTime();
-			string filetime = time.Day + "-" + time.Month + "-" + time.Hour + "-" + time.Minute + "-" + time.Second;
-			string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + filetime;
+            // Create a filename for saving the state with the current time
+            //DateTime time = DateTime.UtcNow.ToLocalTime();
+            DateTime time = DateTime.UtcNow.ToLocalTime();
+            string filetime = time.Day + "-" + time.Month + "-" + time.Hour + "-" + time.Minute + "-" + time.Second;
+            string path = Directory.GetCurrentDirectory() + "\\Solutions\\Sol" + filetime;
             StreamWriter sw = File.CreateText(path);
             int daycounter = 1;
             // Write the path of both trucks
@@ -60,19 +60,25 @@ namespace OptimaliserenPracticum
                     daycounter = 1;
                 }
                 List<Status> day1 = state[0][i];
-                List<Status> day2 = state[1][i];
                 foreach (Status status in day1)
                 {
                     // day, starttime, endtime, company, truck number, truck capacity, ordernummer
-                    sw.WriteLine("{0}; {1}; {2}; {3}", 1, status.day, daycounter, status.ordnr);
+                    sw.WriteLine("{0}; {1}; {2}; {3}", 1, status.day + 1, daycounter, status.ordnr);
                     daycounter++;
                 }
+            }
+            for (int i = 0; i < 10; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    daycounter = 1;
+                }
+                List<Status> day2 = state[1][i];
                 foreach (Status status in day2)
                 {
                     // day, starttime, endtime, company, truck number, truck capacity, ordernummer
-                    sw.WriteLine("{0}; {1}; {2}; {3}", 2, status.day, daycounter, status.ordnr);
+                    sw.WriteLine("{0}; {1}; {2}; {3}", 2, status.day + 1, daycounter, status.ordnr);
                     daycounter++;
-
                 }
             }
             // Close the streamwriter
