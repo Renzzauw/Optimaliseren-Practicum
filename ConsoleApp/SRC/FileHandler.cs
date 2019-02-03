@@ -148,7 +148,7 @@ namespace OptimaliserenPracticum
             {
                 time += DTS.timeMatrix[stats[i - 1].ordid, stats[i].ordid] + DTS.orders[stats[i].ordnr].emptyingTime;
             }
-            time += DTS.timeMatrix[stats[stats.Count - 1].ordid, DTS.maarheeze] + DTS.emptyingTime;
+            time += DTS.timeMatrix[stats[stats.Count - 1].ordid, DTS.maarheeze] + (DTS.emptyingTime / 2);
             return time;
         }
 
