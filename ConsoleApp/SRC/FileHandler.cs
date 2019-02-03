@@ -121,8 +121,8 @@ namespace OptimaliserenPracticum
             for(int j = 0; j < 5; j++)
             {
                 int i = j * 2;
-                state.evals[0][i] = new Eval(DTS.CalcDayEval(TimeSpent(state.status[0][i]) + TimeSpent(state.status[0][i + 1]), LoadLoaded(state.status[0][i]), LoadLoaded(state.status[0][i + 1])), TimeSpent(state.status[0][i]) + TimeSpent(state.status[0][i + 1]));
-                state.evals[1][i] = new Eval(DTS.CalcDayEval(TimeSpent(state.status[1][i]) + TimeSpent(state.status[1][i + 1]), LoadLoaded(state.status[1][i]), LoadLoaded(state.status[1][i + 1])), TimeSpent(state.status[1][i]) + TimeSpent(state.status[1][i + 1]));
+                state.evals[0][j] = new Eval(DTS.CalcDayEval(TimeSpent(state.status[0][i]) + TimeSpent(state.status[0][i + 1]), LoadLoaded(state.status[0][i]), LoadLoaded(state.status[0][i + 1])), TimeSpent(state.status[0][i]) + TimeSpent(state.status[0][i + 1]));
+                state.evals[1][j] = new Eval(DTS.CalcDayEval(TimeSpent(state.status[1][i]) + TimeSpent(state.status[1][i + 1]), LoadLoaded(state.status[1][i]), LoadLoaded(state.status[1][i + 1])), TimeSpent(state.status[1][i]) + TimeSpent(state.status[1][i + 1]));
                 state.truckloads[0][i] = LoadLoaded(state.status[0][i]);
                 state.truckloads[0][i + 1] = LoadLoaded(state.status[0][i + 1]);
                 state.truckloads[1][i] = LoadLoaded(state.status[1][i]);
